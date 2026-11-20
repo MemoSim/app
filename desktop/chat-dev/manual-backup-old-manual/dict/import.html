@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>import | MemoSim Dictionary</title>
+  <link rel="icon" href="../assets/memosim-icon.png" type="image/png">
+  <link rel="stylesheet" href="../docs.css">
+  <script src="../docs.js" defer></script>
+</head>
+<body data-manual="dictionary">
+  <a class="skip-link" href="#content">Skip to dictionary content</a>
+  <header><a class="brand" href="../index.html">MemoSim <small>Offline documentation</small></a></header>
+  <nav aria-label="Main"><a href="../index.html">User manual</a> <a href="../tutorial.html">Tutorial</a> <a href="../dictionary.html">Dictionary</a> <a href="../legal.html">Licenses &amp; credits</a> <a href="../manual.pdf">PDF manual</a></nav>
+  <main id="content">
+    <p><a href="../dictionary.html#dictionary-search">Back to dictionary search</a> · NetLogo language reference (7.1.0-alpha1)</p>
+    <h1>import</h1>
+    <article aria-label="NetLogo language reference"><div class="dict_entry" id="import" role="region"><h3 id="import71"><a href="#import" role="doc-noteref" aria-label="Reference to import">
+import
+<span class="since" role="note" aria-label="Since version">
+7.1
+</span></a></h3><h4 id="import-module-as-prefiximport-names-from-module" class="section-heading"><span id="import-module-as-prefiximport--names-from-module"></span><a href="#import-module-as-prefiximport--names-from-module" class="section-anchor"><span class="prim_example"><p>import <em>module</em> as <em>prefix</em></p></span><span class="prim_example"><p>import <span> <em>names</em></span> from <em>module</em></p></span></a></h4><p>Make the procedures in the given module available for use in the
+current file. The file name of the module file (with the <code>.nlm</code> suffix)
+must be a valid NetLogo name, so there can be no space in the name.</p><p>For example:</p><pre class="copy-code"><code><span class="token variable">import</span> <span class="token variable">utils</span></code></pre><p>This will import procedures in “utils.nls” in the same directory as the
+current file and make them available with a “utils:” prefix. As an example,
+if there is a reporter called <code>add</code> in “utils.nls”, then it will be made
+available for use under the name <code>utils:add</code>.</p><p>The prefix can be changed as follows:</p><pre class="copy-code"><code><span class="token variable">import</span> <span class="token variable">utils</span> <span class="token variable">as</span> <span class="token variable">u</span></code></pre><p>This will instead make <code>add</code> available as <code>u:add</code>.</p><p>It is also possible to selectively import a subset of procedures or
+reporters from a module, for example:</p><pre class="copy-code"><code><span class="token variable">import</span> [<span class="token variable">add</span> <span class="token variable">subtract</span>] <span class="token variable">from</span> <span class="token variable">utils</span></code></pre><p>This will make <code>add</code> and <code>subtract</code> available in the current file. Note
+that no prefix is added when a module is imported this way.</p><p>Imported procedures and reporters can be renamed as follows:</p><pre class="copy-code"><code><span class="token variable">import</span> [<span class="token variable">add</span> (<span class="token variable">subtract</span> <span class="token variable">as</span> <span class="token variable">sub</span>)] <span class="token variable">from</span> <span class="token variable">utils</span></code></pre><p>This will instead make <code>subtract</code> available as <code>sub</code>.</p></div></article>
+  </main>
+  <footer>
+    <p>NetLogo User Manual (7.1.0-alpha1), by Uri Wilensky, Center for Connected Learning and Computer-Based Modeling, Northwestern University. Copyright 1999-2025 by Uri Wilensky. Adapted for MemoSim by changing the page layout, navigation and links. The adapted reference material is licensed under <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported</a>.</p>
+    <p><a href="../dict/upstream-notices.html">Upstream copyright and third-party notices</a> · <a href="https://github.com/NetLogo/docs/blob/8e165bbbe204b417e899413d097265592f98a951/7.1.0-alpha1/dict/import.html">Pinned source: NetLogo/docs 8e165bb</a> (2026-08-13) · <a href="https://docs.netlogo.org/7.1.0-alpha1/dict/import">Original upstream page (online)</a></p>
+  </footer>
+</body>
+</html>

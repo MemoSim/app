@@ -1,0 +1,18 @@
+globals [ walk-distance ]
+
+to setup
+  clear-all
+  set walk-distance 0
+  random-seed seed-value
+  reset-ticks
+end
+
+to go
+  if ticks >= step-limit [ stop ]
+
+  ifelse random 2 = 0
+    [ set walk-distance walk-distance - 1 ]
+    [ set walk-distance walk-distance + 1 ]
+
+  tick
+end

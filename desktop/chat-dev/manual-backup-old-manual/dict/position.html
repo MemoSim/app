@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>position | MemoSim Dictionary</title>
+  <link rel="icon" href="../assets/memosim-icon.png" type="image/png">
+  <link rel="stylesheet" href="../docs.css">
+  <script src="../docs.js" defer></script>
+</head>
+<body data-manual="dictionary">
+  <a class="skip-link" href="#content">Skip to dictionary content</a>
+  <header><a class="brand" href="../index.html">MemoSim <small>Offline documentation</small></a></header>
+  <nav aria-label="Main"><a href="../index.html">User manual</a> <a href="../tutorial.html">Tutorial</a> <a href="../dictionary.html">Dictionary</a> <a href="../legal.html">Licenses &amp; credits</a> <a href="../manual.pdf">PDF manual</a></nav>
+  <main id="content">
+    <p><a href="../dictionary.html#dictionary-search">Back to dictionary search</a> · NetLogo language reference (7.1.0-alpha1)</p>
+    <h1>position</h1>
+    <article aria-label="NetLogo language reference"><div class="dict_entry" id="position" role="region"><h3 id="position10"><a href="#position" role="doc-noteref" aria-label="Reference to position">
+position
+<span class="since" role="note" aria-label="Since version">
+1.0
+</span></a></h3><h4 id="position-item-listposition-string1-string2" class="section-heading"><a href="#position-item-listposition-string1-string2" class="section-anchor"><span class="prim_example"><p>position <em>item</em> <em>list</em></p></span><span class="prim_example"><p>position <em>string1</em> <em>string2</em></p></span></a></h4><p>On a list, reports the first position of <em>item</em> in <em>list</em>, or false if it does not appear.</p><p>On strings, reports the position of the first appearance <em>string1</em> as a substring of <em>string2</em>, or false if it
+does not appear.</p><p>Note: The positions are numbered beginning with 0, not with 1.</p><pre class="copy-code"><code><span class="token comment">;; suppose mylist is [2 7 4 7 "Bob"]</span>
+<span class="token command">show</span> <span class="token reporter">position</span> <span class="token number">7</span> <span class="token variable">mylist</span>
+<span class="token variable">=&gt;</span> <span class="token number">1</span>
+<span class="token command">show</span> <span class="token reporter">position</span> <span class="token number">10</span> <span class="token variable">mylist</span>
+<span class="token variable">=&gt;</span> <span class="token constant">false</span>
+<span class="token command">show</span> <span class="token reporter">position</span> <span class="token string">"in"</span> <span class="token string">"string"</span>
+<span class="token variable">=&gt;</span> <span class="token number">3</span></code></pre><p>See also <code class="netlogo-command"><a href="../dictionary.html#member" class="netlogo-wiki-link" title="member?">member?</a></code>.</p></div></article>
+  </main>
+  <footer>
+    <p>NetLogo User Manual (7.1.0-alpha1), by Uri Wilensky, Center for Connected Learning and Computer-Based Modeling, Northwestern University. Copyright 1999-2025 by Uri Wilensky. Adapted for MemoSim by changing the page layout, navigation and links. The adapted reference material is licensed under <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported</a>.</p>
+    <p><a href="../dict/upstream-notices.html">Upstream copyright and third-party notices</a> · <a href="https://github.com/NetLogo/docs/blob/8e165bbbe204b417e899413d097265592f98a951/7.1.0-alpha1/dict/position.html">Pinned source: NetLogo/docs 8e165bb</a> (2026-08-13) · <a href="https://docs.netlogo.org/7.1.0-alpha1/dict/position">Original upstream page (online)</a></p>
+  </footer>
+</body>
+</html>

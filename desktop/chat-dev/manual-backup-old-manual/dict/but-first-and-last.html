@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>but-first / butfirst / bf / but-last and related entries | MemoSim Dictionary</title>
+  <link rel="icon" href="../assets/memosim-icon.png" type="image/png">
+  <link rel="stylesheet" href="../docs.css">
+  <script src="../docs.js" defer></script>
+</head>
+<body data-manual="dictionary">
+  <a class="skip-link" href="#content">Skip to dictionary content</a>
+  <header><a class="brand" href="../index.html">MemoSim <small>Offline documentation</small></a></header>
+  <nav aria-label="Main"><a href="../index.html">User manual</a> <a href="../tutorial.html">Tutorial</a> <a href="../dictionary.html">Dictionary</a> <a href="../legal.html">Licenses &amp; credits</a> <a href="../manual.pdf">PDF manual</a></nav>
+  <main id="content">
+    <p><a href="../dictionary.html#dictionary-search">Back to dictionary search</a> · NetLogo language reference (7.1.0-alpha1)</p>
+    <h1>but-first / butfirst / bf / but-last and related entries</h1>
+    <article aria-label="NetLogo language reference"><div class="dict_entry" id="but-first-and-last" role="region"><h3 id="but-first10butfirst10bf10but-last10butlast10bl10"><a href="#but-first-and-last" role="doc-noteref" aria-label="Reference to but-first">
+but-first
+<span class="since" role="note" aria-label="Since version">
+1.0
+</span></a><a href="#but-first-and-last" role="doc-noteref" aria-label="Reference to butfirst">
+butfirst
+<span class="since" role="note" aria-label="Since version">
+1.0
+</span></a><a href="#but-first-and-last" role="doc-noteref" aria-label="Reference to bf">
+bf
+<span class="since" role="note" aria-label="Since version">
+1.0
+</span></a><a href="#but-first-and-last" role="doc-noteref" aria-label="Reference to but-last">
+but-last
+<span class="since" role="note" aria-label="Since version">
+1.0
+</span></a><a href="#but-first-and-last" role="doc-noteref" aria-label="Reference to butlast">
+butlast
+<span class="since" role="note" aria-label="Since version">
+1.0
+</span></a><a href="#but-first-and-last" role="doc-noteref" aria-label="Reference to bl">
+bl
+<span class="since" role="note" aria-label="Since version">
+1.0
+</span></a></h3><h4 id="but-first-listbut-first-stringbut-last-listbut-last-string" class="section-heading"><a href="#but-first-listbut-first-stringbut-last-listbut-last-string" class="section-anchor"><span class="prim_example"><p>but-first <em>list</em></p></span><span class="prim_example"><p>but-first <em>string</em></p></span><span class="prim_example"><p>but-last <em>list</em></p></span><span class="prim_example"><p>but-last <em>string</em></p></span></a></h4><p>When used on a list, but-first reports all of the list items of <em>list</em> except the first, and but-last reports all of the list
+items of <em>list</em> except the last.</p><p>On strings, but-first and but-last report a shorter string omitting
+the first or last character of the original string.</p><pre class="copy-code"><code><span class="token comment">;; mylist is [2 4 6 5 8 12]</span>
+<span class="token command">set</span> <span class="token variable">mylist</span> <span class="token reporter">but-first</span> <span class="token variable">mylist</span>
+<span class="token comment">;; mylist is now [4 6 5 8 12]</span>
+<span class="token command">set</span> <span class="token variable">mylist</span> <span class="token reporter">but-last</span> <span class="token variable">mylist</span>
+<span class="token comment">;; mylist is now [4 6 5 8]</span>
+<span class="token command">show</span> <span class="token reporter">but-first</span> <span class="token string">"string"</span>
+<span class="token comment">;; prints "tring"</span>
+<span class="token command">show</span> <span class="token reporter">but-last</span> <span class="token string">"string"</span>
+<span class="token comment">;; prints "strin"</span></code></pre></div></article>
+  </main>
+  <footer>
+    <p>NetLogo User Manual (7.1.0-alpha1), by Uri Wilensky, Center for Connected Learning and Computer-Based Modeling, Northwestern University. Copyright 1999-2025 by Uri Wilensky. Adapted for MemoSim by changing the page layout, navigation and links. The adapted reference material is licensed under <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported</a>.</p>
+    <p><a href="../dict/upstream-notices.html">Upstream copyright and third-party notices</a> · <a href="https://github.com/NetLogo/docs/blob/8e165bbbe204b417e899413d097265592f98a951/7.1.0-alpha1/dict/but-first-and-last.html">Pinned source: NetLogo/docs 8e165bb</a> (2026-08-13) · <a href="https://docs.netlogo.org/7.1.0-alpha1/dict/but-first-and-last">Original upstream page (online)</a></p>
+  </footer>
+</body>
+</html>

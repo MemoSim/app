@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ifelse-value | MemoSim Dictionary</title>
+  <link rel="icon" href="../assets/memosim-icon.png" type="image/png">
+  <link rel="stylesheet" href="../docs.css">
+  <script src="../docs.js" defer></script>
+</head>
+<body data-manual="dictionary">
+  <a class="skip-link" href="#content">Skip to dictionary content</a>
+  <header><a class="brand" href="../index.html">MemoSim <small>Offline documentation</small></a></header>
+  <nav aria-label="Main"><a href="../index.html">User manual</a> <a href="../tutorial.html">Tutorial</a> <a href="../dictionary.html">Dictionary</a> <a href="../legal.html">Licenses &amp; credits</a> <a href="../manual.pdf">PDF manual</a></nav>
+  <main id="content">
+    <p><a href="../dictionary.html#dictionary-search">Back to dictionary search</a> · NetLogo language reference (7.1.0-alpha1)</p>
+    <h1>ifelse-value</h1>
+    <article aria-label="NetLogo language reference"><div class="dict_entry" id="ifelse-value" role="region"><h3 id="ifelse-value20"><a href="#ifelse-value" role="doc-noteref" aria-label="Reference to ifelse-value">
+ifelse-value
+<span class="since" role="note" aria-label="Since version">
+2.0
+</span></a></h3><h4 id="ifelse-value-boolean1-reporter1-elsereporterifelse-value-boolean1-reporter1-boolean2-reporter2-elsereporter61" class="section-heading"><span id="ifelse-value-boolean1--reporter1--elsereporterifelse-value-boolean1--reporter1-boolean2--reporter2---elsereporter61"></span><a href="#ifelse-value-boolean1--reporter1--elsereporterifelse-value-boolean1--reporter1-boolean2--reporter2---elsereporter61" class="section-anchor"><span class="prim_example"><p>ifelse-value <em>boolean1</em> <span> <em>reporter1</em></span> <span> <em>elsereporter</em></span></p></span><span class="prim_example"><p>(ifelse-value <em>boolean1</em> <span> <em>reporter1</em></span> <em>boolean2</em> <span> <em>reporter2</em></span> … <span> <em>elsereporter</em></span>)</p><span class="since"><p>6.1</p></span></span></a></h4><p>For the first <em>boolean</em> that reports true, runs the <em>reporter</em> that follows and reports that result. When using only one <em>boolean</em>you do not need to surround the entire <em>ifelse-value</em> primitive and its blocks in parentheses.</p><p>If all <em>boolean</em>s report false, the result is the value of <em>elsereporter</em>. You may leave out the <em>elsereporter</em>, but
+if all <em>boolean</em>s report false then a runtime error will occur.</p><p>If a <em>boolean</em> reports a value other than true or false a runtime error will occur.</p><p>This can be used when a conditional is needed in the context of a
+reporter, where commands (such as <code class="netlogo-command"><a href="../dictionary.html#ifelse" class="netlogo-wiki-link" title="ifelse">ifelse</a></code>) are
+not allowed.</p><pre class="copy-code"><code><span class="token command">ask</span> <span class="token reporter">patches</span> [
+  <span class="token command">set</span> <span class="token reporter">pcolor</span> <span class="token reporter">ifelse-value</span> (<span class="token reporter">pxcor</span> <span class="token reporter">&gt;</span> <span class="token number">0</span>) [<span class="token constant">blue</span>] [<span class="token constant">red</span>]
+]
+<span class="token comment">;; the left half of the world turns red and</span>
+<span class="token comment">;; the right half turns blue</span>
+<span class="token command">show</span> <span class="token reporter">n-values</span> <span class="token number">10</span> [ <span class="token variable">n</span> <span class="token reporter">-&gt;</span> <span class="token reporter">ifelse-value</span> (<span class="token variable">n</span> <span class="token reporter">&lt;</span> <span class="token number">5</span>) [<span class="token number">0</span>] [<span class="token number">1</span>] ]
+<span class="token variable">=&gt;</span> [<span class="token number">0</span> <span class="token number">0</span> <span class="token number">0</span> <span class="token number">0</span> <span class="token number">0</span> <span class="token number">1</span> <span class="token number">1</span> <span class="token number">1</span> <span class="token number">1</span> <span class="token number">1</span>]
+<span class="token command">show</span> <span class="token reporter">reduce</span> [ [<span class="token variable">a</span> <span class="token variable">b</span>] <span class="token reporter">-&gt;</span> <span class="token reporter">ifelse-value</span> (<span class="token variable">a</span> <span class="token reporter">&gt;</span> <span class="token variable">b</span>) [<span class="token variable">a</span>] [<span class="token variable">b</span>] ]
+  [<span class="token number">1</span> <span class="token number">3</span> <span class="token number">2</span> <span class="token number">5</span> <span class="token number">3</span> <span class="token number">8</span> <span class="token number">3</span> <span class="token number">2</span> <span class="token number">1</span>]
+<span class="token variable">=&gt;</span> <span class="token number">8</span></code></pre><p>When using more than one <em>boolean</em> you
+must surround the whole <em>ifelse-value</em> primitive and its blocks in parentheses.
+This functionality was added in NetLogo 6.1.</p><pre class="copy-code"><code><span class="token command">ask</span> <span class="token reporter">patches</span> [
+  <span class="token command">let</span> <span class="token variable">choice</span> <span class="token reporter">random</span> <span class="token number">4</span>
+  <span class="token command">set</span> <span class="token reporter">pcolor</span> (<span class="token reporter">ifelse-value</span>
+    <span class="token variable">choice</span> <span class="token reporter">=</span> <span class="token number">0</span> [ <span class="token constant">red</span> ]
+    <span class="token variable">choice</span> <span class="token reporter">=</span> <span class="token number">1</span> [ <span class="token constant">blue</span> ]
+    <span class="token variable">choice</span> <span class="token reporter">=</span> <span class="token number">2</span> [ <span class="token constant">green</span> ]
+               [ <span class="token constant">yellow</span> ])
+]</code></pre><p>A runtime error can occur if there is no <em>elsereporter</em>.</p><pre class="copy-code"><code><span class="token command">ask</span> <span class="token reporter">patches</span> [
+  <span class="token command">let</span> <span class="token variable">x</span> <span class="token reporter">=</span> <span class="token number">2</span>
+  <span class="token command">set</span> <span class="token reporter">pcolor</span> (<span class="token reporter">ifelse-value</span>
+    <span class="token variable">x</span> <span class="token reporter">=</span> <span class="token number">0</span> [ <span class="token constant">red</span> ]
+    <span class="token variable">x</span> <span class="token reporter">=</span> <span class="token number">1</span> [ <span class="token constant">blue</span> ]
+    <span class="token comment">; no final else reporter is given, and x is 2 so there will be a runtime error</span>
+  )</code></pre><p>See also <code class="netlogo-command"><a href="../dictionary.html#if" class="netlogo-wiki-link" title="if">if</a></code>, <code class="netlogo-command"><a href="../dictionary.html#ifelse" class="netlogo-wiki-link" title="ifelse">ifelse</a></code>.</p></div></article>
+  </main>
+  <footer>
+    <p>NetLogo User Manual (7.1.0-alpha1), by Uri Wilensky, Center for Connected Learning and Computer-Based Modeling, Northwestern University. Copyright 1999-2025 by Uri Wilensky. Adapted for MemoSim by changing the page layout, navigation and links. The adapted reference material is licensed under <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported</a>.</p>
+    <p><a href="../dict/upstream-notices.html">Upstream copyright and third-party notices</a> · <a href="https://github.com/NetLogo/docs/blob/8e165bbbe204b417e899413d097265592f98a951/7.1.0-alpha1/dict/ifelse-value.html">Pinned source: NetLogo/docs 8e165bb</a> (2026-08-13) · <a href="https://docs.netlogo.org/7.1.0-alpha1/dict/ifelse-value">Original upstream page (online)</a></p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>atan | MemoSim Dictionary</title>
+  <link rel="icon" href="../assets/memosim-icon.png" type="image/png">
+  <link rel="stylesheet" href="../docs.css">
+  <script src="../docs.js" defer></script>
+</head>
+<body data-manual="dictionary">
+  <a class="skip-link" href="#content">Skip to dictionary content</a>
+  <header><a class="brand" href="../index.html">MemoSim <small>Offline documentation</small></a></header>
+  <nav aria-label="Main"><a href="../index.html">User manual</a> <a href="../tutorial.html">Tutorial</a> <a href="../dictionary.html">Dictionary</a> <a href="../legal.html">Licenses &amp; credits</a> <a href="../manual.pdf">PDF manual</a></nav>
+  <main id="content">
+    <p><a href="../dictionary.html#dictionary-search">Back to dictionary search</a> · NetLogo language reference (7.1.0-alpha1)</p>
+    <h1>atan</h1>
+    <article aria-label="NetLogo language reference"><div class="dict_entry" id="atan" role="region"><h3 id="atan10"><a href="#atan" role="doc-noteref" aria-label="Reference to atan">
+atan
+<span class="since" role="note" aria-label="Since version">
+1.0
+</span></a></h3><h4 id="atan-x-y" class="section-heading"><a href="#atan-x-y" class="section-anchor"><span class="prim_example"><p>atan <em>x y</em></p></span></a></h4><p>Converts x and y offsets to a turtle heading in degrees (from 0 to
+360).</p><p>Note that this version of atan is designed to conform to the
+geometry of the NetLogo world, where a heading of 0 is straight up,
+90 is to the right, and so on clockwise around the circle.
+(Normally in geometry an angle of 0 is right, 90 is up, and so on,
+counterclockwise around the circle, and atan would be defined
+accordingly.)</p><p>When y is 0: if x is positive, it reports 90; if x is negative, it
+reports 270; if x is zero, you get an error.</p><pre class="copy-code"><code><span class="token command">show</span> <span class="token reporter">atan</span> <span class="token number">1</span> <span class="token number">-1</span>
+<span class="token variable">=&gt;</span> <span class="token number">135</span>
+<span class="token command">show</span> <span class="token reporter">atan</span> <span class="token number">-1</span> <span class="token number">1</span>
+<span class="token variable">=&gt;</span> <span class="token number">315</span>
+<span class="token command">crt</span> <span class="token number">1</span> [ <span class="token command">set</span> <span class="token reporter">heading</span> <span class="token number">30</span>  <span class="token command">fd</span> <span class="token number">1</span>  <span class="token command">print</span> <span class="token reporter">atan</span> <span class="token reporter">xcor</span> <span class="token reporter">ycor</span> ]
+<span class="token variable">=&gt;</span> <span class="token number">30</span></code></pre><p>In the final example, note that the result of <code>atan</code> equals
+the turtle’s heading.</p><p>If you ever need to convert a turtle heading (obtained with atan or
+otherwise) to a normal mathematical angle, the following should be
+helpful:</p><pre class="copy-code"><code><span class="token keyword">to-report</span> <span class="token variable">heading-to-angle</span> [ <span class="token variable">h</span> ]
+  <span class="token command">report</span> (<span class="token number">90</span> <span class="token reporter">-</span> <span class="token variable">h</span>) <span class="token reporter">mod</span> <span class="token number">360</span><span class="token keyword">
+end</span></code></pre></div></article>
+  </main>
+  <footer>
+    <p>NetLogo User Manual (7.1.0-alpha1), by Uri Wilensky, Center for Connected Learning and Computer-Based Modeling, Northwestern University. Copyright 1999-2025 by Uri Wilensky. Adapted for MemoSim by changing the page layout, navigation and links. The adapted reference material is licensed under <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported</a>.</p>
+    <p><a href="../dict/upstream-notices.html">Upstream copyright and third-party notices</a> · <a href="https://github.com/NetLogo/docs/blob/8e165bbbe204b417e899413d097265592f98a951/7.1.0-alpha1/dict/atan.html">Pinned source: NetLogo/docs 8e165bb</a> (2026-08-13) · <a href="https://docs.netlogo.org/7.1.0-alpha1/dict/atan">Original upstream page (online)</a></p>
+  </footer>
+</body>
+</html>

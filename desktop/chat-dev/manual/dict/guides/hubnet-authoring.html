@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HubNet Authoring Guide | MemoSim Dictionary</title>
+  <link rel="icon" href="../../assets/memosim-icon.png" type="image/png">
+  <link rel="stylesheet" href="../../docs.css">
+  <script src="../../docs.js" defer></script>
+</head>
+<body data-manual="dictionary">
+  <a class="skip-link" href="#content">Skip to dictionary content</a>
+  <header><a class="brand" href="../../index.html">MemoSim <small>Offline documentation</small></a></header>
+  <nav aria-label="Main"><a href="../../index.html">User manual</a> <a href="../../tutorial.html">Tutorial</a> <a href="../../dictionary.html">Dictionary</a> <a href="../../legal.html">Licenses &amp; credits</a> <a href="../../manual.pdf">PDF manual</a></nav>
+  <main id="content">
+    <p><a href="../../dictionary.html">Back to MemoSim Dictionary</a> · Technical guide for NetLogo 7.1.0-alpha1</p>
+    <p class="callout">This is upstream technical guidance for the NetLogo language and engine, used by MemoSim without changes to language semantics. Desktop interface descriptions may differ from MemoSim workflows. Original content is retained and links adapted for offline navigation.</p>
+    <article aria-label="HubNet Authoring Guide"><h2 id="hubnet-authoring-guide" class="section-heading"><a href="hubnet-authoring.html#hubnet-authoring-guide" class="section-anchor">HubNet Authoring Guide</a></h2><p>This guide shows how to understand and modify the code of existing HubNet
+activities and write your own new ones. It assumes you are familiar with running
+HubNet activities, basic NetLogo code and NetLogo interface elements. For more
+general information about HubNet see the <a href="https://docs.netlogo.org/hubnet"><span class="iconify i-fa6-solid:link mr-1 inline-block align-middle" aria-hidden="true"></span>HubNet Guide (upstream, online)</a>.</p><div class="toc"><h4 id="table-of-contents" class="section-heading"><a href="hubnet-authoring.html#table-of-contents" class="section-anchor">Table of Contents</a></h4><ul><li><a href="hubnet-authoring.html#coding-hubnet-activities">Coding HubNet activities</a></li><li><a href="hubnet-authoring.html#how-to-make-a-client-interface">How to make a client interface</a></li><li><a href="hubnet-authoring.html#view-updates-on-the-clients">View updates on the clients</a></li><li><a href="hubnet-authoring.html#clicking-in-the-view-on-clients">Clicking in the view on clients</a></li><li><a href="hubnet-authoring.html#customizing-the-clients-view">Customizing the client’s view</a></li><li><a href="hubnet-authoring.html#plot-updates-on-the-clients">Plot updates on the clients</a></li></ul></div><h2 id="coding-hubnet-activities" class="section-heading"><a href="hubnet-authoring.html#coding-hubnet-activities" class="section-anchor">Coding HubNet activities</a></h2><p>Many HubNet activities will share bits of the same code. That is the code that
+it used to setup the network and the code that is used to receive information
+from and send information to the clients. If you understand this code you should
+be able to easily make modifications to existing activities and you should have
+a good start on writing your own activities. To get you started we have provided
+a Template model (in HubNet Activities -&gt; Code Examples) that contains the most
+basic components that will be in the majority of HubNet activities. You should
+be able to use this activity as a starting point for most projects.</p><blockquote><p><strong>Code Example:</strong> Template</p></blockquote><h3 id="setup" class="section-heading"><a href="hubnet-authoring.html#setup" class="section-anchor">Setup</a></h3><p>To make a NetLogo model into a HubNet activity you must first initialize the
+network. In most HubNet activities you will use the <code class="netlogo-command"><a href="../../dictionary.html#startup" class="netlogo-wiki-link" title="startup">startup</a></code> procedure to
+initialize the network. <code>startup</code> is a special procedure that NetLogo runs
+automatically when you open any model. That makes it a good place to put code
+that you want to run once and only once (no matter how many times the user runs
+the model). For HubNet we put the command that initializes the network in
+<code>startup</code> because once the network is setup we don’t need to do so again. We
+initialize the system using <code class="netlogo-command"><a href="../../dictionary.html#hubnet-reset" class="netlogo-wiki-link" title="hubnet-reset">hubnet-reset</a></code>, which will ask the user for a
+session name and open up the HubNet Control Center. Here is the startup
+procedure in the template model:</p><pre class="copy-code"><code><span class="token keyword">to</span> <span class="token variable">startup</span>
+  <span class="token variable">hubnet-reset</span><span class="token keyword">
+end</span></code></pre><p>Now that the network is all setup you don’t need to worry about calling
+<code class="netlogo-command"><a href="../../dictionary.html#hubnet-reset" class="netlogo-wiki-link" title="hubnet-reset">hubnet-reset</a></code> again. Take a look at the setup procedure in the template
+model:</p><pre class="copy-code"><code><span class="token keyword">to</span> <span class="token variable">setup</span>
+  <span class="token command">cp</span>
+  <span class="token command">cd</span>
+  <span class="token command">clear-output</span>
+  <span class="token command">ask</span> <span class="token reporter">turtles</span>
+  [
+    <span class="token command">set</span> <span class="token variable">step-size</span> <span class="token number">1</span>
+    <span class="token variable">hubnet-send</span> <span class="token variable">user-id</span> <span class="token string">"step-size"</span> <span class="token variable">step-size</span>
+  ]<span class="token keyword">
+end</span></code></pre><p>For the most part it looks like most other setup procedures, however, you should
+notice that it does not call <code class="netlogo-command"><a href="../../dictionary.html#clear-all" class="netlogo-wiki-link" title="clear-all">clear-all</a></code>. In this model, and in the great
+majority of HubNet activities in the Models Library, we have a breed of turtles
+that represent the currently logged in clients. In this case we’ve called this
+breed <code>students</code>. Whenever a client logs in we create a student and record any
+information we might need later about that client in a turtle variable. Since we
+don’t want to require users to log out and log back in every time we setup the
+activity we don’t want to kill all the turtles, instead, we want to set all the
+variables back to initial values and notify the clients of any changes we make
+(more on that later).</p><h3 id="receiving-messages-from-clients" class="section-heading"><a href="hubnet-authoring.html#receiving-messages-from-clients" class="section-anchor">Receiving messages from clients</a></h3><p>During the activity you will be transferring data between the HubNet clients and
+the server. Most HubNet activities will call a procedure in the <code>go</code> loop that
+checks for new messages from clients in this case it’s called listen clients:</p><pre class="copy-code"><code><span class="token keyword">to</span> <span class="token variable">listen-clients</span>
+  <span class="token command">while</span> [ <span class="token reporter">hubnet-message-waiting?</span> ]
+  [
+    <span class="token variable">hubnet-fetch-message</span>
+    <span class="token command">ifelse</span> <span class="token reporter">hubnet-enter-message?</span>
+    [ <span class="token variable">create-new-student</span> ]
+    [
+      <span class="token command">ifelse</span> <span class="token reporter">hubnet-exit-message?</span>
+      [ <span class="token variable">remove-student</span> ]
+      [ <span class="token variable">execute-command</span> <span class="token reporter">hubnet-message-tag</span> ]
+    ]
+  ]<span class="token keyword">
+end</span></code></pre><p>As long as there are messages in the queue this loop fetches each message one at
+a time. <code class="netlogo-command"><a href="../../dictionary.html#hubnet-fetch-message" class="netlogo-wiki-link" title="hubnet-fetch-message">hubnet-fetch-message</a></code> makes the next message in the queue the current
+message and sets the reporters <code class="netlogo-command"><a href="../../dictionary.html#hubnet-message-source" class="netlogo-wiki-link" title="hubnet-message-source">hubnet-message-source</a></code>, <code class="netlogo-command"><a href="../../dictionary.html#hubnet-message-tag" class="netlogo-wiki-link" title="hubnet-message-tag">hubnet-message-tag</a></code>
+and <code class="netlogo-command"><a href="../../dictionary.html#hubnet-message" class="netlogo-wiki-link" title="hubnet-message">hubnet-message</a></code> to the appropriate values. The clients send messages when
+the users login and logout any time the user manipulates one of the interface
+elements, that is, pushes a button, moves a slider, clicks in the view, etc. We
+step through each message and decide what action to take depending on the type
+of message (enter, exit, or other), the <code class="netlogo-command"><a href="../../dictionary.html#hubnet-message-tag" class="netlogo-wiki-link" title="hubnet-message-tag">hubnet-message-tag</a></code> (the name of the
+interface element), and the <code class="netlogo-command"><a href="../../dictionary.html#hubnet-message-source" class="netlogo-wiki-link" title="hubnet-message-source">hubnet-message-source</a></code> of the message (the name
+of the client the message came from).</p><p>On an enter message we create a turtle with a <code>user-id</code> that matches the
+<code class="netlogo-command"><a href="../../dictionary.html#hubnet-message-source" class="netlogo-wiki-link" title="hubnet-message-source">hubnet-message-source</a></code> which is the name that each user enters upon entering
+the activity, it is guaranteed to be unique.</p><pre class="copy-code"><code><span class="token keyword">to</span> <span class="token variable">create-new-student</span>
+  <span class="token variable">create-students</span> <span class="token number">1</span>
+  [
+    <span class="token command">set</span> <span class="token variable">user-id</span> <span class="token reporter">hubnet-message-source</span>
+    <span class="token command">set</span> <span class="token reporter">label</span> <span class="token variable">user-id</span>
+    <span class="token command">set</span> <span class="token variable">step-size</span> <span class="token number">1</span>
+    <span class="token variable">send-info-to-clients</span>
+  ]<span class="token keyword">
+end</span></code></pre><p>At this point we set any other client variables to default values and send them
+to the clients if appropriate. We declared a <code class="netlogo-command"><a href="../../dictionary.html#turtles-own" class="netlogo-wiki-link" title="students-own">students-own</a></code>
+variable for every interface element on the client that holds state, that is,
+anything that would be a global variable on the server, sliders, choosers,
+switches and input boxes. It is important to make sure that these variables stay
+synchronized with the values visible on the client.</p><p>When the clients logout they send an exit message to the server which gives you
+a chance to clean up any information you have been storing about the client, in
+this case we merely have to ask the appropriate turtle to die.</p><pre class="copy-code"><code><span class="token keyword">to</span> <span class="token variable">remove-student</span>
+  <span class="token command">ask</span> <span class="token variable">students</span> <span class="token reporter">with</span> [<span class="token variable">user-id</span> <span class="token reporter">=</span> <span class="token reporter">hubnet-message-source</span>]
+  [ <span class="token command">die</span> ]<span class="token keyword">
+end</span></code></pre><p>All other messages are interface elements identified by the
+<code class="netlogo-command"><a href="../../dictionary.html#hubnet-message-tag" class="netlogo-wiki-link" title="hubnet-message-tag">hubnet-message-tag</a></code> which is the name that appears in the client interface.
+Every time an interface element changes a message is sent to the server. Unless
+you store the state of the values currently displayed in the client interface
+will not be accessible in other parts of the model. That’s why we’ve declared a
+<code class="netlogo-command"><a href="../../dictionary.html#turtles-own" class="netlogo-wiki-link" title="students-own">students-own</a></code> variable for every interface element that has a
+state (sliders, switches, etc). When we receive the message from the client we
+set the turtle variable to the content of the message:</p><pre class="copy-code"><code><span class="token command">if</span> <span class="token reporter">hubnet-message-tag</span> <span class="token reporter">=</span> <span class="token string">"step-size"</span>
+[
+  <span class="token command">ask</span> <span class="token variable">students</span> <span class="token reporter">with</span> [<span class="token variable">user-id</span> <span class="token reporter">=</span> <span class="token reporter">hubnet-message-source</span>]
+    [ <span class="token command">set</span> <span class="token variable">step-size</span> <span class="token reporter">hubnet-message</span> ]
+]</code></pre><p>Since buttons don’t have any associated data there is generally no associated
+turtle variable, instead they indicate an action taken by the client, just as
+with a regular button there is often procedure associated with each button that
+you call whenever you receive a message indicating the button has been pressed.
+Though it is certainly not required, the procedure is often a turtle procedure,
+that is, something that the student turtle associated with the message source
+can execute:</p><pre class="copy-code"><code><span class="token command">if</span> <span class="token variable">command</span> <span class="token reporter">=</span> <span class="token string">"move left"</span>
+[ <span class="token command">set</span> <span class="token reporter">heading</span> <span class="token number">270</span>
+  <span class="token command">fd</span> <span class="token number">1</span> ]</code></pre><h3 id="sending-messages-to-clients" class="section-heading"><a href="hubnet-authoring.html#sending-messages-to-clients" class="section-anchor">Sending messages to clients</a></h3><p>As mentioned earlier you can also send values to any interface elements that
+display information: monitors, sliders, switches, choosers, and input boxes
+(note that plots and the view are special cases that have their own sections).</p><p>There are two primitives that allow you to send information <code class="netlogo-command"><a href="../../dictionary.html#hubnet-send" class="netlogo-wiki-link" title="hubnet-send">hubnet-send</a></code> and
+<code class="netlogo-command"><a href="../../dictionary.html#hubnet-broadcast" class="netlogo-wiki-link" title="hubnet-broadcast">hubnet-broadcast</a></code>. Broadcast sends the information to all the clients; send
+sends to one client, or a selected group.</p><p>As suggested earlier, nothing on the client updates automatically. If a value
+changes on the server, it is your responsibility as the activity author to
+update monitors on the client.</p><p>For example, say you have a slider on the client called step-size and a monitor
+called Step Size (note that the names must be different) you might write
+updating code like this:</p><pre class="copy-code"><code><span class="token command">if</span> <span class="token reporter">hubnet-message-tag</span> <span class="token reporter">=</span> <span class="token string">"step-size"</span>
+[
+  <span class="token command">ask</span> <span class="token variable">student</span> <span class="token reporter">with</span> [ <span class="token variable">user-id</span> <span class="token reporter">=</span> <span class="token reporter">hubnet-message-source</span> ]
+  [
+    <span class="token command">set</span> <span class="token variable">step-size</span> <span class="token reporter">hubnet-message</span>
+    <span class="token variable">hubnet-send</span> <span class="token variable">user-id</span> <span class="token string">"Step Size"</span> <span class="token variable">step-size</span>
+  ]
+]</code></pre><p>You can send any type of data you want, numbers, strings, lists, lists of lists,
+lists of strings, however, if the data is not appropriate for the receiving
+interface element (say, if you were to send a string to a slider) the message
+will be ignored. Here are a few code examples for different types of data:</p><div class="table-container"><table>
+  <thead>
+  <tr>
+    <th>data type
+    </th><th><code>hubnet-broadcast</code> example
+    </th><th><code>hubnet-send</code> example
+  </th></tr></thead><tbody>
+  <tr>
+    <td>number
+    </td><td><code>hubnet-broadcast "A" 3.14</code>
+    </td><td><code>hubnet-send "jimmy" "A" 3.14</code>
+  </td></tr><tr>
+    <td>string
+    </td><td><code>hubnet-broadcast "STR1" "HI THERE"</code>
+    </td><td><code>hubnet-send ["12" "15"] "STR1" "HI THERE"</code>
+  </td></tr><tr>
+    <td>list of numbers
+    </td><td><code>hubnet-broadcast "L2" [1 2 3]</code>
+    </td><td><code>hubnet-send hubnet-message-source "L2" [1 2 3]</code>
+  </td></tr><tr>
+    <td>matrix of numbers
+    </td><td><code>hubnet-broadcast "[A]" [[1 2] [3 4]]</code>
+    </td><td><code>hubnet-send "susie" "[A]" [[1 2] [3 4]]</code>
+  </td></tr><tr>
+    <td>list of strings
+    </td><td><code>hubnet-broadcast "user-names" [["jimmy" "susie"] ["bob" "george"]]</code>
+    </td><td><code>hubnet-send "teacher" "user-names" [["jimmy" "susie"] ["bob" "george"]]</code></td></tr></tbody></table></div><h3 id="examples" class="section-heading"><a href="hubnet-authoring.html#examples" class="section-anchor">Examples</a></h3><p>Study the models in the “HubNet Activities” section of the Models Library to see
+how these primitives are used in practice in the Code tab. Disease is a good one
+to start with.</p><h2 id="how-to-make-a-client-interface" class="section-heading"><a href="hubnet-authoring.html#how-to-make-a-client-interface" class="section-anchor">How to make a client interface</a></h2><p>Open the HubNet Client Editor, found in the Tools Menu. Add any buttons,
+sliders, switches, monitors, plots, choosers, or notes that you want just as you
+would in the interface tab. You’ll notice that the information you enter for
+each of the widgets is slightly different than in the Interface panel. Widgets
+on the client don’t interact with the model in the same way. Instead of a direct
+link to commands and reporters the widgets send messages back to the server and
+the model then determines how those messages affect the model. All widgets on
+the client have a tag which is a name that uniquely identifies the widget. When
+the server receives a message from that widget the tag is found in
+<code class="netlogo-command"><a href="../../dictionary.html#hubnet-message-tag" class="netlogo-wiki-link" title="hubnet-message-tag">hubnet-message-tag</a></code>.</p><p>For example, if you have a button called “move left”, a slider called
+“step-size”, a switch called “all-in-one-step?”, and a monitor called
+“Location:”, the tags for these interface elements will be as follows:</p><div class="table-container"><table>
+  <thead>
+  <tr>
+    <th>interface element
+    </th><th>tag
+  </th></tr></thead><tbody>
+  <tr>
+    <td>move left
+    </td><td>move left
+  </td></tr><tr>
+    <td>step-size
+    </td><td>step-size
+  </td></tr><tr>
+    <td>all-in-one-step?
+    </td><td>all-in-one-step?
+  </td></tr><tr>
+    <td>Location:
+    </td><td>Location:
+</td></tr></tbody></table></div><p>Note that you can only have <strong>one</strong> interface element with a specific name.
+Having more than one interface element with the same tag in the client interface
+will result in unpredictable behavior since it is not clear which element you
+intended to send the information to.</p><h2 id="view-updates-on-the-clients" class="section-heading"><a href="hubnet-authoring.html#view-updates-on-the-clients" class="section-anchor">View updates on the clients</a></h2><p>View mirroring lets views of the world be displayed in clients as well on the
+server. View mirroring is enabled using a checkbox in the HubNet Control Center.</p><p>When mirroring is enabled, client views update whenever the view on the server
+does. To avoid excessive network traffic, the view should not update more often
+than necessary. Therefore we strongly recommend using tick-based updates, rather
+than continuous updates. See the View Updates section of the Programming Guide
+for an explanation of the two types of updates.</p><p>With tick-based updates, updates happen when a <code>tick</code> or <code>display</code> command runs.
+We recommend using these commands only inside an <code>every</code> block, to limit the
+frequency of view updates and thus also limit network traffic. For example:</p><pre class="copy-code"><code><span class="token command">every</span> <span class="token number">0.1</span>
+[
+  <span class="token command">display</span>
+]</code></pre><p>If there is no View in the clients or if the Mirror 2D View on Clients checkbox
+in the HubNet Control Center is not checked, then no view updates are sent to
+the clients.</p><h2 id="clicking-in-the-view-on-clients" class="section-heading"><a href="hubnet-authoring.html#clicking-in-the-view-on-clients" class="section-anchor">Clicking in the view on clients</a></h2><p>If the View is included in the client, two messages are sent to the server every
+time the user clicks in the view. The first message, when the user presses the
+mouse button, has the tag “View”. The second message, sent when the user
+releases the mouse button, has the tag “Mouse Up”. Both messages consist of a
+two item list of the x and y coordinates. For example, to turn any patch that
+was clicked on by the client red, you would use the following NetLogo code:</p><pre class="copy-code"><code><span class="token command">if</span> <span class="token reporter">hubnet-message-tag</span> <span class="token reporter">=</span> <span class="token string">"View"</span>
+[
+  <span class="token command">ask</span> <span class="token reporter">patches</span> <span class="token reporter">with</span> [ <span class="token reporter">pxcor</span> <span class="token reporter">=</span> (<span class="token reporter">round</span> <span class="token reporter">item</span> <span class="token number">0</span> <span class="token reporter">hubnet-message</span>) <span class="token reporter">and</span>
+                     <span class="token reporter">pycor</span> <span class="token reporter">=</span> (<span class="token reporter">round</span> <span class="token reporter">item</span> <span class="token number">1</span> <span class="token reporter">hubnet-message</span>) ]
+  [ <span class="token command">set</span> <span class="token reporter">pcolor</span> <span class="token constant">red</span> ]
+]</code></pre><h2 id="customizing-the-clients-view" class="section-heading"><a href="hubnet-authoring.html#customizing-the-clients-view" class="section-anchor">Customizing the client’s view</a></h2><p>When view mirroring is enabled, by default clients see the same view the
+activity leader sees on the server. But you can change this so that each client
+sees something different, not just a literal “mirror”.</p><p>You can change what a client sees in two distinct ways. We call them “client
+perspectives” and “client overrides”.</p><p>Changing a client’s perspective means making it “watch” or “follow” a particular
+agent, much like the <code class="netlogo-command"><a href="../../dictionary.html#watch" class="netlogo-wiki-link" title="watch">watch</a></code> and <code class="netlogo-command"><a href="../../dictionary.html#follow" class="netlogo-wiki-link" title="follow">follow</a></code> commands that work with ordinary
+NetLogo models. See the dictionary entries for <code class="netlogo-command"><a href="../../dictionary.html#hubnet-send-watch" class="netlogo-wiki-link" title="hubnet-send-watch">hubnet-send-watch</a></code>,
+<code class="netlogo-command"><a href="../../dictionary.html#hubnet-send-follow" class="netlogo-wiki-link" title="hubnet-send-follow">hubnet-send-follow</a></code>, and <code class="netlogo-command"><a href="../../dictionary.html#hubnet-reset-perspective" class="netlogo-wiki-link" title="hubnet-reset-perspective">hubnet-reset-perspective</a></code>.</p><blockquote><p><strong>Code Example:</strong> Client Perspective Example</p></blockquote><p>Client overrides let you change the appearance of patches, turtles, and links in
+the client views. You can override any of the variables affecting an agent’s
+appearance, including the <code>hidden?</code> variable causing a turtle or link to be
+visible or invisible. See the dictionary entries for <code class="netlogo-command"><a href="../../dictionary.html#hubnet-send-override" class="netlogo-wiki-link" title="hubnet-send-override">hubnet-send-override</a></code>,
+<code class="netlogo-command"><a href="../../dictionary.html#hubnet-clear-override" class="netlogo-wiki-link" title="hubnet-clear-override">hubnet-clear-override</a></code>, and <code class="netlogo-command"><a href="../../dictionary.html#hubnet-clear-override" class="netlogo-wiki-link" title="hubnet-clear-overrides">hubnet-clear-overrides</a></code>.</p><blockquote><p><strong>Code Example:</strong> Client Overrides Example</p></blockquote><h2 id="plot-updates-on-the-clients" class="section-heading"><a href="hubnet-authoring.html#plot-updates-on-the-clients" class="section-anchor">Plot updates on the clients</a></h2><p>If plot mirroring is enabled (in the HubNet Control Center) and a plot in the
+NetLogo model changes and a plot with the exact same name exists on the clients,
+a message with that change is sent to the clients causing the client’s plot to
+make the same change. For example, let’s pretend there is a HubNet model that
+has a plot called Milk Supply in NetLogo and the clients. Milk Supply is the
+current plot in NetLogo and in the Command Center you type:</p><pre class="copy-code"><code><span class="token command">plot</span> <span class="token number">5</span></code></pre><p>This will cause a message to be sent to all the clients telling them that they
+need to plot a point with a y value of 5 in the next position of the plot.
+Notice, if you are doing a lot of plotting all at once, this can generate a lot
+of plotting messages to be sent to the clients.</p></article>
+  </main>
+  <footer>
+    <p>NetLogo User Manual (7.1.0-alpha1), by Uri Wilensky, Center for Connected Learning and Computer-Based Modeling, Northwestern University. Copyright 1999-2025 by Uri Wilensky. Adapted for MemoSim by changing the page layout, navigation and links. The adapted reference material is licensed under <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported</a>.</p>
+    <p><a href="../../dict/upstream-notices.html">Upstream copyright and third-party notices</a> · <a href="https://github.com/NetLogo/docs/blob/8e165bbbe204b417e899413d097265592f98a951/7.1.0-alpha1/hubnet-authoring.html">Pinned source: NetLogo/docs 8e165bb</a> (2026-08-13) · <a href="https://docs.netlogo.org/7.1.0-alpha1/hubnet-authoring">Original upstream page (online)</a></p>
+  </footer>
+</body>
+</html>

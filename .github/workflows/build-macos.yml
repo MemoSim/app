@@ -1,0 +1,50 @@
+name: build-macos
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  macos:
+    runs-on: macos-14
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install sbt and ImageMagick
+        run: brew install sbt imagemagick
+
+      - name: Install chat dependencies
+        working-directory: chat
+        run: npm ci
+
+      - name: Build MemoSim.app and DMG
+        run: ./scripts/build-mac-app.sh --no-install --installer dmg
+        working-directory: chat
+
+      - name: Show artefact
+        run: ls -lh "$HOME/dev/netlogo-chat-build/release" "$HOME/dev/netlogo-chat-build/dist"
+
+      - name: Upload DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: MemoSim-macOS-dmg
+          path: |
+            /Users/runner/dev/netlogo-chat-build/release/*.dmg
+            /Users/runner/dev/netlogo-chat-build/release/*.sha256
+          if-no-files-found: error

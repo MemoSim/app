@@ -1,0 +1,20 @@
+// (C) Uri Wilensky. https://github.com/NetLogo/NetLogo
+
+package org.nlogo.core
+
+import scala.collection.immutable.ListMap
+import FrontEndInterface._
+
+case class StructureResults(program: Program,
+                        procedures: ProceduresMap = NoProcedures,
+                        procedureTokens: ListMap[(String, Option[String]), Iterable[Token]] = ListMap(),
+                        includes: Seq[Token] = Seq(),
+                        includedSources: Seq[String] = Seq(),
+                        extensions: Seq[(Token, Option[String])] = Seq(),
+                        imports: Seq[Import] = Seq(),
+                        `export`: Option[Export] = None,
+                        confusingPrefixParts: Set[String] = Set())
+
+object StructureResults {
+  val empty = StructureResults(Program.empty())
+}

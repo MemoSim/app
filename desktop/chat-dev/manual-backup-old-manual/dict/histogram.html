@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>histogram | MemoSim Dictionary</title>
+  <link rel="icon" href="../assets/memosim-icon.png" type="image/png">
+  <link rel="stylesheet" href="../docs.css">
+  <script src="../docs.js" defer></script>
+</head>
+<body data-manual="dictionary">
+  <a class="skip-link" href="#content">Skip to dictionary content</a>
+  <header><a class="brand" href="../index.html">MemoSim <small>Offline documentation</small></a></header>
+  <nav aria-label="Main"><a href="../index.html">User manual</a> <a href="../tutorial.html">Tutorial</a> <a href="../dictionary.html">Dictionary</a> <a href="../legal.html">Licenses &amp; credits</a> <a href="../manual.pdf">PDF manual</a></nav>
+  <main id="content">
+    <p><a href="../dictionary.html#dictionary-search">Back to dictionary search</a> · NetLogo language reference (7.1.0-alpha1)</p>
+    <h1>histogram</h1>
+    <article aria-label="NetLogo language reference"><div class="dict_entry" id="histogram" role="region"><h3 id="histogram10"><a href="#histogram" role="doc-noteref" aria-label="Reference to histogram">
+histogram
+<span class="since" role="note" aria-label="Since version">
+1.0
+</span></a></h3><h4 id="histogram-list" class="section-heading"><a href="#histogram-list" class="section-anchor"><span class="prim_example"><p>histogram <em>list</em></p></span></a></h4><p>Histograms the values in the given list</p><p>Draws a histogram showing the frequency distribution of the values
+in the list. The heights of the bars in the histogram represent the
+numbers of values in each subrange.</p><p>Before the histogram is drawn, first any previous points drawn by
+the current plot pen are removed.</p><p>Any non-numeric values in the list are ignored.</p><p>The histogram is drawn on the current plot using the current plot
+pen and pen color. Auto scaling does not affect a histogram’s
+horizontal range, so <code class="netlogo-command"><a href="../dictionary.html#set-plot-range" class="netlogo-wiki-link" title="set-plot-x-range">set-plot-x-range</a></code> should be used to control the
+range, and the pen interval can then be set (either directly with <code class="netlogo-command"><a href="../dictionary.html#set-plot-pen-interval" class="netlogo-wiki-link" title="set-plot-pen-interval">set-plot-pen-interval</a></code>, or indirectly via <code class="netlogo-command"><a href="../dictionary.html#set-histogram-num-bars" class="netlogo-wiki-link" title="set-histogram-num-bars">set-histogram-num-bars</a></code>) to
+control how many bars that range is split up into.</p><p>Be sure that if you want the histogram drawn with bars that the
+current pen is in bar mode (mode 1).</p><p>For histogramming purposes the plot’s X range is not considered
+to include the maximum X value. Values equal to the maximum X will
+fall outside of the histogram’s range.</p><pre class="copy-code"><code><span class="token command">histogram</span> [<span class="token reporter">color</span>] <span class="token reporter">of</span> <span class="token reporter">turtles</span>
+<span class="token comment">;; draws a histogram showing how many turtles there are</span>
+<span class="token comment">;; of each color</span></code></pre><p>This command will produce a runtime error if either the current plot or the current
+pen has not been set.</p><p>See also <code class="netlogo-command"><a href="../dictionary.html#set-histogram-num-bars" class="netlogo-wiki-link" title="set-histogram-num-bars">set-histogram-num-bars</a></code>, <code class="netlogo-command"><a href="../dictionary.html#set-plot-pen-interval" class="netlogo-wiki-link" title="set-plot-pen-interval">set-plot-pen-interval</a></code>, <code class="netlogo-command"><a href="../dictionary.html#set-plot-range" class="netlogo-wiki-link" title="set-plot-x-range">set-plot-x-range</a></code>.</p></div></article>
+  </main>
+  <footer>
+    <p>NetLogo User Manual (7.1.0-alpha1), by Uri Wilensky, Center for Connected Learning and Computer-Based Modeling, Northwestern University. Copyright 1999-2025 by Uri Wilensky. Adapted for MemoSim by changing the page layout, navigation and links. The adapted reference material is licensed under <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported</a>.</p>
+    <p><a href="../dict/upstream-notices.html">Upstream copyright and third-party notices</a> · <a href="https://github.com/NetLogo/docs/blob/8e165bbbe204b417e899413d097265592f98a951/7.1.0-alpha1/dict/histogram.html">Pinned source: NetLogo/docs 8e165bb</a> (2026-08-13) · <a href="https://docs.netlogo.org/7.1.0-alpha1/dict/histogram">Original upstream page (online)</a></p>
+  </footer>
+</body>
+</html>

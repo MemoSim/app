@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ask | MemoSim Dictionary</title>
+  <link rel="icon" href="../assets/memosim-icon.png" type="image/png">
+  <link rel="stylesheet" href="../docs.css">
+  <script src="../docs.js" defer></script>
+</head>
+<body data-manual="dictionary">
+  <a class="skip-link" href="#content">Skip to dictionary content</a>
+  <header><a class="brand" href="../index.html">MemoSim <small>Offline documentation</small></a></header>
+  <nav aria-label="Main"><a href="../index.html">User manual</a> <a href="../tutorial.html">Tutorial</a> <a href="../dictionary.html">Dictionary</a> <a href="../legal.html">Licenses &amp; credits</a> <a href="../manual.pdf">PDF manual</a></nav>
+  <main id="content">
+    <p><a href="../dictionary.html#dictionary-search">Back to dictionary search</a> · NetLogo language reference (7.1.0-alpha1)</p>
+    <h1>ask</h1>
+    <article aria-label="NetLogo language reference"><div class="dict_entry" id="ask" role="region"><h3 id="ask10"><a href="#ask" role="doc-noteref" aria-label="Reference to ask">
+ask
+<span class="since" role="note" aria-label="Since version">
+1.0
+</span></a></h3><h4 id="ask-agentset-commandsask-agent-commands" class="section-heading"><a href="#ask-agentset-commandsask-agent-commands" class="section-anchor"><span class="prim_example"><p>ask <em>agentset</em> <span><em>commands</em></span></p></span><span class="prim_example"><p>ask <em>agent</em> <span><em>commands</em></span></p></span></a></h4><p>The specified agent or agentset runs the given commands. Because
+agentset members are always read in a random order, when ask is
+used with an agentset each agent will take its turn in a random
+order. See <a href="guides/programming.html#agentsets" class="">Agentsets</a>for more information.</p><pre class="copy-code"><code><span class="token command">ask</span> <span class="token reporter">turtles</span> [ <span class="token command">fd</span> <span class="token number">1</span> ]
+  <span class="token comment">;; all turtles move forward one step</span>
+<span class="token command">ask</span> <span class="token reporter">patches</span> [ <span class="token command">set</span> <span class="token reporter">pcolor</span> <span class="token constant">red</span> ]
+  <span class="token comment">;; all patches turn red</span>
+<span class="token command">ask</span> <span class="token reporter">turtle</span> <span class="token number">4</span> [ <span class="token command">rt</span> <span class="token number">90</span> ]
+  <span class="token comment">;; only the turtle with id 4 turns right</span></code></pre><p>Note: only the observer can ask all turtles or all patches. This
+prevents you from inadvertently having all turtles ask all turtles
+or all patches ask all patches, which is a common mistake to make
+if you’re not careful about which agents will run the code you
+are writing.</p><p>Note: Only the agents that are in the agentset <em>at the time the
+ask begins</em> run the commands.</p></div></article>
+  </main>
+  <footer>
+    <p>NetLogo User Manual (7.1.0-alpha1), by Uri Wilensky, Center for Connected Learning and Computer-Based Modeling, Northwestern University. Copyright 1999-2025 by Uri Wilensky. Adapted for MemoSim by changing the page layout, navigation and links. The adapted reference material is licensed under <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported</a>.</p>
+    <p><a href="../dict/upstream-notices.html">Upstream copyright and third-party notices</a> · <a href="https://github.com/NetLogo/docs/blob/8e165bbbe204b417e899413d097265592f98a951/7.1.0-alpha1/dict/ask.html">Pinned source: NetLogo/docs 8e165bb</a> (2026-08-13) · <a href="https://docs.netlogo.org/7.1.0-alpha1/dict/ask">Original upstream page (online)</a></p>
+  </footer>
+</body>
+</html>

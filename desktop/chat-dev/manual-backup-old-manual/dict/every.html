@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>every | MemoSim Dictionary</title>
+  <link rel="icon" href="../assets/memosim-icon.png" type="image/png">
+  <link rel="stylesheet" href="../docs.css">
+  <script src="../docs.js" defer></script>
+</head>
+<body data-manual="dictionary">
+  <a class="skip-link" href="#content">Skip to dictionary content</a>
+  <header><a class="brand" href="../index.html">MemoSim <small>Offline documentation</small></a></header>
+  <nav aria-label="Main"><a href="../index.html">User manual</a> <a href="../tutorial.html">Tutorial</a> <a href="../dictionary.html">Dictionary</a> <a href="../legal.html">Licenses &amp; credits</a> <a href="../manual.pdf">PDF manual</a></nav>
+  <main id="content">
+    <p><a href="../dictionary.html#dictionary-search">Back to dictionary search</a> · NetLogo language reference (7.1.0-alpha1)</p>
+    <h1>every</h1>
+    <article aria-label="NetLogo language reference"><div class="dict_entry" id="every" role="region"><h3 id="every10"><a href="#every" role="doc-noteref" aria-label="Reference to every">
+every
+<span class="since" role="note" aria-label="Since version">
+1.0
+</span></a></h3><h4 id="every-number-commands" class="section-heading"><span id="every-number--commands"></span><a href="#every-number--commands" class="section-anchor"><span class="prim_example"><p>every <em>number</em> <span> <em>commands</em></span></p></span></a></h4><p>Runs the given commands only if it’s been more than <em>number</em> seconds since the last time this agent ran them in
+this context. Otherwise, the commands are skipped.</p><p>By itself, every doesn’t make commands run over and over again.
+You need to use every inside a loop, or inside a forever button, if
+you want the commands run over and over again. every only limits
+how often the commands run.</p><p>Above, “in this context” means during the same ask (or
+button press or command typed in the Command Center). So it
+doesn’t make sense to write <code><span class="token command">ask</span> <span class="token reporter">turtles</span> [ <span class="token command">every</span> <span class="token number">0.5</span> [ <span class="token variable">...</span> ]
+ ]</code>, because when the ask finishes the turtles will all discard
+their timers for the “every”. The correct usage is shown
+below.</p><pre class="copy-code"><code><span class="token command">every</span> <span class="token number">0.5</span> [ <span class="token command">ask</span> <span class="token reporter">turtles</span> [ <span class="token command">fd</span> <span class="token number">1</span> ] ]
+<span class="token comment">;; twice a second the turtles will move forward 1</span>
+<span class="token command">every</span> <span class="token number">2</span> [ <span class="token command">set</span> <span class="token variable">index</span> <span class="token variable">index</span> <span class="token reporter">+</span> <span class="token number">1</span> ]
+<span class="token comment">;; every 2 seconds index is incremented</span></code></pre><p>See also <code class="netlogo-command"><a href="../dictionary.html#wait" class="netlogo-wiki-link" title="wait">wait</a></code>.</p></div></article>
+  </main>
+  <footer>
+    <p>NetLogo User Manual (7.1.0-alpha1), by Uri Wilensky, Center for Connected Learning and Computer-Based Modeling, Northwestern University. Copyright 1999-2025 by Uri Wilensky. Adapted for MemoSim by changing the page layout, navigation and links. The adapted reference material is licensed under <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported</a>.</p>
+    <p><a href="../dict/upstream-notices.html">Upstream copyright and third-party notices</a> · <a href="https://github.com/NetLogo/docs/blob/8e165bbbe204b417e899413d097265592f98a951/7.1.0-alpha1/dict/every.html">Pinned source: NetLogo/docs 8e165bb</a> (2026-08-13) · <a href="https://docs.netlogo.org/7.1.0-alpha1/dict/every">Original upstream page (online)</a></p>
+  </footer>
+</body>
+</html>

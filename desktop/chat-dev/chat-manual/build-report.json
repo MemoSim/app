@@ -1,0 +1,527 @@
+{
+  "generator": "chat-dev/build-chat-manual.mjs",
+  "templateVersion": 1,
+  "appVersion": "1.0.4",
+  "generatedAt": "2026-11-19T04:01:52.096Z",
+  "manifestPresent": true,
+  "manifestSHA256": "f2d2557c3c46cd36cd8a6f8bddbe73899f59c63ae7ef711a4aa04d6049aa2607",
+  "passedScenarios": 6,
+  "actualChatScenarios": 6,
+  "scriptedReplayScenarios": 0,
+  "excludedScenarios": 0,
+  "originalUserGuideChapters": 15,
+  "documentationSourcesRead": 404,
+  "splitReferencePagesMappedToGroupedEntries": 366,
+  "additionalReferencePages": 28,
+  "bundledTechnicalGuides": 5,
+  "documentationSourceHashes": {
+    "index.html": "f62848bc10512422dbda8f245350687e4183ac9725e51c70cbe4c8cf4d2d178e",
+    "tutorial.html": "602820efc0375e21cde9bbe15ea90a5e9ae70619d7b3e94c242e5f9c8575f6bf",
+    "dictionary.html": "1b29e6522b9315b7637f0fe5095dfded5a995952fd14c9971a8a5dbc3f6d0c59",
+    "legal.html": "73634344aa9ad49f678f800e855de3540a29ebb02696a66683eb236cd24c91fa"
+  },
+  "offline": "All required text, CSS, JavaScript, images, model downloads and local reference content are embedded. Optional online source links are labeled.",
+  "outputPath": "/Users/lilo-jali/Documents/MemoSim Training Evidence/memosim-manual.html",
+  "outputBytes": 12473670,
+  "outputSHA256": "93c296582b36c037736fdf0069627c29a34cd8446c5575c1c6d23cd12fcb6d0e",
+  "embeddedFiles": [
+    {
+      "file": "assets/dashboard-collapsed.png",
+      "bytes": 100536,
+      "sha256": "3a10121192934206e98dadaeebe2afbf82f8ce6e6e603d0a8923d7de043afb20"
+    },
+    {
+      "file": "assets/dashboard-expanded.png",
+      "bytes": 151310,
+      "sha256": "9312dd588baebda00cbe0d17c22d394c5e57b108c85e4746d1026516325a5d1a"
+    },
+    {
+      "file": "assets/dict/cc-by-sa-3.0.webp",
+      "bytes": 1212,
+      "sha256": "8be31ae7f0f8b477c4085a2dcebd6f737161dc2cc560892a29a73eca6b8dd437"
+    },
+    {
+      "file": "assets/dict/guides/3d/cube.webp",
+      "bytes": 2182,
+      "sha256": "2279f44de1779a64d37fcc70d811f348a960a28a00b4535b34fd740a298160c4"
+    },
+    {
+      "file": "assets/dict/guides/3d/heading.webp",
+      "bytes": 2250,
+      "sha256": "249cf73379aa8dce8e3c0e8f6fd1f9fc3058870f817eca3c45bcf5c642ff7cb8"
+    },
+    {
+      "file": "assets/dict/guides/3d/pitch.webp",
+      "bytes": 2202,
+      "sha256": "ca4052bbf41fea5c8e5b5d7833da77f1c303124bf71ca8cb358c8e5ec6298bfc"
+    },
+    {
+      "file": "assets/dict/guides/3d/properties.webp",
+      "bytes": 29506,
+      "sha256": "a3a763e18dee0ca9d097e86ef838bcc516df80c61dd1964c325e0296c9504cda"
+    },
+    {
+      "file": "assets/dict/guides/3d/roll.webp",
+      "bytes": 1370,
+      "sha256": "8a585751bfbb0a78a41bad907938d08037164782dff7ec4e4b5715bd10fdb456"
+    },
+    {
+      "file": "assets/dict/guides/link.webp",
+      "bytes": 692,
+      "sha256": "ad0623830860b791309bc9179252d35c6164e5770a5c1b1053eeb1190c94b69e"
+    },
+    {
+      "file": "assets/dict/guides/observermovement.webp",
+      "bytes": 6046,
+      "sha256": "896acf339424636e8ee28d45f8bd0af6230f0ef182b5ded12f18e781ccb06fca"
+    },
+    {
+      "file": "assets/dict/guides/patch.webp",
+      "bytes": 212,
+      "sha256": "4312af98ab241c1ee7b5894b7531b6dc8b16d6722b8ff1e52a41050153e742ba"
+    },
+    {
+      "file": "assets/dict/guides/programming/box.webp",
+      "bytes": 6928,
+      "sha256": "bc632b16428b9e246f339b231d94432dcd0c560f142781d315ebf01e35b52dc2"
+    },
+    {
+      "file": "assets/dict/guides/programming/circle-layout.webp",
+      "bytes": 6518,
+      "sha256": "259df414a510fc8e337be12f5b13e664ba9d598874303416448d66db66bbd0dc"
+    },
+    {
+      "file": "assets/dict/guides/programming/colors.webp",
+      "bytes": 28554,
+      "sha256": "1a97015e805d6b921f28d13a04fa0553032d0d34d52a54d234563f015bd30b14"
+    },
+    {
+      "file": "assets/dict/guides/programming/drawing.webp",
+      "bytes": 6226,
+      "sha256": "4e4294e5c4739e2bc549c776b59531fb9e0358c628754705f771e1573fcaa29b"
+    },
+    {
+      "file": "assets/dict/guides/programming/radial-layout.webp",
+      "bytes": 3600,
+      "sha256": "32213ae96dc050a5b1642205e2868c028761b060aa66699e5bf48ba599a501a8"
+    },
+    {
+      "file": "assets/dict/guides/programming/torus.webp",
+      "bytes": 9476,
+      "sha256": "b404aa0b5f2bb90728d7ecf92202029a65adf55f883712b7730b7ef068bff624"
+    },
+    {
+      "file": "assets/dict/guides/programming/tutte-layout.webp",
+      "bytes": 1984,
+      "sha256": "8f20daae938fc297ab89974daab9f09800db19be641169c14dd674597f62d989"
+    },
+    {
+      "file": "assets/dict/guides/shapes/defaultlinkshape.webp",
+      "bytes": 2058,
+      "sha256": "a5d9ba480279a00f308dfec7e6986cdb684ab62f125b4ebed3f8e391d46c286b"
+    },
+    {
+      "file": "assets/dict/guides/shapes/library.webp",
+      "bytes": 41666,
+      "sha256": "198338ddb870f32a362774d872d9cd7d5dfe6142613b11c0d561c60dabd3fa92"
+    },
+    {
+      "file": "assets/dict/guides/shapes/linkshapes.webp",
+      "bytes": 11756,
+      "sha256": "d5b54a051b2bb331dc3864d1d269d37d9960776a4ae9815bda6d1b6eca7a693a"
+    },
+    {
+      "file": "assets/dict/guides/shapes/shapes.webp",
+      "bytes": 11048,
+      "sha256": "a13ff3a79fca991ec42acef806682a15362cbaec824c5723027cd0f79e821c18"
+    },
+    {
+      "file": "assets/dict/guides/turtle.webp",
+      "bytes": 716,
+      "sha256": "c29aef466f7e30e7e3eba7c61db862e1db79f0e9440e53b53f5073f6f98ae717"
+    },
+    {
+      "file": "assets/dict/link.webp",
+      "bytes": 692,
+      "sha256": "ad0623830860b791309bc9179252d35c6164e5770a5c1b1053eeb1190c94b69e"
+    },
+    {
+      "file": "assets/dict/observermovement.webp",
+      "bytes": 6046,
+      "sha256": "896acf339424636e8ee28d45f8bd0af6230f0ef182b5ded12f18e781ccb06fca"
+    },
+    {
+      "file": "assets/dict/patch.webp",
+      "bytes": 212,
+      "sha256": "4312af98ab241c1ee7b5894b7531b6dc8b16d6722b8ff1e52a41050153e742ba"
+    },
+    {
+      "file": "assets/dict/turtle.webp",
+      "bytes": 716,
+      "sha256": "c29aef466f7e30e7e3eba7c61db862e1db79f0e9440e53b53f5073f6f98ae717"
+    },
+    {
+      "file": "assets/memosim-icon.png",
+      "bytes": 12245,
+      "sha256": "e7aeffba90771409ae056041cca733fae282862b9a7d734f02f9eb38c21ea9ff"
+    },
+    {
+      "file": "assets/modeler.png",
+      "bytes": 51979,
+      "sha256": "f6f1dfbdf64aa64272010fb5a7cb3c863c8da2ef72dcd7a78b0899f530965dc7"
+    },
+    {
+      "file": "dict/quickhelp.csv",
+      "bytes": 21948,
+      "sha256": "241c8ca78a90bb0b360d1cb01b56ed44f1673f9b1d4306d1cdb4c9f9d980117d"
+    },
+    {
+      "file": "licenses/CC-BY-SA-3.0.txt",
+      "bytes": 22240,
+      "sha256": "3f941b3b89cf7b8370ceb83cc76d2120d471b58735d8ca60238a751a48d7f72f"
+    },
+    {
+      "file": "licenses/GPL-2.0.txt",
+      "bytes": 18092,
+      "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643"
+    },
+    {
+      "file": "memosim-terms.json",
+      "bytes": 10118,
+      "sha256": "a8cc9a314ed76e014f556686291a3128a352b3bbb598ef8aea20150c57ee3571"
+    },
+    {
+      "file": "README.txt",
+      "bytes": 741,
+      "sha256": "f1663be60b967cdac13d183e50de2418be20883907c43a90f2eccdf477c64bde"
+    },
+    {
+      "file": "tutorial-model-code.txt",
+      "bytes": 277,
+      "sha256": "22d22ceb047da03393fb5fc5c5f7984aa97e3454caed8808e3bfea52a99ef885"
+    },
+    {
+      "file": "validation-report.json",
+      "bytes": 662,
+      "sha256": "b76094f7e59cbb5462f8b2fa80c2e81214d69e146af7e81b3e939a526f81892b"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/ecology-sir-aNl7ex/01-smoke-crop.png",
+      "bytes": 101385,
+      "sha256": "7ba7f9000929a12ab6428f878ddc9af0465182ed6f66d47c1894b238ea35e659"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/ecology-sir-aNl7ex/01-smoke.nlogox",
+      "bytes": 39000,
+      "sha256": "4055d6220fa201da57dca7bce2b0813cb70cd87cd0e8807fd7387343f7627a50"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/ecology-sir-aNl7ex/02-ecology-sir-crop.png",
+      "bytes": 156050,
+      "sha256": "c9208fbc2f359d82313db9d5ed67350418f91aa5969a93de71c8418077245d6f"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/ecology-sir-aNl7ex/02-ecology-sir-validated-crop.png",
+      "bytes": 155223,
+      "sha256": "1283e9f8ac518b9e166e72909d1b60d65ceb00544dd75ba31731cb71dae801a9"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/ecology-sir-aNl7ex/02-ecology-sir.nlogox",
+      "bytes": 41989,
+      "sha256": "2d40ad9e143316364feafac6375234b1eec619b3f58cc69a6cf330e627a45736"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/ecology-sir-aNl7ex/03-ecology-sir-crop.png",
+      "bytes": 126334,
+      "sha256": "65a4064fe8038dc86f733cda327f7325262a5d5efef5911cb570c34fe58eab4a"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/ecology-sir-aNl7ex/03-ecology-sir-validated-crop.png",
+      "bytes": 126584,
+      "sha256": "a2d7657f68bd45152073093d7c3db3770c63c0885a9a6dfef878d20257f059df"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/ecology-sir-aNl7ex/04-ecology-sir-crop.png",
+      "bytes": 158784,
+      "sha256": "d9abb6ca9fbd00b7f5a285cd2e49a5263388e780fb6d4af015af3e2030318e77"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/ecology-sir-aNl7ex/04-ecology-sir-validated-crop.png",
+      "bytes": 158890,
+      "sha256": "bf47fa2d8c75f9e867b2136e037d3a939c9d80d273908790a96e6d694fb13d83"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/ecology-sir-aNl7ex/04-ecology-sir.nlogox",
+      "bytes": 43231,
+      "sha256": "45775fb28a55452b60531aaba19971697b5f98d408631700353aeff126573565"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/manufacturing-queue-FJygbL/01-smoke-crop.png",
+      "bytes": 110283,
+      "sha256": "cf5f09576dd5a41997865c59ef96cbd7f247db76302e8cf11a54e4e6dfc6d613"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/manufacturing-queue-FJygbL/01-smoke.nlogox",
+      "bytes": 44584,
+      "sha256": "4123330e783654f2d4fa4d6218b7a814d55ddb036600db6978307f21aabbf6f7"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/manufacturing-queue-FJygbL/02-manufacturing-queue-crop.png",
+      "bytes": 141256,
+      "sha256": "80bd101f4dbf12a36aa354646fb834c5376db9ce30f0cc4503ef1743a3703954"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/manufacturing-queue-FJygbL/02-manufacturing-queue-validated-crop.png",
+      "bytes": 145368,
+      "sha256": "cc3e7c44ab8b6bb0d41c8c23879ee991f5e4928fcffa27c41ec9f285175fa5ca"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/manufacturing-queue-FJygbL/02-manufacturing-queue.nlogox",
+      "bytes": 46717,
+      "sha256": "f4658299353db1f47a33aec119563ad1a8ba3d00a67c5f86a0df3e06d84cf01b"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/manufacturing-queue-FJygbL/03-manufacturing-queue-crop.png",
+      "bytes": 155100,
+      "sha256": "d65c9e52703d66195c9b2c1f92f1546a1e9f20a2005eb324722877652ac0ae24"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/manufacturing-queue-FJygbL/03-manufacturing-queue-validated-crop.png",
+      "bytes": 155100,
+      "sha256": "d65c9e52703d66195c9b2c1f92f1546a1e9f20a2005eb324722877652ac0ae24"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/manufacturing-queue-FJygbL/03-manufacturing-queue.nlogox",
+      "bytes": 47758,
+      "sha256": "97bf4fcff33ec8b1c18cedb09c10d750389c64bd7f79dfd73aef7e500a951581"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/manufacturing-queue-FJygbL/00-before-chat.nlogox",
+      "bytes": 44584,
+      "sha256": "4123330e783654f2d4fa4d6218b7a814d55ddb036600db6978307f21aabbf6f7"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/economics-wealth-bQwgPs/01-smoke-crop.png",
+      "bytes": 109420,
+      "sha256": "5e6c29b80ae139deeaf4c6bf0e3f2ca8174eb72f415a7021a49e2b0e38797d60"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/economics-wealth-bQwgPs/01-smoke.nlogox",
+      "bytes": 44419,
+      "sha256": "761f653a381f4477707e942c3345f76b6577fa9492c5060a92162277d19c95bc"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/economics-wealth-bQwgPs/02-economics-wealth-crop.png",
+      "bytes": 134105,
+      "sha256": "61df5f94dfbef754b017ee2dee28df94ee64bd8ebc0d93c92791d42c782e06ca"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/economics-wealth-bQwgPs/02-economics-wealth-validated-crop.png",
+      "bytes": 151067,
+      "sha256": "348fd2a1085125b29cf789e990cb943f6e0d2378d1c9430cf69905ff3353bb94"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/economics-wealth-bQwgPs/02-economics-wealth.nlogox",
+      "bytes": 45311,
+      "sha256": "b9447ab20d982fa5279121a9ceda338b00e7ef530eb5f4d83a1206a4aeec737a"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/economics-wealth-bQwgPs/03-economics-wealth-crop.png",
+      "bytes": 148322,
+      "sha256": "94eeaaa0af9157586d5ee9d66aecf0230cc4f64dd621b2f994d0ab487291f009"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/economics-wealth-bQwgPs/03-economics-wealth-validated-crop.png",
+      "bytes": 148322,
+      "sha256": "94eeaaa0af9157586d5ee9d66aecf0230cc4f64dd621b2f994d0ab487291f009"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/economics-wealth-bQwgPs/03-economics-wealth.nlogox",
+      "bytes": 47659,
+      "sha256": "144683acf127c43fdbaa3447ab844ce39eea1dae9094dbb31fa01c3543aa568c"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/economics-wealth-bQwgPs/00-before-chat.nlogox",
+      "bytes": 44419,
+      "sha256": "761f653a381f4477707e942c3345f76b6577fa9492c5060a92162277d19c95bc"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/policy-renewables-wHB3Uk/01-smoke-crop.png",
+      "bytes": 133966,
+      "sha256": "97d5be3a560b26bfff31f2af316a1322119b893e2eb9ba4444b7025638075b00"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/policy-renewables-wHB3Uk/01-smoke.nlogox",
+      "bytes": 44586,
+      "sha256": "b693f1f2e645881687b380ab1c9dccecb1388cb904acf80d4b972ffee275513e"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/policy-renewables-wHB3Uk/02-policy-renewables-crop.png",
+      "bytes": 156145,
+      "sha256": "77bd64fe13bfc19a1c4c55ff4b6564737ed530ce569c65fe75c2fbbfaae46cdc"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/policy-renewables-wHB3Uk/02-policy-renewables-validated-crop.png",
+      "bytes": 159258,
+      "sha256": "8bd3c9e1e9f4faee7a9c08edac779a9d67d31946dee026320991edb6b894e8d1"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/policy-renewables-wHB3Uk/02-policy-renewables.nlogox",
+      "bytes": 44684,
+      "sha256": "a151bf9fb103bd8f2ea8a40ca4095a2d9d51527ce52a4c8f64cdaa11677c9528"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/policy-renewables-wHB3Uk/03-policy-renewables-crop.png",
+      "bytes": 163665,
+      "sha256": "53bcd532129c8dcaec3c5014e86e40f6463d95fad1404cd21cf90a776e293056"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/policy-renewables-wHB3Uk/03-policy-renewables-validated-crop.png",
+      "bytes": 163665,
+      "sha256": "53bcd532129c8dcaec3c5014e86e40f6463d95fad1404cd21cf90a776e293056"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/policy-renewables-wHB3Uk/03-policy-renewables.nlogox",
+      "bytes": 45709,
+      "sha256": "b937872ea3b85dfcf5dd228faa67d21ff5648ef3683eb6cc1af074c344f4b175"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/policy-renewables-wHB3Uk/00-before-chat.nlogox",
+      "bytes": 44586,
+      "sha256": "b693f1f2e645881687b380ab1c9dccecb1388cb904acf80d4b972ffee275513e"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/psychology-opinions-JtrpKH/01-smoke-crop.png",
+      "bytes": 129129,
+      "sha256": "7661870850ae9ff41b5f16f70d6923e17f6cbebfd4d156035d5e8c5dcc253f03"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/psychology-opinions-JtrpKH/01-smoke.nlogox",
+      "bytes": 44592,
+      "sha256": "e3d1816d7d30f0a58dbade7cbd1ed16bd3d96bcc78e9c083e1753e815be22552"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/psychology-opinions-JtrpKH/02-psychology-opinions-validated-crop.png",
+      "bytes": 124744,
+      "sha256": "7cead57dee98e8577fb36b0d4087db979d2a7011073b08e0413c91368bf478a0"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/psychology-opinions-JtrpKH/02-psychology-opinions.nlogox",
+      "bytes": 45584,
+      "sha256": "9a36fb9c21ccb7752061d51dc030e59303c540f2d65f0da32d69e86c1b88e03c"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/psychology-opinions-JtrpKH/03-psychology-opinions-crop.png",
+      "bytes": 160577,
+      "sha256": "7cefb7a7ed7778eadd8e5a95abda5ce0c0c8a583bb352a53c74d5c1447de14cb"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/psychology-opinions-JtrpKH/03-psychology-opinions-validated-crop.png",
+      "bytes": 160681,
+      "sha256": "27fe30f385da1e36a9afd9e11528c64f565c5ee12b7dd1c94448bf19354c1ae3"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/psychology-opinions-JtrpKH/03-psychology-opinions.nlogox",
+      "bytes": 47672,
+      "sha256": "84791869b037bdca668139b319062ba566ea1a062b9bc929954b65a7e5cffe76"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/psychology-opinions-JtrpKH/00-before-chat.nlogox",
+      "bytes": 44592,
+      "sha256": "e3d1816d7d30f0a58dbade7cbd1ed16bd3d96bcc78e9c083e1753e815be22552"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/ai-bandit-cshYTu/01-smoke-crop.png",
+      "bytes": 117700,
+      "sha256": "d7797b03993a9ccae8bb330f4e00f39b447110f92e4b8214b820a2b93df9d8f3"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/ai-bandit-cshYTu/01-smoke.nlogox",
+      "bytes": 44435,
+      "sha256": "9407ac3a5475f218995bd4d479c870cb0ff337159160f8e339676c6f30b4317d"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/ai-bandit-cshYTu/02-ai-bandit-crop.png",
+      "bytes": 143043,
+      "sha256": "53c46d123111bdf458870edddbfd8b1db1dd86e8d13fd9d56e0e2361a483a716"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/ai-bandit-cshYTu/02-ai-bandit-validated-crop.png",
+      "bytes": 145303,
+      "sha256": "377d9b508a9f7e7256ffc174725f48c86d765887f18a980fcacd1a3367bef66e"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/ai-bandit-cshYTu/02-ai-bandit.nlogox",
+      "bytes": 46350,
+      "sha256": "69ced18222ccaf70390197e1e0aaea522a0814ffac9793432274ec020807aa78"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/ai-bandit-cshYTu/03-ai-bandit-crop.png",
+      "bytes": 150556,
+      "sha256": "461c40d1474562e9ca9d7ad2f715c0c8891c53bca4c62967be3f823fee1f4d9d"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/ai-bandit-cshYTu/03-ai-bandit-validated-crop.png",
+      "bytes": 150556,
+      "sha256": "461c40d1474562e9ca9d7ad2f715c0c8891c53bca4c62967be3f823fee1f4d9d"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/ai-bandit-cshYTu/03-ai-bandit.nlogox",
+      "bytes": 47235,
+      "sha256": "b6f7ee8d4097f765a6ccc955b741f7b465497e9aeacf0c7a489d0e512c5256c1"
+    },
+    {
+      "file": "../../../../Documents/MemoSim Training Evidence/ai-bandit-cshYTu/00-before-chat.nlogox",
+      "bytes": 44435,
+      "sha256": "9407ac3a5475f218995bd4d479c870cb0ff337159160f8e339676c6f30b4317d"
+    }
+  ],
+  "checks": [
+    "Self-contained file:// load with network blocked; all images decoded; local anchors, IDs and asset dependencies audited.",
+    "All 15 original user-manual chapters preserved.",
+    "Full-content search finds language-reference passages.",
+    "Reading progress persists across reload and can be reset.",
+    "Embedded dictionary filtering works offline.",
+    "Scenario stage/evidence tabs, copy fallback and native model download tested.",
+    "Responsive document fits 1440px viewport.",
+    "Responsive document fits 1024px viewport.",
+    "Responsive document fits 768px viewport.",
+    "Responsive document fits 390px viewport.",
+    "Responsive document fits 320px viewport.",
+    "Mobile contents toggle and print expansion verified."
+  ],
+  "errors": [],
+  "layoutChecks": [
+    {
+      "width": 1440,
+      "clippedText": [],
+      "titleWidth": 558,
+      "illustrationWidth": 513
+    },
+    {
+      "width": 1024,
+      "clippedText": [],
+      "titleWidth": 381,
+      "illustrationWidth": 358
+    },
+    {
+      "width": 768,
+      "clippedText": [],
+      "titleWidth": 517,
+      "illustrationWidth": 351
+    },
+    {
+      "width": 390,
+      "clippedText": [],
+      "titleWidth": 335,
+      "illustrationWidth": 335
+    },
+    {
+      "width": 320,
+      "clippedText": [],
+      "titleWidth": 275,
+      "illustrationWidth": 275
+    }
+  ],
+  "networkRequests": []
+}

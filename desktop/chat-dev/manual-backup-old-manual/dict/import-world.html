@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>import-world | MemoSim Dictionary</title>
+  <link rel="icon" href="../assets/memosim-icon.png" type="image/png">
+  <link rel="stylesheet" href="../docs.css">
+  <script src="../docs.js" defer></script>
+</head>
+<body data-manual="dictionary">
+  <a class="skip-link" href="#content">Skip to dictionary content</a>
+  <header><a class="brand" href="../index.html">MemoSim <small>Offline documentation</small></a></header>
+  <nav aria-label="Main"><a href="../index.html">User manual</a> <a href="../tutorial.html">Tutorial</a> <a href="../dictionary.html">Dictionary</a> <a href="../legal.html">Licenses &amp; credits</a> <a href="../manual.pdf">PDF manual</a></nav>
+  <main id="content">
+    <p><a href="../dictionary.html#dictionary-search">Back to dictionary search</a> · NetLogo language reference (7.1.0-alpha1)</p>
+    <h1>import-world</h1>
+    <article aria-label="NetLogo language reference"><div class="dict_entry" id="import-world" role="region"><h3 id="import-world10"><a href="#import-world" role="doc-noteref" aria-label="Reference to import-world">
+import-world
+<span class="since" role="note" aria-label="Since version">
+1.0
+</span></a></h3><h4 id="import-world-filename" class="section-heading"><a href="#import-world-filename" class="section-anchor"><span class="prim_example"><p>import-world <em>filename</em></p></span></a></h4><p>Reads the values of all variables for a model, both built-in and
+user-defined, including all observer, turtle, and patch variables,
+from an external file named by the given string. The file should be
+in the format used by the <code class="netlogo-command"><a href="../dictionary.html#export-cmds" class="netlogo-wiki-link" title="export-world">export-world</a></code>primitive.</p><p>Note that the functionality of this primitive is also directly
+available from NetLogo’s File menu.</p><p>When using import-world, to avoid errors, perform these steps in
+the following order:</p><ol><li>Open the model from which you created the export file.</li><li>Press the Setup button, to get the model in a state from which
+it can be run.</li><li>Import the file.</li><li>Re-open any files that the model had opened with the <code>file-open</code> command.</li><li>If you want, press Go button to continue running the model from
+the point where it left off.</li></ol><p>If you wish to import a file from a location other than the
+model’s location, you may include the full path to the file you
+wish to import. See <code class="netlogo-command"><a href="../dictionary.html#export-cmds" class="netlogo-wiki-link" title="export-world">export-world</a></code> for an
+example.</p><p>Note: This primitive is not compatible with NetLogo Web. If you
+wish to import a world with the same code and the
+same behavior in both NetLogo and NetLogo Web, see <a href="https://github.com/NetLogo/ImportA-Extension#readme"><span class="iconify i-fa6-solid:link mr-1 inline-block align-middle" aria-hidden="true"></span>import-a:world</a>.</p></div></article>
+  </main>
+  <footer>
+    <p>NetLogo User Manual (7.1.0-alpha1), by Uri Wilensky, Center for Connected Learning and Computer-Based Modeling, Northwestern University. Copyright 1999-2025 by Uri Wilensky. Adapted for MemoSim by changing the page layout, navigation and links. The adapted reference material is licensed under <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported</a>.</p>
+    <p><a href="../dict/upstream-notices.html">Upstream copyright and third-party notices</a> · <a href="https://github.com/NetLogo/docs/blob/8e165bbbe204b417e899413d097265592f98a951/7.1.0-alpha1/dict/import-world.html">Pinned source: NetLogo/docs 8e165bb</a> (2026-08-13) · <a href="https://docs.netlogo.org/7.1.0-alpha1/dict/import-world">Original upstream page (online)</a></p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MemoSim Training Evidence Manifest v1",
+  "description": "Only scenarios with tested:true and status:passed are included. Values record actual evidence; the generator does not assert that manifest claims are independently proven.",
+  "type": "object",
+  "required": ["schemaVersion", "scenarios"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "appVersion": { "type": "string" },
+    "generatedAt": { "type": "string" },
+    "statusReport": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "status": { "type": "string" },
+          "detail": {}
+        }
+      }
+    },
+    "scenarios": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "tested", "status"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "title": { "type": "string", "minLength": 1 },
+          "discipline": { "type": "string" },
+          "summary": { "type": "string" },
+          "tested": { "type": "boolean" },
+          "status": { "type": "string" },
+          "evidenceMode": { "enum": ["actual-chat", "scripted-tool-replay"] },
+          "baseModelPath": { "type": "string", "pattern": "\\.nlogox$" },
+          "finalModelPath": { "type": "string", "pattern": "\\.nlogox$" },
+          "stages": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/stage" } },
+          "screenshots": { "type": "array", "items": { "$ref": "#/$defs/screenshot" } },
+          "transcript": { "type": "array", "items": { "$ref": "#/$defs/turn" } },
+          "tools": {},
+          "validation": {},
+          "provenance": {},
+          "limitations": {},
+          "reason": {},
+          "error": {},
+          "detail": {}
+        },
+        "allOf": [{
+          "if": { "properties": { "tested": { "const": true }, "status": { "const": "passed" } } },
+          "then": { "required": ["evidenceMode", "baseModelPath", "finalModelPath", "stages"] }
+        }]
+      }
+    }
+  },
+  "$defs": {
+    "stage": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "prompt": { "type": "string" },
+        "why": { "type": "string" },
+        "limitations": {},
+        "result": {},
+        "transcript": { "type": "array", "items": { "$ref": "#/$defs/turn" } },
+        "tools": {},
+        "validation": {},
+        "screenshots": { "type": "array", "items": { "$ref": "#/$defs/screenshot" } },
+        "modelPath": { "type": "string", "pattern": "\\.nlogox$" }
+      }
+    },
+    "turn": {
+      "type": "object",
+      "properties": { "role": { "type": "string" }, "content": {}, "parts": { "type": "array" } }
+    },
+    "screenshot": {
+      "type": "object",
+      "description": "path identifies the actual cropped capture. fullPath, when present, identifies the preserved original and must differ from path. Paths can be absolute or relative to this manifest.",
+      "required": ["path", "alt", "caption"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "fullPath": { "type": "string" },
+        "alt": { "type": "string", "minLength": 1 },
+        "caption": { "type": "string", "minLength": 1 },
+        "source": {},
+        "capturedAt": { "type": "string" }
+      }
+    }
+  }
+}

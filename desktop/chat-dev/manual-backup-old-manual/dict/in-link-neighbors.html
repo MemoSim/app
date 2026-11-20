@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>in-&lt;breed&gt;-neighbors / in-link-neighbors | MemoSim Dictionary</title>
+  <link rel="icon" href="../assets/memosim-icon.png" type="image/png">
+  <link rel="stylesheet" href="../docs.css">
+  <script src="../docs.js" defer></script>
+</head>
+<body data-manual="dictionary">
+  <a class="skip-link" href="#content">Skip to dictionary content</a>
+  <header><a class="brand" href="../index.html">MemoSim <small>Offline documentation</small></a></header>
+  <nav aria-label="Main"><a href="../index.html">User manual</a> <a href="../tutorial.html">Tutorial</a> <a href="../dictionary.html">Dictionary</a> <a href="../legal.html">Licenses &amp; credits</a> <a href="../manual.pdf">PDF manual</a></nav>
+  <main id="content">
+    <p><a href="../dictionary.html#dictionary-search">Back to dictionary search</a> · NetLogo language reference (7.1.0-alpha1)</p>
+    <h1>in-&lt;breed&gt;-neighbors / in-link-neighbors</h1>
+    <article aria-label="NetLogo language reference"><div class="dict_entry" id="in-link-neighbors" role="region"><h3 id="in-breed-neighborsin-link-neighbors40"><a href="#in-link-neighbors" role="doc-noteref" aria-label="Reference to in-&lt;breed&gt;-neighbors">
+in-&lt;breed&gt;-neighbors
+</a><a href="#in-link-neighbors" role="doc-noteref" aria-label="Reference to in-link-neighbors">
+in-link-neighbors
+<span class="since" role="note" aria-label="Since version">
+4.0
+</span></a></h3><h4 id="in-breed-neighborsin-link-neighbors" class="section-heading"><a href="#in-breed-neighborsin-link-neighbors" class="section-anchor"><span class="prim_example"><p>in-&lt;breed&gt;-neighbors</p></span><span class="prim_example"><p>in-link-neighbors</p></span><img src="../assets/dict/turtle.webp" alt="Turtle Command" width="16" height="16"></a></h4><p>Reports the agentset of all the turtles that have directed links coming
+from them to the caller as well as all turtles that have an undirected
+link connecting them with the caller. You can think of this as “all the
+turtles that can get to the caller using a link.”</p><pre class="copy-code"><code><span class="token command">crt</span> <span class="token number">4</span>
+<span class="token command">ask</span> <span class="token reporter">turtle</span> <span class="token number">0</span> [ <span class="token command">create-links-to</span> <span class="token reporter">other</span> <span class="token reporter">turtles</span> ]
+<span class="token command">ask</span> <span class="token reporter">turtle</span> <span class="token number">1</span> [ <span class="token command">ask</span> <span class="token reporter">in-link-neighbors</span> [ <span class="token command">set</span> <span class="token reporter">color</span> <span class="token constant">blue</span> ] ] <span class="token comment">;; turtle 0 turns blue</span></code></pre></div></article>
+  </main>
+  <footer>
+    <p>NetLogo User Manual (7.1.0-alpha1), by Uri Wilensky, Center for Connected Learning and Computer-Based Modeling, Northwestern University. Copyright 1999-2025 by Uri Wilensky. Adapted for MemoSim by changing the page layout, navigation and links. The adapted reference material is licensed under <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported</a>.</p>
+    <p><a href="../dict/upstream-notices.html">Upstream copyright and third-party notices</a> · <a href="https://github.com/NetLogo/docs/blob/8e165bbbe204b417e899413d097265592f98a951/7.1.0-alpha1/dict/in-link-neighbors.html">Pinned source: NetLogo/docs 8e165bb</a> (2026-08-13) · <a href="https://docs.netlogo.org/7.1.0-alpha1/dict/in-link-neighbors">Original upstream page (online)</a></p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,14 @@
+import { chromium } from "@playwright/test";
+const prompt = process.argv[2] ?? "Create a random walk model with 50 turtles leaving trails, a speed slider and a monitor for the average distance from the origin.";
+const b = await chromium.launch({ channel: "chrome", headless: true });
+const pg = await b.newPage({ viewport: { width: 1400, height: 1000 } });
+await pg.goto("http://127.0.0.1:3000/");
+await pg.waitForFunction(() => document.body.innerText.includes("NetLogo Web: ready"), null, { timeout: 30000 });
+await new Promise((r) => setTimeout(r, 800));
+await pg.fill("textarea", prompt); await pg.keyboard.press("Enter");
+const t0 = Date.now();
+await pg.waitForFunction(() => !document.body.innerText.includes("working…") && document.querySelectorAll("button.font-mono").length > 0, null, { timeout: 600000, polling: 1000 });
+await new Promise((r) => setTimeout(r, 1500));
+console.log(`${((Date.now() - t0) / 1000).toFixed(0)}s |`, (await pg.$$eval("button.font-mono", (e) => e.map((x) => x.textContent.trim()))).join(" "), "| notices:", await pg.$$eval(".border-amber-300", (e) => e.map((x) => x.textContent.slice(0, 120))));
+await pg.screenshot({ path: "/tmp/live1.png" });
+await b.close();

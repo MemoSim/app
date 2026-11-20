@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Build a Random Walk | MemoSim Tutorial</title>
+  <link rel="stylesheet" href="docs.css">
+  <script src="docs.js" defer></script>
+</head>
+<body data-manual="tutorial">
+  <a class="skip-link" href="#content">Skip to tutorial</a>
+  <header class="site-header">
+    <a class="brand" href="index.html"><img src="assets/memosim-icon.png" alt="" width="44" height="44"><span>MemoSim <small>1.0.4 documentation</small></span></a>
+  </header>
+  <nav aria-label="Main">
+    <a href="index.html">User manual</a>
+    <a href="tutorial.html" aria-current="page">Tutorial</a>
+    <a href="dictionary.html">Dictionary</a>
+    <a href="legal.html">Licenses &amp; credits</a>
+    <a href="manual.pdf">PDF manual</a>
+  </nav>
+  <main id="content">
+    <article>
+      <header class="hero">
+        <p class="eyebrow">A hands-on, offline course</p>
+        <h1>Build and investigate a random walk</h1>
+        <p><strong>By texting in this style, all the stuff become available:</strong> “I want a random walk that runs up to N steps, seeds the walk, plots the position, and lets me sweep the seed.” Tell MemoSim in plain language what you want; it drafts the model, wires the controls, and tests it for you.</p>
+        <p>In this guided first model, a walker starts at zero and takes one step left or right each tick. You will create a model, connect controls and a plot, test repeatability, compare runs, and save your work. You do not need a network connection, an AI assistant, or programming experience.</p>
+        <p><strong>Time:</strong> about 45–60 minutes. <strong>What you need:</strong> MemoSim Desktop. Work through the lessons in order; the complete source is available below if you want to paste rather than type.</p>
+      </header>
+
+      <section aria-labelledby="before-starting">
+        <h2 id="before-starting">Before starting</h2>
+        <p>This tutorial uses the native NetLogo workspace inside MemoSim. The <strong>Interface</strong> tab is the model's dashboard: it shows the world and any controls, monitors, and plots you add. The <strong>Code</strong> tab is where you define procedures. A button in the dashboard calls a procedure by name; a slider supplies a global input variable to that same code.</p>
+        <p><strong>Chat-first tip:</strong> You don't have to open Code and type from scratch. Open the chat panel and text “Create a random-walk model: one walker moves left or right each tick, stops at step-limit, seeds random with seed-value, with a monitor for walk-distance and a plot of Position over time.” MemoSim will draft the code and widgets for you; you then review, compile, and test.</p>
+        <p>A tick is one unit of simulated time, not one second. A random walk is a sequence of randomly selected steps. Here, the walk's position is an integer: it changes by exactly −1 or +1 per tick. Randomness means a run can differ from the last one; a chosen seed makes that sequence repeatable.</p>
+        <aside class="callout"><strong>Keep this distinction in mind:</strong> the program below declares <code>walk-distance</code>, the result we calculate. The dashboard slider declares <code>step-limit</code>, and another slider declares <code>seed-value</code>. Do not add those slider-owned names to <code>globals</code>.</aside>
+        <p><strong>Your progress:</strong> check lessons as you complete them. Progress is stored only in this browser when local storage is available.</p>
+        <label><input type="checkbox" data-progress="tutorial-first-model"> Lesson 1: find the workspace</label><br>
+        <label><input type="checkbox" data-progress="tutorial-code"> Lesson 2: enter and understand the code</label><br>
+        <label><input type="checkbox" data-progress="tutorial-controls"> Lesson 3: connect controls</label><br>
+        <label><input type="checkbox" data-progress="tutorial-plot"> Lesson 4: add measurements</label><br>
+        <label><input type="checkbox" data-progress="tutorial-reproducibility"> Lesson 5: reproduce a run</label><br>
+        <label><input type="checkbox" data-progress="tutorial-experiment"> Lesson 6: compare runs</label><br>
+        <label><input type="checkbox" data-progress="tutorial-errors"> Lesson 7: diagnose errors</label><br>
+        <label><input type="checkbox" data-progress="tutorial-save"> Lesson 8: save and reopen</label><br>
+        <label><input type="checkbox" data-progress="tutorial-assistant"> Lesson 9: understand the optional assistant</label>
+        <p class="progress-summary" aria-live="polite"></p>
+      </section>
+
+      <section id="first-model" aria-labelledby="lesson-1">
+        <h2 id="lesson-1">1. Create a model and find your way around</h2>
+        <p class="chat-first"><strong>By texting in this style, all the stuff become available:</strong> “Create a random walk model with one walker that moves −1 or +1 each tick, stops at a step limit, and seeds the random generator.”</p>
+        <ol>
+          <li>Start MemoSim Desktop. You can do every programming and simulation step here with no internet access.</li>
+          <li>Choose <strong>File → New</strong> to create an empty model. Select the <strong>Code</strong> tab. You should see the editor where procedures are written.</li>
+          <li>Switch to <strong>Interface</strong>. The initially empty dashboard contains the world view and widget editing controls. In Live dashboard mode, simulation, controls, and analytics share the dashboard. The chat dock is a separate, optional part of the desktop window.</li>
+          <li><strong>Chat-first creation:</strong> Open the assistant panel and text: “Create a random walk model: a walker that moves −1 or +1 each tick, stops at step-limit, with sliders for step-limit and seed-value, a Setup button, a Go button that runs forever, a monitor for walk-distance, and a plot of Position over time.” Review the proposed code and widgets, then apply if it compiles.</li>
+        </ol>
+        <p>Before adding widgets, orient yourself. In Code, text is a program. In Interface, a slider or button is an editable object and an interactive control. When you add an Interface button, you tell it which procedure to run; it does not copy that procedure into the Code editor.</p>
+        <figure>
+          <img src="assets/dashboard-expanded.png" alt="MemoSim Interface showing the simulation area, controls and analytics together">
+          <figcaption>Live dashboard with the simulation, controls, and analytics visible together.</figcaption>
+        </figure>
+        <p><strong>Checkpoint:</strong> switch between Code and Interface without closing the model. Return to Code before continuing.</p>
+      </section>
+
+      <section aria-labelledby="lesson-2">
+        <h2 id="code-basics">2. Write the model's two procedures</h2>
+        <span id="lesson-2"></span>
+        <p class="chat-first"><strong>By texting in this style, all the stuff become available:</strong> “Write setup that clears the walker, sets walk-distance to zero, and seeds from seed-value; write go that stops at step-limit, moves −1 or +1, then ticks.” MemoSim writes the code and compiles it for you.</p>
+        <p>Enter the following in the Code tab, or ask MemoSim to paste it directly. The opening and closing words <code>to</code> and <code>end</code> mark each procedure. Indentation is for people reading the code; the brackets group commands that should happen together.</p>
+        <pre id="random-walk-code"><code>globals [ walk-distance ]
+
+to setup
+  clear-all
+  set walk-distance 0
+  random-seed seed-value
+  reset-ticks
+end
+
+to go
+  if ticks &gt;= step-limit [ stop ]
+
+  ifelse random 2 = 0
+    [ set walk-distance walk-distance - 1 ]
+    [ set walk-distance walk-distance + 1 ]
+
+  tick
+end</code></pre>
+        <button class="copy-code" type="button" data-copy-target="#random-walk-code">Copy model code</button>
+        <p><a href="tutorial-model-code.txt" download>Download the same source as a plain-text file</a>. If you use the copy button, paste into the Code editor. If you type it, preserve the procedure names, square brackets, and parentheses exactly.</p>
+        <p><strong>Chat-first alternative:</strong> Instead of typing this by hand, text “Generate this model’s code directly into the Code tab” after asking MemoSim to create it, then review the proposed code before applying.</p>
+        <p>Read it from top to bottom:</p>
+        <ul>
+          <li><code>globals [ walk-distance ]</code> creates a model variable to hold the current position.</li>
+          <li><code>setup</code> clears the previous run, sets the position to zero, initializes the random generator from the slider, and resets the clock.</li>
+          <li><code>go</code> stops once the tick limit is reached. Otherwise <code>random 2</code> produces either 0 or 1; the matching branch changes position by −1 or +1, then <code>tick</code> advances time by one.</li>
+        </ul>
+        <p>The slider names are intentional dependencies on widgets you will add next. NetLogo creates a global for each slider. Declaring either of them again in <code>globals</code> would create a duplicate-variable error.</p>
+        <p>The code refers to <code>step-limit</code> and <code>seed-value</code>, which will be supplied by the two sliders in the next lesson. Before those widgets exist, NetLogo may report the expected “nothing named” error. Add both sliders before treating that message as a code defect. Once the sliders exist, switch between Code and Interface to check the complete model. A missing bracket or misspelled slider name is still enough to prevent compilation.</p>
+        <aside class="callout"><strong>Notice:</strong> the walker here is its numeric position, rather than an animated turtle on the world. This keeps the first example focused on state, randomness, controls, and measurement. The live world remains available for agent-based models.</aside>
+      </section>
+
+      <section aria-labelledby="lesson-3">
+        <h2 id="lesson-3">3. Add sliders and buttons</h2>
+        <p class="chat-first"><strong>By texting in this style, all the stuff become available:</strong> “Add sliders step-limit (1–100, default 40) and seed-value (0–100000, default 2025), a Setup button running setup, a forever Go button running go, a monitor for walk-distance, and a plot called Position over time.” MemoSim wires all four widgets and the plot pen for you.</p>
+        <p>Switch to Interface and choose the widget-edit control. Right-click the canvas and choose a widget type from its menu to add each slider, button, monitor, or plot. If an edit dialog opens, enter the settings below and confirm them. Return to the interact control when the widgets are ready.</p>
+        <h3>Slider: run length</h3>
+        <ul>
+          <li><strong>Global variable:</strong> <code>step-limit</code></li>
+          <li><strong>Minimum:</strong> 1; <strong>maximum:</strong> 100; <strong>increment:</strong> 1; <strong>value:</strong> 40</li>
+          <li><strong>Units:</strong> steps</li>
+        </ul>
+        <h3>Slider: random seed</h3>
+        <ul>
+          <li><strong>Global variable:</strong> <code>seed-value</code></li>
+          <li><strong>Minimum:</strong> 0; <strong>maximum:</strong> 100000; <strong>increment:</strong> 1; <strong>value:</strong> 2025</li>
+          <li><strong>Units:</strong> seed</li>
+        </ul>
+        <p>The variable names must use the same spelling and hyphens as the code. The slider value is available directly as a global; do not add slider variables to the declaration at the top of the Code tab.</p>
+        <p><strong>Chat-first alternative:</strong> Open chat and text “Add the two sliders step-limit and seed-value to this model.” MemoSim upserts the widgets; review the proposed settings and apply.</p>
+        <p>When adding a widget, the selected edit tool may attach its shadow to the pointer. Place it on the canvas and click to finish. You can move and resize it later in edit mode. Arrange the two buttons and sliders together as controls, and place the monitor and plot near one another as measurements. In the dashboard view, the native layout groups these real widgets by function; if the original canvas is easier for editing, switch off Live dashboard, edit there, then turn it back on.</p>
+        <h3>Button: initialize</h3>
+        <ul>
+          <li><strong>Commands:</strong> <code>setup</code></li>
+          <li>Leave <strong>Forever</strong> off.</li>
+          <li>Give it a display name such as <strong>Setup</strong>.</li>
+        </ul>
+        <h3>Button: advance</h3>
+        <ul>
+          <li><strong>Commands:</strong> <code>go</code></li>
+          <li>Turn <strong>Forever</strong> on, so the button repeats <code>go</code> until it is pressed again or the run reaches its limit.</li>
+          <li>Give it a display name such as <strong>Go</strong>.</li>
+        </ul>
+        <p>Return to Interface's interact mode when editing is complete. Click Setup: <code>walk-distance</code> should become 0 and ticks should be 0. Click Go: ticks should increase until it reaches the slider's value (40 by default). Pressing Go again after the limit should not extend the run. Change <code>step-limit</code>, click Setup, then Go to start a new run with the new limit.</p>
+        <p>For a single-step test, edit the Go button and turn Forever off temporarily. Each click should advance one tick. Restore Forever afterward, or simply keep it off for manual stepping.</p>
+        <p><strong>Checkpoint:</strong> with the limit at 40, a completed run has exactly 40 ticks. At the default seed, Setup resets the random sequence each time, so clicking Setup and running again produces the same result.</p>
+      </section>
+
+      <section aria-labelledby="lesson-4">
+        <h2 id="lesson-4">4. Add a monitor and a plot</h2>
+        <p class="chat-first"><strong>By texting in this style, all the stuff become available:</strong> “Add a monitor for walk-distance labeled Position, and a plot called Position over time with x-axis Ticks and y-axis Position, plotting walk-distance each tick.”</p>
+        <p>A monitor displays a reporter's current value. A plot retains a series of values over simulated time. Add a monitor and configure it with the reporter <code>walk-distance</code>. Its display should read 0 immediately after Setup and the walk's final position after Go completes.</p>
+        <p>Add one plot and give it a meaningful title, such as <strong>Position over time</strong>. Set its horizontal axis label to <strong>Ticks</strong> and vertical axis label to <strong>Position</strong>. Open the plot's edit panel, select its default pen in the pen list, and put the following in that pen's <strong>Update commands</strong> field:</p>
+        <pre><code>if ticks &gt; 0 [ plotxy ticks walk-distance ]</code></pre>
+        <p>The command plots the current position against the current tick. The condition skips plotting at tick zero. The model's Setup clears the plot as part of <code>clear-all</code>; running Go draws one point per tick. Leave automatic axis scaling enabled if the editor offers that setting. The position is not guaranteed to stay near zero, so a fixed narrow vertical range can hide valid values.</p>
+        <p>Arrange the widgets so you can see the simulation area and all controls and analytics. Hide chat to give the dashboard more room, as shown here:</p>
+        <figure>
+          <img src="assets/dashboard-collapsed.png" alt="MemoSim Interface with the chat dock collapsed, leaving more room for the dashboard">
+          <figcaption>The optional chat dock can be collapsed when you want more room for the native dashboard.</figcaption>
+        </figure>
+        <p>Use the native chat dock's collapse control if it is open; expanding it restores access to the assistant. This changes available screen space, not the simulation or the model. The dashboard also keeps controls and analytics visible alongside the world; switching to the original canvas layout is optional.</p>
+        <p>If your plot is hard to read, edit its title and axis labels before changing the code. A label that says “position” is more informative than the default pen name. If the path seems to jump by more than one between visible marks, remember that a plot may redraw after several commands at once; the code still updates the position by exactly one per tick. Compare the final tick and monitor value to validate the run rather than assuming every screen refresh is a single step.</p>
+        <p>Run Setup and Go. Expected result: the monitor changes as steps occur, the plot gains points, and the horizontal axis reaches the run limit. Since each step changes position by one, the final result is an integer between −40 and +40 for a 40-step run, inclusive. It is not necessarily zero. The plotted path begins at the first step's position and ends at the final one.</p>
+      </section>
+
+      <section aria-labelledby="lesson-5">
+        <h2 id="lesson-5">5. Reproduce a run, then change it</h2>
+        <p class="chat-first"><strong>By texting in this style, all the stuff become available:</strong> “Run setup and go to 40 ticks with seed 2025; report the final position. Then run the same again and confirm it matches.” MemoSim runs the pair and reports both results so you can compare.</p>
+        <p>Repeatability is a useful debugging tool. A random seed chooses a deterministic sequence of pseudorandom choices. This model calls <code>random-seed seed-value</code> during Setup, so reusing the same seed and limit repeats the same steps.</p>
+        <ol>
+          <li>Set the run length to 40 and seed to 2025. Press Setup, then run Go to completion. Record the monitor's final value.</li>
+          <li>Press Setup and run Go again without changing either slider. The plotted path and final position should match the first run.</li>
+          <li>Change the seed to 2026. Press Setup and run again. The path will usually differ; the final position may differ too. It can coincidentally match the earlier final position, so compare the path as well.</li>
+          <li>Restore seed 2025, set the run length to 80, then repeat. There should now be 80 ticks and 80 plotted points, with a longer path.</li>
+        </ol>
+        <p>The outcome range is a check, not a prediction: after 80 steps the displacement must be between −80 and +80, because each step changes it by one. Many sequences end much closer to zero because left and right choices partly cancel, but no particular endpoint is guaranteed.</p>
+        <form class="quiz" data-answer="40">
+          <fieldset>
+            <legend>Quick check: with <code>step-limit</code> set to 40, how many ticks should a complete run have?</legend>
+            <label for="tick-answer">Enter a whole number:</label>
+            <input id="tick-answer" name="answer" type="text" inputmode="numeric" autocomplete="off">
+          </fieldset>
+          <button type="submit">Check answer</button>
+          <output aria-live="polite"></output>
+        </form>
+        <details>
+          <summary>Show the solution</summary>
+          <p>The run has 40 ticks. Every completed tick is one step, and the <code>step-limit</code> slider is set to 40. The stop check runs before the next step, so the model stops at 40 rather than taking a 41st step.</p>
+        </details>
+        <h3>Practice changing one thing</h3>
+        <p>Keep the seed at 2025 and compare runs with 20, 40, and 80 steps. Record both the tick count and final position. Each run should finish at its selected length; longer runs allow a wider range of final positions. Now hold the length at 40 and compare seeds 2025 and 2026. Did changing the length or changing the seed alter the run you expected? State which input you changed before drawing a conclusion.</p>
+        <details>
+          <summary>Check your reasoning</summary>
+          <p>Changing <code>step-limit</code> changes how many steps are allowed, so both the duration and possible endpoint range change. Changing <code>seed-value</code> changes the deterministic left/right sequence but not the 40-step duration or the allowed endpoint range. The values need not have a particular ordering; compare actual repeats, not a guessed result.</p>
+        </details>
+      </section>
+
+      <section aria-labelledby="lesson-6">
+        <h2 id="experiments">6. Compare runs as an experiment</h2>
+        <span id="lesson-6"></span>
+        <p class="chat-first"><strong>By texting in this style, all the stuff become available:</strong> “Run an experiment sweeping seed-value from 1 to 10 in steps of 1, with 40 ticks each, measuring final walk-distance and ticks. Name it Seed comparison.” MemoSim defines and runs the sweep headlessly and reports the table.</p>
+        <p>A single run is one example, not a general conclusion. To investigate variation systematically, use NetLogo's BehaviorSpace experiment tool, available from the native Tools menu. It runs a defined setup/go cycle repeatedly and records selected metrics.</p>
+        <ol>
+          <li>Open BehaviorSpace from <strong>Tools</strong> and create a named experiment, for example <strong>Seed comparison</strong>.</li>
+          <li>Set setup commands to <code>setup</code> and go commands to <code>go</code>. Set the experiment's stop condition to <code>ticks &gt;= step-limit</code>, so every run finishes at the selected limit. The condition is evaluated after each step.</li>
+          <li>Set repetitions to 1, add <code>walk-distance</code> and <code>ticks</code> as metrics, and clear <strong>Run metrics every step</strong> to record final measurements instead of a row at every tick. The ten seed values below will give you ten runs; setting ten repetitions too would multiply this into 100 runs.</li>
+          <li>In the variable values field, enter <code>["seed-value" [1 1 10]]</code>. This steps from seed 1 by 1 through seed 10. Keep <code>step-limit</code> fixed at 40 for the first comparison.</li>
+          <li>Run the experiment and inspect the results table. Every completed run should report 40 ticks. Final positions can differ by seed, and each must lie between −40 and +40.</li>
+        </ol>
+        <p>BehaviorSpace opens its experiment definition through the native Tools workflow. Set the time limit high enough to allow all 40 steps; the explicit stop condition is what ends a normal run. The variable values syntax uses a Logo list with the variable name in quotes and the first, increment, and last values in a second list. Save the experiment results outside the model if you need to retain the table.</p>
+        <p>Expected result: ten run IDs, one for each seed, and (when measuring only at the end) ten final records. Each record should show 40 ticks and a displacement from −40 through +40. First run one seed as a pilot, verify the table contains the metrics you expect, then add values. For this simple model there are only two meaningful outputs: completed time and final displacement. More rows are not automatically better evidence.</p>
+        <aside class="callout"><strong>Think like a scientist:</strong> write down one question before running an experiment. For example, “Across these ten seeds, how often does the final position fall within five steps of zero?” A fixed seed reproduces one trial; several seeds reveal variation.</aside>
+      </section>
+
+      <section aria-labelledby="lesson-7">
+        <h2 id="lesson-7">7. Diagnose common errors</h2>
+        <dl>
+          <dt>“There is already a global variable called …”</dt>
+          <dd>A slider already creates a global variable. Remove <code>step-limit</code> or <code>seed-value</code> from <code>globals</code>; keep only <code>walk-distance</code>. Check spelling if the message names a different variable.</dd>
+          <dt>“Nothing named STEP-LIMIT has been defined”</dt>
+          <dd>Add the run-length slider and use the exact global name <code>step-limit</code>. Check hyphens and spelling in the slider and code.</dd>
+          <dt>The Go button does not run or stops immediately</dt>
+          <dd>Confirm that its commands field says <code>go</code>, its Forever option is enabled for continuous running, and you pressed Setup first. Check that the limit is at least 1.</dd>
+          <dt>The plot is blank</dt>
+          <dd>Confirm its update commands include <code>if ticks &gt; 0 [ plotxy ticks walk-distance ]</code>, run Setup, then Go. Ensure you are looking at the plot on the Interface dashboard.</dd>
+          <dt>The plot stops before its expected length</dt>
+          <dd>Read the slider value and the tick counter. The model deliberately stops at <code>step-limit</code>; a limit of 1 means one step. Press Setup after changing the limit.</dd>
+          <dt>My run differs from the previous run</dt>
+          <dd>Check whether <code>seed-value</code> changed. Setup resets the generator from the current slider; matching seed and run length should reproduce the sequence.</dd>
+        </dl>
+        <p>When an error appears, read the first reported message and follow its location before changing unrelated code. Correct one issue at a time, then rerun Setup. If needed, use the Code tab's undo and return to the last working version.</p>
+        <p>Distinguish a compile error from an unexpected result. If the model refuses to run, first inspect spelling, brackets, and the widget that supplies a referenced global. If it runs but gives an unexpected endpoint, check the seed, limit, tick count, and whether Setup was pressed after changing inputs. A surprising but valid random endpoint is not a syntax error.</p>
+      </section>
+
+      <section aria-labelledby="lesson-8">
+        <h2 id="lesson-8">8. Save, reopen, and preserve your work</h2>
+        <ol>
+          <li>Choose <strong>File → Save As</strong> and save the model under a recognizable name such as <code>Random Walk.nlogox</code> in a folder you can find again.</li>
+          <li>Save after meaningful edits, especially after adding or configuring widgets. A saved model contains its code and dashboard widget settings.</li>
+          <li>If you used BehaviorSpace, save its result table separately when you want to keep the measured runs.</li>
+          <li>For a backup, use the supported File menu export action when present, or make a second copy of the saved model using your file manager. Do not rename a text file containing code to <code>.nlogox</code>; a NetLogo model is more than its source text.</li>
+        </ol>
+        <p>To check your save, close the model after saving, open the saved model from the File menu, and confirm that Code, the two sliders, both buttons, the monitor, and the plot are present. Run Setup and Go once more. Keep an untouched copy before trying major edits.</p>
+        <p>NetLogo's File menu also provides export actions for model artifacts such as the interface image, world data, output, and plots. Those exports are useful snapshots of a particular run; they are not substitutes for saving the model file, which preserves the code and widgets needed to reproduce it. Choose the export that matches what you intend to share, and include the model and experiment settings when another person needs to repeat your result.</p>
+      </section>
+
+      <section aria-labelledby="lesson-9">
+        <h2 id="lesson-9">9. Ask the assistant for help</h2>
+        <p class="chat-first"><strong>By texting in this style, all the stuff become available:</strong> “Why did the compile fail after I added the vaccination slider?” The assistant reads the compiler feedback and proposes a fix that compiles cleanly.</p>
+        <p>The assistant is now part of the workflow, not an optional add-on. The chat panel can explain a compiler message, propose code changes, wire widgets, run commands, and report results. If the provider is unavailable, you can still use the offline Code and Interface tools.</p>
+        <p>Generating AI responses requires a configured model provider. A remote provider requires an internet connection; the desktop simulation, Code editor, widgets, and saved model do not. If the panel or provider is unavailable, continue with the offline Code and Interface tools. Never accept a code change without reading it, checking that its slider names match your widgets, and rerunning your test.</p>
+        <p>For a focused help request, include the exact error text, the procedure you were editing, and what you expected to happen. Do not include private or sensitive information in a prompt.</p>
+      </section>
+
+      <section aria-labelledby="system-dynamics">
+        <h2 id="system-dynamics">10. Optional: build a stock-and-flow model</h2>
+        <p>The random walk updates a variable explicitly in <code>go</code>. System Dynamics instead represents an accumulated quantity as a stock and its rate of change as a flow. This short exercise models water entering a tank at a constant rate. Work in a new document so it cannot overwrite your random-walk model.</p>
+        <ol>
+          <li>Save the random walk. Choose <strong>File → New</strong>, then <strong>Tools → System Dynamics</strong>. MemoSim opens the visual modeler in its own window.</li>
+          <li>The initial diagram may contain a stock named <code>stock</code>. Select it, set <strong>Name</strong> to <code>water</code> and <strong>Initial value</strong> to <code>100</code>, then choose <strong>Save element</strong>. If the diagram is empty, use <strong>+ Stock</strong> first.</li>
+          <li>Choose <strong>+ Source</strong> (or <strong>+ Flow</strong>). Set <strong>Name</strong> to <code>inflow</code>, <strong>Rate equation</strong> to <code>5</code>, <strong>From</strong> to <strong>Outside (cloud)</strong> and <strong>To</strong> to <code>water</code>. Choose <strong>Save element</strong>. This is water entering the model; a stock-to-stock arrow would model a transfer instead.</li>
+          <li>Keep <strong>dt</strong> at <code>1</code>. Choose <strong>Check structure</strong>, then <strong>Apply to model</strong>. Structural validation checks the diagram; Apply also compiles the equations with the simulation engine.</li>
+          <li>After a successful apply, return to the main document's <strong>Code</strong> tab and enter the two wrapper procedures below. A new document has no procedures yet, while the modeler's buttons call <code>setup</code> and <code>go</code>. Choose <strong>Check</strong> after adding them. Then close and reopen the still-clean modeler from Tools <em>before editing any flow</em>, so its document baseline includes the new Code. Generated <code>system-dynamics-go</code> already advances model time; do not add another <code>tick</code>.</li>
+          <li>Return to the modeler and use its <strong>Setup</strong> and <strong>Step</strong> controls. The stock begins at 100. With a constant rate of 5 and a one-unit time step, each step adds 5. After ten integration steps, it should be 150. Read the live stock result rather than judging the diagram's appearance.</li>
+          <li>Change the rate to <code>10</code>, save the element and apply again. Apply resets simulation state. Setup and repeat ten steps: the expected stock is 200. Save the native model and use <strong>Export JSON</strong> if you also want a reusable diagram draft.</li>
+        </ol>
+        <pre class="copy-code"><code>to setup
+  clear-all
+  system-dynamics-setup
+end
+
+to go
+  system-dynamics-go
+end</code></pre>
+        <p>These wrappers belong in the model's ordinary Code tab, not in a stock or flow equation. They call the engine-generated solver procedures without duplicating its clock updates. A Code edit changes the native document even if the modeler does not show an unapplied warning. Refresh its baseline while its diagram is still clean, as instructed above. If you already have a dirty diagram draft, export it before attempting recovery; closing a dirty modeler alone does not discard or refresh it.</p>
+        <aside class="callout"><strong>Units matter:</strong> treat <code>water</code> as liters, <code>inflow</code> as liters per minute and <code>dt</code> as minutes. A rate is not an amount per tick independent of <code>dt</code>. This constant-rate example is simple; nonlinear models require sensitivity checks with smaller time steps.</aside>
+        <p>An influence arrow only shows a dependency; it does not automatically write a rate equation. Closing the modeler hides its window and retains the draft. Do not rely on closing and reopening it to discard changes. See the manual's <a href="index.html#modeler">draft and recovery guidance</a> before trying a different model.</p>
+        <details><summary>Check your understanding</summary><p>Starting at 100 with a constant inflow of 5, a time step of 0.5 adds 2.5 per step. Twenty such steps represent ten minutes and produce 150. Ten such steps represent only five minutes and produce 125.</p></details>
+      </section>
+
+      <section aria-labelledby="next-steps">
+        <h2 id="next-steps">What you learned</h2>
+        <p><strong>By texting in this style, all the stuff become available:</strong> “Add another measurement to the plot” or “Run a larger sweep across seeds and tell me which settings most affect final position.” These are things you can ask MemoSim to do in conversation rather than typing NetLogo code yourself.</p>
+        <p>You created procedures, connected interface widgets to model variables, advanced a simulation by ticks, plotted a measurement, controlled pseudorandom behavior with a seed, compared runs, diagnosed common errors, and saved a working model. A useful next exercise is to add another measurement to the plot or use BehaviorSpace to compare a larger set of seeds while keeping the model's other settings fixed.</p>
+        <p>For native feature descriptions, see the <a href="manual.pdf">user manual</a>. Look up unfamiliar terms in the <a href="dictionary.html">dictionary</a>, or return to <a href="index.html">documentation home</a>.</p>
+      </section>
+    </article>
+  </main>
+  <footer class="page-footer">
+    <p>This original tutorial is © MemoSim contributors and licensed under the <a href="licenses/CC-BY-SA-3.0.txt">Creative Commons Attribution-ShareAlike 3.0 Unported License</a>. NetLogo and its simulation engine are developed by Uri Wilensky and the Center for Connected Learning and Computer-Based Modeling at Northwestern University. This tutorial is independent documentation and is not an official NetLogo publication.</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,20 @@
+import { chromium } from "@playwright/test";
+const b = await chromium.launch({ channel: "chrome", headless: true });
+const prompts = ["Create a simple forest fire model: trees on a grid, a density slider, click setup then go and fire spreads to neighbouring trees. Monitor for percent burned.", "Create a random walk model with 50 turtles leaving pen trails, a speed slider and a monitor for the average distance from the origin."];
+await Promise.all(prompts.map(async (prompt, i) => {
+  const ctx = await b.newContext({ viewport: { width: 1400, height: 1000 } });
+  const pg = await ctx.newPage();
+  await pg.goto("http://127.0.0.1:3000/");
+  await pg.waitForFunction(() => document.body.innerText.includes("NetLogo Web: ready"), null, { timeout: 30000 });
+  await new Promise((r) => setTimeout(r, 800));
+  await pg.fill("textarea", prompt); await pg.keyboard.press("Enter");
+  const t0 = Date.now();
+  await pg.waitForFunction(() => !document.body.innerText.includes("working…") && document.querySelectorAll("button.font-mono").length > 0, null, { timeout: 400000, polling: 1000 });
+  await new Promise((r) => setTimeout(r, 1500));
+  const chips = (await pg.$$eval("button.font-mono", (e) => e.map((x) => x.textContent.trim()))).join(" ");
+  const warn = await pg.$$eval(".border-amber-300", (e) => e.length);
+  const ok = await pg.$$eval(".border-green-300", (e) => e.length);
+  console.log(`user${i + 1}: ${((Date.now() - t0) / 1000).toFixed(0)}s | warnings:${warn} fixed:${ok} | ${chips}`);
+  await pg.screenshot({ path: `/tmp/live2_${i + 1}.png` });
+}));
+await b.close();

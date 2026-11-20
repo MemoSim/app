@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>turtles-on | MemoSim Dictionary</title>
+  <link rel="icon" href="../assets/memosim-icon.png" type="image/png">
+  <link rel="stylesheet" href="../docs.css">
+  <script src="../docs.js" defer></script>
+</head>
+<body data-manual="dictionary">
+  <a class="skip-link" href="#content">Skip to dictionary content</a>
+  <header><a class="brand" href="../index.html">MemoSim <small>Offline documentation</small></a></header>
+  <nav aria-label="Main"><a href="../index.html">User manual</a> <a href="../tutorial.html">Tutorial</a> <a href="../dictionary.html">Dictionary</a> <a href="../legal.html">Licenses &amp; credits</a> <a href="../manual.pdf">PDF manual</a></nav>
+  <main id="content">
+    <p><a href="../dictionary.html#dictionary-search">Back to dictionary search</a> · NetLogo language reference (7.1.0-alpha1)</p>
+    <h1>turtles-on</h1>
+    <article aria-label="NetLogo language reference"><div class="dict_entry" id="turtles-on" role="region"><h3 id="turtles-on20"><a href="#turtles-on" role="doc-noteref" aria-label="Reference to turtles-on">
+turtles-on
+<span class="since" role="note" aria-label="Since version">
+2.0
+</span></a></h3><h4 id="turtles-on-turtle-or-patchturtles-on-turtleset-or-agentsetbreeds-on-turtle-or-patchbreeds-on-turtleset-or-patchset" class="section-heading"><a href="#turtles-on-turtle-or-patchturtles-on-turtleset-or-agentsetbreeds-on-turtle-or-patchbreeds-on-turtleset-or-patchset" class="section-anchor"><span class="prim_example"><p>turtles-on <em>turtle or patch</em></p></span><span class="prim_example"><p>turtles-on <em>turtleset or agentset</em></p></span><span class="prim_example"><p>&lt;breeds&gt;-on <em>turtle or patch</em></p></span><span class="prim_example"><p>&lt;breeds&gt;-on <em>turtleset or patchset</em></p></span><img src="../assets/dict/turtle.webp" alt="Turtle Command" width="16" height="16"><img src="../assets/dict/patch.webp" alt="Patch Command" width="16" height="16"></a></h4><p>Reports an agentset containing all the turtles that are on the
+given patch or patches, or standing on the same patch as the given
+turtle or turtles.</p><pre class="copy-code"><code><span class="token command">ask</span> <span class="token reporter">turtles</span> [
+  <span class="token command">if</span> <span class="token reporter">not</span> <span class="token reporter">any?</span> <span class="token reporter">turtles-on</span> <span class="token reporter">patch-ahead</span> <span class="token number">1</span>
+    [ <span class="token command">fd</span> <span class="token number">1</span> ]
+]
+<span class="token command">ask</span> <span class="token reporter">turtles</span> [
+  <span class="token command">if</span> <span class="token reporter">not</span> <span class="token reporter">any?</span> <span class="token reporter">turtles-on</span> <span class="token reporter">neighbors</span> [
+    <span class="token variable">die-of-loneliness</span>
+  ]
+]</code></pre><p>If the name of a breed is substituted for “turtles”, then
+only turtles of that breed are included.</p></div></article>
+  </main>
+  <footer>
+    <p>NetLogo User Manual (7.1.0-alpha1), by Uri Wilensky, Center for Connected Learning and Computer-Based Modeling, Northwestern University. Copyright 1999-2025 by Uri Wilensky. Adapted for MemoSim by changing the page layout, navigation and links. The adapted reference material is licensed under <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported</a>.</p>
+    <p><a href="../dict/upstream-notices.html">Upstream copyright and third-party notices</a> · <a href="https://github.com/NetLogo/docs/blob/8e165bbbe204b417e899413d097265592f98a951/7.1.0-alpha1/dict/turtles-on.html">Pinned source: NetLogo/docs 8e165bb</a> (2026-08-13) · <a href="https://docs.netlogo.org/7.1.0-alpha1/dict/turtles-on">Original upstream page (online)</a></p>
+  </footer>
+</body>
+</html>

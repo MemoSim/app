@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>is-agent? / is-agentset? / is-anonymous-command? / is-anonymous-reporter? and related entries | MemoSim Dictionary</title>
+  <link rel="icon" href="../assets/memosim-icon.png" type="image/png">
+  <link rel="stylesheet" href="../docs.css">
+  <script src="../docs.js" defer></script>
+</head>
+<body data-manual="dictionary">
+  <a class="skip-link" href="#content">Skip to dictionary content</a>
+  <header><a class="brand" href="../index.html">MemoSim <small>Offline documentation</small></a></header>
+  <nav aria-label="Main"><a href="../index.html">User manual</a> <a href="../tutorial.html">Tutorial</a> <a href="../dictionary.html">Dictionary</a> <a href="../legal.html">Licenses &amp; credits</a> <a href="../manual.pdf">PDF manual</a></nav>
+  <main id="content">
+    <p><a href="../dictionary.html#dictionary-search">Back to dictionary search</a> · NetLogo language reference (7.1.0-alpha1)</p>
+    <h1>is-agent? / is-agentset? / is-anonymous-command? / is-anonymous-reporter? and related entries</h1>
+    <article aria-label="NetLogo language reference"><div class="dict_entry" id="is-of-type" role="region"><h3 id="is-agent121is-agentset121is-anonymous-command60is-anonymous-reporter60is-boolean121is-directed-link40is-link40is-link-set40is-list10is-number121is-patch121is-patch-set40is-string10is-turtle121is-turtle-set40is-undirected-link40"><a href="#is-of-type" role="doc-noteref" aria-label="Reference to is-agent?">
+is-agent?
+<span class="since" role="note" aria-label="Since version">
+1.2.1
+</span></a><a href="#is-of-type" role="doc-noteref" aria-label="Reference to is-agentset?">
+is-agentset?
+<span class="since" role="note" aria-label="Since version">
+1.2.1
+</span></a><a href="#is-of-type" role="doc-noteref" aria-label="Reference to is-anonymous-command?">
+is-anonymous-command?
+<span class="since" role="note" aria-label="Since version">
+6.0
+</span></a><a href="#is-of-type" role="doc-noteref" aria-label="Reference to is-anonymous-reporter?">
+is-anonymous-reporter?
+<span class="since" role="note" aria-label="Since version">
+6.0
+</span></a><a href="#is-of-type" role="doc-noteref" aria-label="Reference to is-boolean?">
+is-boolean?
+<span class="since" role="note" aria-label="Since version">
+1.2.1
+</span></a><a href="#is-of-type" role="doc-noteref" aria-label="Reference to is-directed-link?">
+is-directed-link?
+<span class="since" role="note" aria-label="Since version">
+4.0
+</span></a><a href="#is-of-type" role="doc-noteref" aria-label="Reference to is-link?">
+is-link?
+<span class="since" role="note" aria-label="Since version">
+4.0
+</span></a><a href="#is-of-type" role="doc-noteref" aria-label="Reference to is-link-set?">
+is-link-set?
+<span class="since" role="note" aria-label="Since version">
+4.0
+</span></a><a href="#is-of-type" role="doc-noteref" aria-label="Reference to is-list?">
+is-list?
+<span class="since" role="note" aria-label="Since version">
+1.0
+</span></a><a href="#is-of-type" role="doc-noteref" aria-label="Reference to is-number?">
+is-number?
+<span class="since" role="note" aria-label="Since version">
+1.2.1
+</span></a><a href="#is-of-type" role="doc-noteref" aria-label="Reference to is-patch?">
+is-patch?
+<span class="since" role="note" aria-label="Since version">
+1.2.1
+</span></a><a href="#is-of-type" role="doc-noteref" aria-label="Reference to is-patch-set?">
+is-patch-set?
+<span class="since" role="note" aria-label="Since version">
+4.0
+</span></a><a href="#is-of-type" role="doc-noteref" aria-label="Reference to is-string?">
+is-string?
+<span class="since" role="note" aria-label="Since version">
+1.0
+</span></a><a href="#is-of-type" role="doc-noteref" aria-label="Reference to is-turtle?">
+is-turtle?
+<span class="since" role="note" aria-label="Since version">
+1.2.1
+</span></a><a href="#is-of-type" role="doc-noteref" aria-label="Reference to is-turtle-set?">
+is-turtle-set?
+<span class="since" role="note" aria-label="Since version">
+4.0
+</span></a><a href="#is-of-type" role="doc-noteref" aria-label="Reference to is-undirected-link?">
+is-undirected-link?
+<span class="since" role="note" aria-label="Since version">
+4.0
+</span></a></h3><h4 id="is-agent-valueis-agentset-valueis-anonymous-command-valueis-anonymous-reporter-valueis-boolean-valueis-breed-valueis-link-breed-valueis-directed-link-valueis-link-valueis-link-set-valueis-list-valueis-number-valueis-patch-valueis-patch-set-valueis-string-valueis-turtle-valueis-turtle-set-valueis-undirected-link-value" class="section-heading"><a href="#is-agent-valueis-agentset-valueis-anonymous-command-valueis-anonymous-reporter-valueis-boolean-valueis-breed-valueis-link-breed-valueis-directed-link-valueis-link-valueis-link-set-valueis-list-valueis-number-valueis-patch-valueis-patch-set-valueis-string-valueis-turtle-valueis-turtle-set-valueis-undirected-link-value" class="section-anchor"><span class="prim_example"><p>is-agent? <em>value</em></p></span><span class="prim_example"><p>is-agentset? <em>value</em></p></span><span class="prim_example"><p>is-anonymous-command? <em>value</em></p></span><span class="prim_example"><p>is-anonymous-reporter? <em>value</em></p></span><span class="prim_example"><p>is-boolean? <em>value</em></p></span><span class="prim_example"><p>is-&lt;breed&gt;? <em>value</em></p></span><span class="prim_example"><p>is-&lt;link-breed&gt;? <em>value</em></p></span><span class="prim_example"><p>is-directed-link? <em>value</em></p></span><span class="prim_example"><p>is-link? <em>value</em></p></span><span class="prim_example"><p>is-link-set? <em>value</em></p></span><span class="prim_example"><p>is-list? <em>value</em></p></span><span class="prim_example"><p>is-number? <em>value</em></p></span><span class="prim_example"><p>is-patch? <em>value</em></p></span><span class="prim_example"><p>is-patch-set? <em>value</em></p></span><span class="prim_example"><p>is-string? <em>value</em></p></span><span class="prim_example"><p>is-turtle? <em>value</em></p></span><span class="prim_example"><p>is-turtle-set? <em>value</em></p></span><span class="prim_example"><p>is-undirected-link? <em>value</em></p></span></a></h4><p>Reports true if <em>value</em> is of the given type, false otherwise.</p></div></article>
+  </main>
+  <footer>
+    <p>NetLogo User Manual (7.1.0-alpha1), by Uri Wilensky, Center for Connected Learning and Computer-Based Modeling, Northwestern University. Copyright 1999-2025 by Uri Wilensky. Adapted for MemoSim by changing the page layout, navigation and links. The adapted reference material is licensed under <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported</a>.</p>
+    <p><a href="../dict/upstream-notices.html">Upstream copyright and third-party notices</a> · <a href="https://github.com/NetLogo/docs/blob/8e165bbbe204b417e899413d097265592f98a951/7.1.0-alpha1/dict/is-of-type.html">Pinned source: NetLogo/docs 8e165bb</a> (2026-08-13) · <a href="https://docs.netlogo.org/7.1.0-alpha1/dict/is-of-type">Original upstream page (online)</a></p>
+  </footer>
+</body>
+</html>

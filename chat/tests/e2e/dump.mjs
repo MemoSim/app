@@ -1,0 +1,12 @@
+import { chromium } from "@playwright/test";
+const b = await chromium.launch({ channel: "chrome", headless: true });
+const pg = await b.newPage({ viewport: { width: 1400, height: 1000 } });
+await pg.goto("http://127.0.0.1:3000/");
+await pg.waitForFunction(() => document.body.innerText.includes("NetLogo Web: ready"), null, { timeout: 30000 });
+await pg.fill("textarea", "Create a predator-prey model with 100 sheep and 20 wolves, with sliders for both and a population plot.");
+await pg.keyboard.press("Enter");
+await pg.waitForFunction(() => document.querySelectorAll("button.font-mono").length >= 6, null, { timeout: 120000 });
+const btns = await pg.$$("button.font-mono");
+for (const bt of btns.slice(0,6)) await bt.click();
+console.log(await pg.$$eval("pre", (els) => els.map((e) => e.textContent.slice(-450)).join("\n=====\n")));
+await b.close();

@@ -1,0 +1,32 @@
+import { chromium } from "@playwright/test";
+const sse = (events) => events.map(([e, d]) => `event: ${e}\ndata: ${JSON.stringify(d)}\n\n`).join("");
+const tc = (name, args, id) => ["tool_call", { id, name, args: JSON.stringify(args) }];
+const b = await chromium.launch({ channel: "chrome", headless: true });
+const pg = await b.newPage({ viewport: { width: 1400, height: 1000 } });
+let n = 0;
+await pg.route("**/api/llm", async (route) => {
+  if (route.request().method() !== "POST") return route.continue();
+  const ev = n++ === 0 ? [tc("write_model", { code: "to setup\n  clear-all\n  create-turtles 30\n  reset-ticks\nend\nto go\n  ask turtles [ fd 1 ]\n  tick\nend", widgets: [{ kind: "button", label: "Setup", code: "setup" }, { kind: "button", label: "Go", code: "go", forever: true }, { kind: "slider", variable: "speed", min: 0, max: 5, default: 1 }] }, "s1"), ["done", {}]] : [["text", { delta: "built" }], ["done", {}]];
+  await route.fulfill({ status: 200, contentType: "text/event-stream", body: sse(ev) });
+});
+await pg.goto("http://127.0.0.1:3000/");
+await pg.waitForFunction(() => document.body.innerText.includes("NetLogo Web: ready"), null, { timeout: 30000 });
+await new Promise((r) => setTimeout(r, 800));
+await pg.fill("textarea", "make"); await pg.keyboard.press("Enter");
+await pg.waitForFunction(() => !document.body.innerText.includes("working…") && document.body.innerText.includes("built"), null, { timeout: 60000 });
+const f = pg.frameLocator("iframe");
+await f.getByText("Setup", { exact: true }).first().click();
+await f.getByText("Go", { exact: true }).first().click(); // forever button running
+await new Promise((r) => setTimeout(r, 1500));
+await pg.screenshot({ path: "/tmp/stage_before.png" });
+const before = await f.locator("body").innerText();
+await pg.getByText("New model").click();
+await new Promise((r) => setTimeout(r, 3500));
+await pg.screenshot({ path: "/tmp/stage_after.png" });
+const after = await f.locator("body").innerText();
+console.log("before has Setup/Go/speed:", /Setup/.test(before), /Go/.test(before), /speed/.test(before), "| ticks:", (before.match(/ticks: ?\d+/) || [])[0]);
+console.log("after  has Setup/Go/speed:", /Setup/.test(after), /Go/.test(after), /speed/.test(after), "| ticks:", (after.match(/ticks: ?\d+/) || [])[0]);
+await new Promise((r) => setTimeout(r, 2000));
+const still = (await f.locator("body").innerText()).match(/ticks: ?\d+/);
+console.log("2s later ticks (forever loop must be dead):", still && still[0]);
+await b.close();

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>scale-color | MemoSim Dictionary</title>
+  <link rel="icon" href="../assets/memosim-icon.png" type="image/png">
+  <link rel="stylesheet" href="../docs.css">
+  <script src="../docs.js" defer></script>
+</head>
+<body data-manual="dictionary">
+  <a class="skip-link" href="#content">Skip to dictionary content</a>
+  <header><a class="brand" href="../index.html">MemoSim <small>Offline documentation</small></a></header>
+  <nav aria-label="Main"><a href="../index.html">User manual</a> <a href="../tutorial.html">Tutorial</a> <a href="../dictionary.html">Dictionary</a> <a href="../legal.html">Licenses &amp; credits</a> <a href="../manual.pdf">PDF manual</a></nav>
+  <main id="content">
+    <p><a href="../dictionary.html#dictionary-search">Back to dictionary search</a> · NetLogo language reference (7.1.0-alpha1)</p>
+    <h1>scale-color</h1>
+    <article aria-label="NetLogo language reference"><div class="dict_entry" id="scale-color" role="region"><h3 id="scale-color10"><a href="#scale-color" role="doc-noteref" aria-label="Reference to scale-color">
+scale-color
+<span class="since" role="note" aria-label="Since version">
+1.0
+</span></a></h3><h4 id="scale-color-color-number-range1-range2" class="section-heading"><a href="#scale-color-color-number-range1-range2" class="section-anchor"><span class="prim_example"><p>scale-color <em>color number range1 range2</em></p></span></a></h4><p>Reports a shade of <em>color</em> proportional to the value of <em>number</em>.</p><p>When <em>range1</em> is less than or equal to <em>range2</em>, then the larger the
+number, the lighter the shade of <em>color</em>. However, if <em>range2</em>is less than <em>range1</em>, the color scaling is inverted.</p><p>Let <em>min-range</em> be the minimum of <em>range1</em> and <em>range2</em>.
+If <em>number</em> is less than or equal to <em>min-range</em>, then the result is the same
+as if <em>number</em> was equal to <em>min-range</em>.
+Let <em>max-range</em> be the maximum of <em>range1</em> and <em>range2</em>. If <em>number</em> is greater than <em>max-range</em>,
+then the result is the same as if <em>number</em> was equal to <em>max-range</em>.</p><p>Note: for <em>color</em> shade is irrelevant, e.g. green and green +
+2 are equivalent, and the same spectrum of colors will be used.</p><pre class="copy-code"><code><span class="token command">ask</span> <span class="token reporter">turtles</span> [ <span class="token command">set</span> <span class="token reporter">color</span> <span class="token reporter">scale-color</span> <span class="token constant">red</span> <span class="token variable">age</span> <span class="token number">0</span> <span class="token number">50</span> ]
+<span class="token comment">;; colors each turtle a shade of red proportional</span>
+<span class="token comment">;; to its value for the age variable</span></code></pre></div></article>
+  </main>
+  <footer>
+    <p>NetLogo User Manual (7.1.0-alpha1), by Uri Wilensky, Center for Connected Learning and Computer-Based Modeling, Northwestern University. Copyright 1999-2025 by Uri Wilensky. Adapted for MemoSim by changing the page layout, navigation and links. The adapted reference material is licensed under <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported</a>.</p>
+    <p><a href="../dict/upstream-notices.html">Upstream copyright and third-party notices</a> · <a href="https://github.com/NetLogo/docs/blob/8e165bbbe204b417e899413d097265592f98a951/7.1.0-alpha1/dict/scale-color.html">Pinned source: NetLogo/docs 8e165bb</a> (2026-08-13) · <a href="https://docs.netlogo.org/7.1.0-alpha1/dict/scale-color">Original upstream page (online)</a></p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NetLogo 3D | MemoSim Dictionary</title>
+  <link rel="icon" href="../../assets/memosim-icon.png" type="image/png">
+  <link rel="stylesheet" href="../../docs.css">
+  <script src="../../docs.js" defer></script>
+</head>
+<body data-manual="dictionary">
+  <a class="skip-link" href="#content">Skip to dictionary content</a>
+  <header><a class="brand" href="../../index.html">MemoSim <small>Offline documentation</small></a></header>
+  <nav aria-label="Main"><a href="../../index.html">User manual</a> <a href="../../tutorial.html">Tutorial</a> <a href="../../dictionary.html">Dictionary</a> <a href="../../legal.html">Licenses &amp; credits</a> <a href="../../manual.pdf">PDF manual</a></nav>
+  <main id="content">
+    <p><a href="../../dictionary.html">Back to MemoSim Dictionary</a> · Technical guide for NetLogo 7.1.0-alpha1</p>
+    <p class="callout">This is upstream technical guidance for the NetLogo language and engine, used by MemoSim without changes to language semantics. Desktop interface descriptions may differ from MemoSim workflows. Original content is retained and links adapted for offline navigation.</p>
+    <article aria-label="NetLogo 3D"><h2 id="netlogo-3d" class="section-heading"><a href="3d.html#netlogo-3d" class="section-anchor">NetLogo 3D</a></h2><p>NetLogo includes the NetLogo 3D application that allows you to create 3D worlds.</p><p><em>Notice:</em> NetLogo’s support for 3D is less developed than NetLogo 2D. Models created with this release may not be compatible with future versions. While we’ve made efforts to ensure a quality product, NetLogo 3D has not been subject to the same level of quality control as the main application.</p><div class="toc"><h4 id="table-of-contents" class="section-heading"><a href="3d.html#table-of-contents" class="section-anchor">Table of Contents</a></h4><ul><li><a href="3d.html#introduction">Introduction</a></li><li><a href="3d.html#tutorial">Tutorial</a></li><li><a href="3d.html#dictionary">Dictionary</a></li></ul></div><h2 id="introduction" class="section-heading"><a href="3d.html#introduction" class="section-anchor">Introduction</a></h2><p>To get started using NetLogo 3D, launch the NetLogo 3D application and check
+out the Sample Models in the 3D section of the Models Library.</p><p>When you’re ready to write your own 3D model, look at the Code Examples in
+the 3D section of the Models Library.</p><blockquote><p><em>Code Example:</em> Turtle Perspective Example 3D helps you learn about
+the different perspectives.
+<em>Code Example:</em> Turtle and Observer Motion Example 3D helps you
+understand how turtles and the observer move in 3D. You can also step
+through this model with the tutorial below.</p></blockquote><h4 id="_3d-worlds" class="section-heading"><a href="3d.html#_3d-worlds" class="section-anchor">3D Worlds</a></h4><p class="bookquote"><i>
+An unspeakable horror seized me. There was a darkness; then a dizzy,
+  sickening sensation of sight that was not like seeing; I saw a Line that
+  was no Line; Space that was not Space: I was myself, and not myself. When
+  I could find voice, I shrieked loud in agony, "Either this is madness
+  or it is Hell."
+</i></p><p><i>“It is neither,” calmly replied the voice of the Sphere,
+“it is Knowledge; it is Three Dimensions: open your eye once again
+and try to look steadily.”</i></p><br><p>— Edwin A. Abbott, <i>Flatland: A romance in many dimensions</i></p><p>NetLogo 3D’s world has width, height and depth. Patches are cubes. In
+addition to <code class="netlogo-command"><a href="../../dictionary.html#pcor" class="netlogo-wiki-link" title="pxcor">pxcor</a></code> and <code class="netlogo-command"><a href="../../dictionary.html#pcor" class="netlogo-wiki-link" title="pycor">pycor</a></code>, patches have <code class="netlogo-command"><a href="3d.html#zcor" class="router-link-active router-link-exact-active netlogo-wiki-link" title="pzcor">pzcor</a></code>.</p><p>Turtles have three Cartesian coordinates, instead of two, to describe
+position. In addition to <code class="netlogo-command"><a href="../../dictionary.html#pcor" class="netlogo-wiki-link" title="xcor">xcor</a></code> and <code class="netlogo-command"><a href="../../dictionary.html#pcor" class="netlogo-wiki-link" title="ycor">ycor</a></code>, turtles have <code class="netlogo-command"><a href="3d.html#zcor" class="router-link-active router-link-exact-active netlogo-wiki-link" title="zcor">zcor</a></code>.</p><p>A turtle’s orientation is defined by three turtle variables,
+<code class="netlogo-command"><a href="../../dictionary.html#heading" class="netlogo-wiki-link" title="heading">heading</a></code>, <code class="netlogo-command"><a href="3d.html#pitch" class="router-link-active router-link-exact-active netlogo-wiki-link" title="pitch">pitch</a></code>, and <code class="netlogo-command"><a href="3d.html#roll" class="router-link-active router-link-exact-active netlogo-wiki-link" title="roll">roll</a></code>.
+You can imagine the turtle as having two vectors to define its
+orientation in 3D space. One vector comes straight out of the nose of the
+turtle, this is the direction the turtle will travel when it moves forward.
+The second vector is perpendicular to the forward vector and comes out of
+the right side of the turtle (as if the turtle were to stick its right arm
+straight out from its body). Heading is the angle between the forward vector
+of the turtle projected onto the xy-plane and the vector <span>0 1 0</span>. Pitch is
+the angle between the forward vector of the turtle and the xy-plane and
+finally roll is the angle between the right vector of the turtle and the
+xy-plane. When turtle turns right or left in 3D space it rotates around the
+down vector, that is the vector that is perpendicular to both the forward
+and right vectors. Depending on the orientation of the turtle more than one
+of the internal turtle variables may change as the result of a turn.</p><h4 id="the-observer-and-the-3d-view" class="section-heading"><a href="3d.html#the-observer-and-the-3d-view" class="section-anchor">The observer and the 3D view</a></h4><p>
+The point of view that you see the world from is considered the location and
+orientation of the observer. This is similar to the 3D view in NetLogo 2D.
+However, there are a few more ways to control the observer. You can set the
+point that the observer is facing by using
+<code>face</code> and <code>facexyz</code> which work the same way as the
+turtle commands, the observer turns so the center of the view is on the
+given point or the location of the given agent at the time it is called. You
+can change the location of the observer using <code>setxyz</code>. The
+observer will move to view the world as if standing on the given location,
+the point the observer faces will stay the same. For example create a new
+model and observer will be located at (0, 0, 49.5), that is, on the z-axis
+49.5 patch units away from the origin and the observer is facing the origin,
+(0, 0, 0). If you <code>setxyz 0 49.5 0</code> the observer will move so it
+is on the positive y-axis but it will keep the origin at the center of the
+view. You can also move the observer using the rotation primitives that will
+allow you to move the observer around the world as if on the surface of a
+sphere where the center is the location the observer is facing. You may
+notice from the above examples that the observer is not constrained to be
+within the bounds of the world.
+</p><h4 id="custom-shapes" class="section-heading"><a href="3d.html#custom-shapes" class="section-anchor">Custom Shapes</a></h4><p>NetLogo automatically interprets 2D shapes so they are extruded, like a
+cookie cutter shape in the 3D view. You can also use the primitive
+<code class="netlogo-command"><a href="3d.html#load-shapes-3d" class="router-link-active router-link-exact-active netlogo-wiki-link" title="load-shapes-3d">load-shapes-3d</a></code> to load shapes
+described in an external file in a custom format described here. Currently
+we do not import shapes in any standard formats.</p><p>For each shape in a custom 3D shape file, a 2D shape of the same name must
+exist as well. You can create the 2D shape in the Turtle Shapes Editor.</p><p>The input file may contain any number of shapes with any number of
+rectangular or triangular surfaces. The format of the input file should be
+as follows:</p><pre class="copy-code"><code><span class="token variable">number</span> <span class="token reporter">of</span> <span class="token reporter">shapes</span> <span class="token variable">in</span> <span class="token variable">file</span>
+<span class="token variable">name</span> <span class="token reporter">of</span> <span class="token reporter">first</span> <span class="token reporter">shape</span>
+<span class="token command">type</span> <span class="token reporter">of</span> <span class="token variable">surface</span> ( <span class="token variable">quads</span> <span class="token reporter">or</span> <span class="token variable">tris</span> )
+<span class="token variable">surface1</span>
+<span class="token variable">surface2</span>
+<span class="token variable">.</span>
+<span class="token variable">.</span>
+<span class="token variable">.</span>
+<span class="token command">stop</span>
+<span class="token command">type</span> <span class="token reporter">of</span> <span class="token variable">surface</span>
+<span class="token variable">surfaceA</span>
+<span class="token variable">.</span>
+<span class="token variable">.</span>
+<span class="token variable">.</span>
+<span class="token command">stop</span>
+<span class="token variable">end-shape</span></code></pre><p>Each surface is defined by a unit normal vector and the vertices listed in
+clockwise order, tris should have three vertices and quads should have four.</p><pre class="copy-code"><code><span class="token variable">normal:</span> <span class="token variable">xn</span> <span class="token variable">yn</span> <span class="token variable">zn</span>
+<span class="token variable">x1</span> <span class="token variable">y1</span> <span class="token variable">z1</span>
+<span class="token variable">x2</span> <span class="token variable">y2</span> <span class="token variable">z2</span>
+<span class="token variable">x3</span> <span class="token variable">y3</span> <span class="token variable">z3</span>
+<span class="token variable">x4</span> <span class="token variable">y4</span> <span class="token variable">z4</span></code></pre><p>A file declaring just a two dimensional, patch-sized, square in the xy-plane
+centered at the origin would look like this:</p><pre class="copy-code"><code><span class="token number">1</span>
+<span class="token variable">square</span>
+<span class="token variable">quads</span>
+<span class="token variable">normal:</span> <span class="token number">0</span> <span class="token number">0</span> <span class="token number">1</span>
+<span class="token number">0.15</span> <span class="token number">0.15</span> <span class="token number">0</span>
+<span class="token number">-0.15</span> <span class="token number">0.15</span> <span class="token number">0</span>
+<span class="token number">-0.15</span> <span class="token number">-0.15</span> <span class="token number">0</span>
+<span class="token number">0.15</span> <span class="token number">-0.15</span> <span class="token number">0</span>
+<span class="token variable">normal:</span> <span class="token number">0</span> <span class="token number">0</span> <span class="token number">-1</span>
+<span class="token number">0.15</span> <span class="token number">0.15</span> <span class="token number">0</span>
+<span class="token number">0.15</span> <span class="token number">-0.15</span> <span class="token number">0</span>
+<span class="token number">-0.15</span> <span class="token number">-0.15</span> <span class="token number">0</span>
+<span class="token number">-0.15</span> <span class="token number">0.15</span> <span class="token number">0</span>
+<span class="token command">stop</span>
+<span class="token variable">end-shape</span></code></pre><h2 id="tutorial" class="section-heading"><a href="3d.html#tutorial" class="section-anchor">Tutorial</a></h2><h4 id="step-1-depth" class="section-heading"><a href="3d.html#step-1-depth" class="section-anchor">Step 1: Depth</a></h4><p>One of the first things you will notice when you open NetLogo 3D is that the
+world is a cube instead of a square.</p><p><img src="../../assets/dict/guides/3d/cube.webp" alt="3d/cube.webp" width="250" height="246" class="netlogo-image"></p><p>You can open up the Model Settings, by clicking on the
+“Settings…” button at the top of the 3D View. You’ll notice in
+addition to <code>max-pxcor</code>, <code>min-pxcor</code>,
+<code>max-pycor</code>, and <code>min-pycor</code>, there is also
+<code class="netlogo-command"><a href="../min-max-pzcor.html#min-max-pzcor" class="netlogo-wiki-link" title="max-pzcor">max-pzcor</a></code> and <code class="netlogo-command"><a href="../min-max-pzcor.html#min-max-pzcor" class="netlogo-wiki-link" title="min-pzcor">min-pzcor</a></code>.</p><p><img src="../../assets/dict/guides/3d/properties.webp" alt="3d/properties.webp" width="465" height="696" class="netlogo-image"></p><p>The z-axis is perpendicular to both the x-axis and the y-axis, when you
+<code>reset-perspective</code> it is the axis that comes straight out of the
+screen. In the default position <code>max-pzcor</code> is the face of the
+cube nearest to you and <code>min-pzcor</code> is the face farthest from
+you. As always <code>min-pxcor</code> is on the left,
+<code>max-pxcor</code> on the right, <code>min-pycor</code> on the bottom,
+and <code>max-pycor</code> on the top.</p><p>You’ll also notice on the left side of the Model Settings that there are
+options for wrapping in all three directions, however, they are all checked
+and grayed out. Topologies are not yet supported in NetLogo 3D, so the world
+always wraps in all dimensions.</p><blockquote><ul><li>Move to the Command Center and type <code><span class="token command">print</span> <span class="token reporter">count</span> <span class="token reporter">patches</span></code>.</li></ul><p class="question">Is the number smaller or larger than you expected?</p></blockquote><p>In a 3D world the number of patches grows very quickly since
+<code><span class="token reporter">count</span> <span class="token reporter">patches</span> <span class="token reporter">=</span> <span class="token reporter">world-width</span> <span class="token reporter">*</span> <span class="token reporter">world-height</span> <span class="token reporter">*</span> <span class="token variable">world-depth</span></code>. It’s
+important to keep this in mind when you are building your model. Lots of
+patches can slow your model down or even cause NetLogo to run out of memory.</p><blockquote><ul><li>Type <code><span class="token command">ask</span> <span class="token reporter">patch</span> <span class="token number">1</span> <span class="token number">2</span> <span class="token number">3</span> [ <span class="token command">set</span> <span class="token reporter">pcolor</span> <span class="token constant">red</span> ]</code> into the Command Center.</li><li>Use the mouse in the 3D view to rotate the world</li></ul></blockquote><p>Notice the shape of the patch and its position in relation to the edges of
+the world. You’ll also notice that you now need three coordinates to address
+patches in a 3D world.</p><h4 id="step-2-turtle-movement" class="section-heading"><a href="3d.html#step-2-turtle-movement" class="section-anchor">Step 2: Turtle Movement</a></h4><blockquote><ul><li>Open the Models Library in the File menu. (If you are on a Mac and you don’t have a File menu, click on the main NetLogo window first and it should reappear.)</li><li>Open Turtle and Observer Motion Example 3D in 3D/Code Examples</li></ul></blockquote><p>Take a moment to look for the controls and monitors. In the bottom left
+you’ll notice a group of monitors that describe the location and orientation
+of the turtle, though until you press the setup button they’ll all say
+“N/A”.</p><blockquote><ul><li>Press the “setup” button</li></ul></blockquote><p>Heading, pitch, and roll are turtle variables that represent the orientation
+of the turtle. Heading is absolute in relation to the x/y plane; it is the
+rotation of the turtle around the z-axis.</p><p><img src="../../assets/dict/guides/3d/heading.webp" alt="3d/heading.webp" width="250" height="234" class="netlogo-image"></p><p>Pitch is the angle between the nose of the turtle and the xy-plane. It is
+relative to heading.</p><p><img src="../../assets/dict/guides/3d/pitch.webp" alt="3d/pitch.webp" width="250" height="234" class="netlogo-image"></p><p>Roll is the rotation around the turtle’s forward vector. It is relative to
+heading and pitch.</p><p><img src="../../assets/dict/guides/3d/roll.webp" alt="3d/roll.webp" width="250" height="234" class="netlogo-image"></p><p>When turtles are created with <code>create-turtles</code> or
+<code>create-ordered-turtles</code>, their initial headings vary but their
+initial pitch and roll are always zero.</p><p>Take a look at the “Turtle Movement” buttons.</p><blockquote><ul><li>Press the “left 1” button.</li></ul><p class="question">How does the turtle move? Is is the same or different from 2D NetLogo?
+Which of the turtle variables change?</p><ul><li>Press the “pitch-down 1” button.</li></ul><p class="question">How does the turtle move? Which of the turtle variables change?</p><ul><li>Press the “left 1” button again.</li></ul><p class="question">How does the turtle move? Is it different than the
+last time you pressed the “left 1” button?</p><ul><li>Take a little time to play with the Turtle Movement buttons,
+watching both how the turtle moves and which of the turtle variables change.</li></ul></blockquote><p>You probably noticed that often more than one of the turtle variables may
+change for a single turn. For this reason we suggest that you use the turtle
+commands rather than setting the orientation variables directly.</p><h4 id="step-3-observer-movement" class="section-heading"><a href="3d.html#step-3-observer-movement" class="section-anchor">Step 3: Observer Movement</a></h4><p>At the bottom of the interface you will see Orbit, Zoom, and Move buttons.
+If you have ever used the 3D view in NetLogo 2D or if you have been using
+the mouse controls in the 3D view through this tutorial you have been moving
+the observer. Changing the point of view in the 3D view is actually moving
+and changing the orientation of the observer. The observer has x, y and z
+coordinates, just like a turtle or patch, while turtles and patches are
+constrained to be inside the world the observer can be anywhere. Like a
+turtle the observer has a heading, pitch and roll, these variables control
+where the observer is looking, that is, what you see in the view.</p><blockquote><ul><li>Move to the 3D view, and make sure “Orbit” is selected in the bottom left corner of the view.</li><li>Click and hold the mouse button in the middle of the view, move the mouse left, right, up, and down.</li></ul><p class="question">How does the position and orientation of the observer change?</p><ul><li>Press the reset-perspective button in the lower right corner of the view and select “Zoom” in the lower left corner.</li><li>Click and hold the mouse button in the middle of the view and move the mouse up and down.</li></ul><p class="question">Which of the observer variables change? Which stay the same?</p><ul><li>Try rotating the world a bit and then zoom again.</li><li>Press the “Move” button in the lower left corner of the view.</li><li>Click and hold the mouse button in the middle of the view and move the  mouse up, down, left and right.</li></ul><p class="question">How does the view change? How do the observer variables change?</p></blockquote><p>After you are done exploring the world using the mouse controls you can take
+a look at the observer control buttons in the lower left portion of the
+interface.</p><p>You may already be familiar with the first three buttons in the observer
+group from your experience with NetLogo 2D. Watch, follow, and ride, are
+special modes that automatically update the position and orientation of the
+observer. When in follow or ride mode, the observer position and orientation
+are the same as the turtle’s. Note that follow and ride are functionally
+exactly the same, the difference is only visual in the 3D view. When in
+watch mode the observer does not move but updates to face the target agent.</p><blockquote><ul><li>Press the “setup” button again so you are back to the default orientation.</li><li>Press the “orbit-right” button.</li></ul><p class="question">How did the view change? Was it what you expected? How is it similar or different from using the mouse controls?</p><ul><li>Take a little time to experiment with orbit, roll and zoom buttons; notice similarities and differences to the mouse controls.</li></ul></blockquote><p>The direction of the orbit commands refer to the direction that the observer
+moves. That is, imagine that the observer is on the surface of a sphere, the
+center of the sphere is the point that the observer is facing represented by
+the blue cross, by default (0,0,0). The observer will always face the center
+of the sphere and the radius of the sphere will remain constant. The
+directions, up, down, left, and right, refer to moving along the lines of
+latitude and the lines of longitude of the sphere. When you zoom the radius
+of the sphere changes but the center and the observer’s orientation in
+relation to the center of the sphere will remain the same.</p><blockquote><ul><li>Press one of the “setxyz” buttons.</li></ul><p class="question">How does the view change? How do the observer variables change?</p><ul><li>Press the “facexyz” button.</li></ul><p class="question">How does the view change? How do the observer variables change?</p></blockquote><p>When you <code>setxyz</code> the center of the sphere remains the same (so
+the observer automatically keeps that point in the center of the view.)
+However, the radius of the sphere may change as well as the observer’s
+orientation in relation to the center. When you <code>facexyz</code> or
+<code>face</code>, the center of the sphere changes but the observer does
+not move. The radius of the sphere may change, as well as the orientation of
+the observer.</p><h2 id="dictionary" class="section-heading"><a href="3d.html#dictionary" class="section-anchor">Dictionary</a></h2><h3 id="commands-and-reporters"><a href="3d.html#commands-and-reporters">Commands and Reporters</a></h3><p><code class="netlogo-command"><a href="3d.html#at-points-3d" class="router-link-active router-link-exact-active netlogo-wiki-link" title="at-points">at-points</a></code><span class="font-bold"> · </span><code class="netlogo-command"><a href="3d.html#distance-3d" class="router-link-active router-link-exact-active netlogo-wiki-link" title="distancexyz">distancexyz</a></code>
+(<code class="netlogo-command"><a href="3d.html#distance-3d" class="router-link-active router-link-exact-active netlogo-wiki-link" title="distancexyz-nowrap">distancexyz-nowrap</a></code>)
+<span class="font-bold"> · </span><code class="netlogo-command"><a href="3d.html#distance-3d" class="router-link-active router-link-exact-active netlogo-wiki-link" title="distancexyz">distancexyz</a></code>
+(<code class="netlogo-command"><a href="3d.html#distance-3d" class="router-link-active router-link-exact-active netlogo-wiki-link" title="distancexyz-nowrap">distancexyz-nowrap</a></code>)
+<span class="font-bold"> · </span><code class="netlogo-command"><a href="3d.html#dz" class="router-link-active router-link-exact-active netlogo-wiki-link" title="dz">dz</a></code><span class="font-bold"> · </span><code class="netlogo-command"><a href="3d.html#face-3d" class="router-link-active router-link-exact-active netlogo-wiki-link" title="face">face</a></code>
+(<code class="netlogo-command"><a href="3d.html#face-3d" class="router-link-active router-link-exact-active netlogo-wiki-link" title="facexyz">facexyz</a></code>)
+<span class="font-bold"> · </span><code class="netlogo-command"><a href="3d.html#left" class="router-link-active router-link-exact-active netlogo-wiki-link" title="left">left</a></code><span class="font-bold"> · </span><code class="netlogo-command"><a href="3d.html#link-pitch" class="router-link-active router-link-exact-active netlogo-wiki-link" title="link-pitch">link-pitch</a></code><span class="font-bold"> · </span><code class="netlogo-command"><a href="3d.html#load-shapes-3d" class="router-link-active router-link-exact-active netlogo-wiki-link" title="load-shapes-3d">load-shapes-3d</a></code><span class="font-bold"> · </span><code class="netlogo-command"><a href="3d.html#min-max-pzcor" class="router-link-active router-link-exact-active netlogo-wiki-link" title="max-pzcor">max-pzcor</a></code>
+(<code class="netlogo-command"><a href="3d.html#min-max-pzcor" class="router-link-active router-link-exact-active netlogo-wiki-link" title="min-pzcor">min-pzcor</a></code>)
+<span class="font-bold"> · </span><code class="netlogo-command"><a href="3d.html#neighbors-3d" class="router-link-active router-link-exact-active netlogo-wiki-link" title="neighbors">neighbors</a></code>
+(<code class="netlogo-command"><a href="3d.html#neighbors-3d" class="router-link-active router-link-exact-active netlogo-wiki-link" title="neighbors6">neighbors6</a></code>)
+<span class="font-bold"> · </span><code class="netlogo-command"><a href="3d.html#orbit-cmds" class="router-link-active router-link-exact-active netlogo-wiki-link" title="orbit-down">orbit-down</a></code>
+(<code class="netlogo-command"><a href="3d.html#orbit-cmds" class="router-link-active router-link-exact-active netlogo-wiki-link" title="orbit-left">orbit-left</a></code>, <code class="netlogo-command"><a href="3d.html#orbit-cmds" class="router-link-active router-link-exact-active netlogo-wiki-link" title="orbit-right">orbit-right</a></code>, <code class="netlogo-command"><a href="3d.html#orbit-cmds" class="router-link-active router-link-exact-active netlogo-wiki-link" title="orbit-up">orbit-up</a></code>)
+<span class="font-bold"> · </span><code class="netlogo-command"><a href="3d.html#observer-cors" class="router-link-active router-link-exact-active netlogo-wiki-link" title="__oxcor">__oxcor</a></code>
+(<code class="netlogo-command"><a href="3d.html#observer-cors" class="router-link-active router-link-exact-active netlogo-wiki-link" title="__oycor">__oycor</a></code>, <code class="netlogo-command"><a href="3d.html#observer-cors" class="router-link-active router-link-exact-active netlogo-wiki-link" title="__ozcor">__ozcor</a></code>)
+<span class="font-bold"> · </span><code class="netlogo-command"><a href="3d.html#patch-3d" class="router-link-active router-link-exact-active netlogo-wiki-link" title="patch">patch</a></code><span class="font-bold"> · </span><code class="netlogo-command"><a href="3d.html#patch-at-3d" class="router-link-active router-link-exact-active netlogo-wiki-link" title="patch-at">patch-at</a></code><span class="font-bold"> · </span><code class="netlogo-command"><a href="3d.html#patch-at-3d" class="router-link-active router-link-exact-active netlogo-wiki-link" title="patch-at">patch-at</a></code><span class="font-bold"> · </span><code class="netlogo-command"><a href="3d.html#patch-at-heading-pitch-and-distance" class="router-link-active router-link-exact-active netlogo-wiki-link" title="patch-at-heading-pitch-and-distance">patch-at-heading-pitch-and-distance</a></code><span class="font-bold"> · </span><code class="netlogo-command"><a href="3d.html#patch-at-heading-pitch-and-distance" class="router-link-active router-link-exact-active netlogo-wiki-link" title="patch-at-heading-pitch-and-distance">patch-at-heading-pitch-and-distance</a></code><span class="font-bold"> · </span><code class="netlogo-command"><a href="3d.html#random-pzcor" class="router-link-active router-link-exact-active netlogo-wiki-link" title="random-pzcor">random-pzcor</a></code><span class="font-bold"> · </span><code class="netlogo-command"><a href="3d.html#random-zcor" class="router-link-active router-link-exact-active netlogo-wiki-link" title="random-zcor">random-zcor</a></code><span class="font-bold"> · </span><code class="netlogo-command"><a href="3d.html#right" class="router-link-active router-link-exact-active netlogo-wiki-link" title="right">right</a></code><span class="font-bold"> · </span><code class="netlogo-command"><a href="3d.html#roll-left" class="router-link-active router-link-exact-active netlogo-wiki-link" title="roll-left">roll-left</a></code><span class="font-bold"> · </span><code class="netlogo-command"><a href="3d.html#roll-right" class="router-link-active router-link-exact-active netlogo-wiki-link" title="roll-right">roll-right</a></code><span class="font-bold"> · </span><code class="netlogo-command"><a href="3d.html#setxyz" class="router-link-active router-link-exact-active netlogo-wiki-link" title="setxyz">setxyz</a></code><span class="font-bold"> · </span><code class="netlogo-command"><a href="3d.html#setxyz" class="router-link-active router-link-exact-active netlogo-wiki-link" title="setxyz">setxyz</a></code><span class="font-bold"> · </span><code class="netlogo-command"><a href="3d.html#tilt-cmds" class="router-link-active router-link-exact-active netlogo-wiki-link" title="tilt-down">tilt-down</a></code>
+(<code class="netlogo-command"><a href="3d.html#tilt-cmds" class="router-link-active router-link-exact-active netlogo-wiki-link" title="tilt-up">tilt-up</a></code>)
+<span class="font-bold"> · </span><code class="netlogo-command"><a href="3d.html#towards-pitch-cmd" class="router-link-active router-link-exact-active netlogo-wiki-link" title="towards-pitch">towards-pitch</a></code>
+(<code class="netlogo-command"><a href="3d.html#towards-pitch-cmd" class="router-link-active router-link-exact-active netlogo-wiki-link" title="towards-pitch-nowrap">towards-pitch-nowrap</a></code>)
+<span class="font-bold"> · </span><code class="netlogo-command"><a href="3d.html#towards-pitch-xyz-cmd" class="router-link-active router-link-exact-active netlogo-wiki-link" title="towards-pitch-xyz">towards-pitch-xyz</a></code>
+(<code class="netlogo-command"><a href="3d.html#towards-pitch-xyz-cmd" class="router-link-active router-link-exact-active netlogo-wiki-link" title="towards-pitch-xyz-nowrap">towards-pitch-xyz-nowrap</a></code>)
+<span class="font-bold"> · </span><code class="netlogo-command"><a href="3d.html#turtles-at-3d" class="router-link-active router-link-exact-active netlogo-wiki-link" title="turtles-at">turtles-at</a></code>
+(<code class="netlogo-command"><a href="3d.html#turtles-at-3d" class="router-link-active router-link-exact-active netlogo-wiki-link" title="&lt;breeds&gt;-at">&lt;breeds&gt;-at</a></code>)
+<span class="font-bold"> · </span><code class="netlogo-command"><a href="3d.html#turtles-at-3d" class="router-link-active router-link-exact-active netlogo-wiki-link" title="turtles-at">turtles-at</a></code>
+(<code class="netlogo-command"><a href="3d.html#turtles-at-3d" class="router-link-active router-link-exact-active netlogo-wiki-link" title="&lt;breeds&gt;-at">&lt;breeds&gt;-at</a></code>)
+<span class="font-bold"> · </span><code class="netlogo-command"><a href="3d.html#world-depth" class="router-link-active router-link-exact-active netlogo-wiki-link" title="world-depth">world-depth</a></code><span class="font-bold"> · </span><code class="netlogo-command"><a href="3d.html#zoom" class="router-link-active router-link-exact-active netlogo-wiki-link" title="zoom">zoom</a></code></p><h3 id="built-in-variables"><a href="3d.html#built-in-variables">Built-In Variables</a></h3><p><code class="netlogo-command"><a href="3d.html#pitch" class="router-link-active router-link-exact-active netlogo-wiki-link" title="pitch">pitch</a></code><span class="font-bold"> · </span><code class="netlogo-command"><a href="3d.html#pzcor" class="router-link-active router-link-exact-active netlogo-wiki-link" title="pzcor">pzcor</a></code><span class="font-bold"> · </span><code class="netlogo-command"><a href="3d.html#roll" class="router-link-active router-link-exact-active netlogo-wiki-link" title="roll">roll</a></code><span class="font-bold"> · </span><code class="netlogo-command"><a href="3d.html#zcor" class="router-link-active router-link-exact-active netlogo-wiki-link" title="zcor">zcor</a></code></p><h3 id="primitives" class="section-heading"><a href="3d.html#primitives" class="section-anchor">Primitives</a></h3><div class="dict_entry" id="at-points-3d" role="region"><h3 id="at-points41"><a href="3d.html#at-points-3d" role="doc-noteref" aria-label="Reference to at-points">
+at-points
+<span class="since" role="note" aria-label="Since version">
+4.1
+</span></a></h3><h4 id="agentset-at-points-x1-y1-z1-x2-y2-z2" class="section-heading"><span id="agentset-at-points-x1-y1-z1-x2-y2-z2-"></span><a href="3d.html#agentset-at-points-x1-y1-z1-x2-y2-z2-" class="section-anchor"><span class="prim_example"><p><em>agentset</em> at-points [[<em>x1 y1 z1</em>] <span><em>x2 y2 z2</em></span> …]</p></span></a></h4><p>Reports a subset of the given agentset that includes only the agents on the patches the given distances away
+from this agent. The distances are specified as a list of three-item lists, where the three items are the x,
+y, and z offsets.</p><p>If the caller is the observer, then the points are measured relative to the origin, in other words, the
+points are taken as absolute patch coordinates.</p><p>If the caller is a turtle, the points are measured relative to the turtle’s exact location, and not from the
+center of the patch under the turtle.</p><pre class="copy-code"><code><span class="token command">ask</span> <span class="token reporter">turtles</span> <span class="token reporter">at-points</span> [[<span class="token number">2</span> <span class="token number">4</span> <span class="token number">0</span>] [<span class="token number">1</span> <span class="token number">2</span> <span class="token number">1</span>] [<span class="token number">10</span> <span class="token number">15</span> <span class="token number">10</span>]]
+[ <span class="token command">fd</span> <span class="token number">1</span> ]  <span class="token comment">;; only the turtles on the patches at the</span>
+          <span class="token comment">;; distances (2,4,0), (1,2,1) and (10,15,10),</span>
+          <span class="token comment">;; relative to the caller, move</span>
+</code></pre></div><div class="dict_entry" id="distance-3d" role="region"><h3 id="distancexyz41distancexyz-nowrap41"><a href="3d.html#distance-3d" role="doc-noteref" aria-label="Reference to distancexyz">
+distancexyz
+<span class="since" role="note" aria-label="Since version">
+4.1
+</span></a><a href="3d.html#distance-3d" role="doc-noteref" aria-label="Reference to distancexyz-nowrap">
+distancexyz-nowrap
+<span class="since" role="note" aria-label="Since version">
+4.1
+</span></a></h3><h4 id="distancexyz-xcor-ycor-zcordistancexyz-nowrap-xcor-ycor-zcor" class="section-heading"><a href="3d.html#distancexyz-xcor-ycor-zcordistancexyz-nowrap-xcor-ycor-zcor" class="section-anchor"><span class="prim_example"><p>distancexyz <em>xcor</em> <em>ycor</em> <em>zcor</em></p></span><span class="prim_example"><p>distancexyz-nowrap <em>xcor</em> <em>ycor</em> <em>zcor</em></p></span><img src="../../assets/dict/guides/turtle.webp" alt="Turtle Command" width="16" height="16"><img src="../../assets/dict/guides/patch.webp" alt="Patch Command" width="16" height="16"></a></h4><p>3D versions of <code class="netlogo-command"><a href="../../dictionary.html#distancexy" class="netlogo-wiki-link" title="distancexy">distancexy</a></code>.</p><p>Reports the distance from this agent to the point (<em>xcor</em>, <em>ycor</em>, <em>zcor</em>).</p><p>The distance from a patch is measured from the center of the patch.</p><p>distancexyz-nowrap always reports the in world distance, never a distance that would require wrapping around
+the edges of the world. With distancexyz the wrapped distance (around the edges of the world) is used if
+that distance is shorter than the in world distance.</p><pre class="copy-code"><code><span class="token command">if</span> (<span class="token variable">distancexyz</span> <span class="token number">0</span> <span class="token number">0</span> <span class="token number">0</span>) <span class="token reporter">&lt;</span> <span class="token number">10</span>
+  [ <span class="token command">set</span> <span class="token reporter">color</span> <span class="token constant">green</span> ]
+<span class="token comment">;; all turtles less than 10 units from</span>
+<span class="token comment">;; the center of the screen turn green.</span>
+</code></pre></div><div class="dict_entry" id="dz" role="region"><h3 id="dz41"><a href="3d.html#dz" role="doc-noteref" aria-label="Reference to dz">
+dz
+<span class="since" role="note" aria-label="Since version">
+4.1
+</span></a></h3><h4 class="section-heading"><a href="3d.html#dz" class="section-anchor"><span class="prim_example"><p>dz</p></span><img src="../../assets/dict/guides/turtle.webp" alt="Turtle Command" width="16" height="16"></a></h4><p>Reports the z-increment (the amount by which the turtle’s zcor would change) if the turtle were to take one
+step forward at its current heading and pitch.</p><p>NOTE: dz is simply the sine of the turtle’s pitch. Both dx and dy have changed in this case. So, dx =
+cos(pitch) * sin(heading) and dy = cos(pitch) * cos(heading).</p><p>See also <code class="netlogo-command"><a href="../dxy.html#dxy" class="netlogo-wiki-link" title="dx">dx</a></code>, <code class="netlogo-command"><a href="../dxy.html#dxy" class="netlogo-wiki-link" title="dy">dy</a></code>.</p></div><div class="dict_entry" id="face-3d" role="region"><h3 id="facefacexyz41"><a href="3d.html#face-3d" role="doc-noteref" aria-label="Reference to face">
+face
+</a><a href="3d.html#face-3d" role="doc-noteref" aria-label="Reference to facexyz">
+facexyz
+<span class="since" role="note" aria-label="Since version">
+4.1
+</span></a></h3><h4 id="face-agentfacexyz-x-y-z" class="section-heading"><a href="3d.html#face-agentfacexyz-x-y-z" class="section-anchor"><span class="prim_example"><p>face <em>agent</em></p></span><span class="prim_example"><p>facexyz <em>x</em> <em>y</em> <em>z</em></p></span><img src="../../assets/dict/guides/turtle.webp" alt="Turtle Command" width="16" height="16"><img src="../../assets/dict/guides/observermovement.webp" alt="Observer Movement Command" width="16" height="16"></a></h4><p>Set the caller’s heading and pitch towards <em>agent</em> or towards the point <em>(x,y,z)</em>.</p><p>If the caller and the target are at the same x and y coordinates the caller’s heading will not change. If
+the caller and the target are also at the same z coordinate the pitch will not change either.</p></div><div class="dict_entry" id="left" role="region"><h3 id="left41"><a href="3d.html#left" role="doc-noteref" aria-label="Reference to left">
+left
+<span class="since" role="note" aria-label="Since version">
+4.1
+</span></a></h3><h4 id="left-number" class="section-heading"><a href="3d.html#left-number" class="section-anchor"><span class="prim_example"><p>left <em>number</em></p></span><img src="../../assets/dict/guides/turtle.webp" alt="Turtle Command" width="16" height="16"></a></h4><p>The turtle turns left by <em>number</em> degrees, relative to its current orientation. While left in a 2D
+world only modifies the turtle’s heading, left in a 3D world may also modify the turtle’s pitch and roll.</p><p>See also <code class="netlogo-command"><a href="3d.html#left" class="router-link-active router-link-exact-active netlogo-wiki-link" title="left">left</a></code>, <code class="netlogo-command"><a href="3d.html#tilt-cmds" class="router-link-active router-link-exact-active netlogo-wiki-link" title="tilt-up">tilt-up</a></code>, <code class="netlogo-command"><a href="3d.html#tilt-cmds" class="router-link-active router-link-exact-active netlogo-wiki-link" title="tilt-down">tilt-down</a></code></p></div><div class="dict_entry" id="link-pitch" role="region"><h3 id="link-pitch412"><a href="3d.html#link-pitch" role="doc-noteref" aria-label="Reference to link-pitch">
+link-pitch
+<span class="since" role="note" aria-label="Since version">
+4.1.2
+</span></a></h3><h4 class="section-heading"><a href="3d.html#link-pitch" class="section-anchor"><span class="prim_example"><p>link-pitch</p></span><img src="../../assets/dict/guides/link.webp" alt="Link Command" width="16" height="16"></a></h4><p>Reports the pitch from end1 to end2 of this link.</p><pre class="copy-code"><code><span class="token command">ask</span> <span class="token reporter">link</span> <span class="token number">0</span> <span class="token number">1</span> [ <span class="token command">print</span> <span class="token variable">link-pitch</span> ]
+<span class="token comment">;; prints [[towards-pitch other-end] of end1] of link 0 1</span>
+</code></pre><p>See also <code class="netlogo-command"><a href="../../dictionary.html#link-heading" class="netlogo-wiki-link" title="link-heading">link-heading</a></code>, <code class="netlogo-command"><a href="3d.html#pitch" class="router-link-active router-link-exact-active netlogo-wiki-link" title="pitch">pitch</a></code></p></div><div class="dict_entry" id="load-shapes-3d" role="region"><h3 id="load-shapes-3d41"><a href="3d.html#load-shapes-3d" role="doc-noteref" aria-label="Reference to load-shapes-3d">
+load-shapes-3d
+<span class="since" role="note" aria-label="Since version">
+4.1
+</span></a></h3><h4 id="load-shapes-3d-filename" class="section-heading"><a href="3d.html#load-shapes-3d-filename" class="section-anchor"><span class="prim_example"><p>load-shapes-3d <em>filename</em></p></span><img src="../../assets/dict/guides/observermovement.webp" alt="Observer Movement Command" width="16" height="16"></a></h4><p>Loads custom 3D shapes from the given file. See the <a href="3d.html" class="router-link-active router-link-exact-active">3D guide</a> for more details. You
+must also add a 2D shape of the same name to the model using the Turtle Shapes Editor. Custom shapes
+override built-in 3D shapes and converted 2D shapes.</p></div><div class="dict_entry" id="min-max-pzcor" role="region"><h3 id="max-pzcor41min-pzcor41"><a href="3d.html#min-max-pzcor" role="doc-noteref" aria-label="Reference to max-pzcor">
+max-pzcor
+<span class="since" role="note" aria-label="Since version">
+4.1
+</span></a><a href="3d.html#min-max-pzcor" role="doc-noteref" aria-label="Reference to min-pzcor">
+min-pzcor
+<span class="since" role="note" aria-label="Since version">
+4.1
+</span></a></h3><h4 id="max-pzcormin-pzcor" class="section-heading"><a href="3d.html#max-pzcormin-pzcor" class="section-anchor"><span class="prim_example"><p>max-pzcor</p></span><span class="prim_example"><p>min-pzcor</p></span></a></h4><p>These reporters give the maximum and minimum z-coordinates (respectively) for patches, which determines the
+size of the world.</p><p>Unlike in older versions of NetLogo the origin does not have to be at the center of the world. However, the
+minimum z-coordinate has to be less than or equal to 0 and the maximum z-coordinate has to be greater than
+or equal to 0.</p><p>Note: You can set the size of the world only by editing the view — these are reporters which cannot be set.</p><p>See also <code class="netlogo-command"><a href="../../dictionary.html#max-pcor" class="netlogo-wiki-link" title="max-pxcor">max-pxcor</a></code>, <code class="netlogo-command"><a href="../../dictionary.html#max-pcor" class="netlogo-wiki-link" title="max-pycor">max-pycor</a></code>, <code class="netlogo-command"><a href="../../dictionary.html#min-pcor" class="netlogo-wiki-link" title="min-pxcor">min-pxcor</a></code>, <code class="netlogo-command"><a href="../../dictionary.html#min-pcor" class="netlogo-wiki-link" title="min-pycor">min-pycor</a></code>, and <code class="netlogo-command"><a href="3d.html#world-depth" class="router-link-active router-link-exact-active netlogo-wiki-link" title="world-depth">world-depth</a></code>.</p></div><div class="dict_entry" id="neighbors-3d" role="region"><h3 id="neighbors41neighbors641"><a href="3d.html#neighbors-3d" role="doc-noteref" aria-label="Reference to neighbors">
+neighbors
+<span class="since" role="note" aria-label="Since version">
+4.1
+</span></a><a href="3d.html#neighbors-3d" role="doc-noteref" aria-label="Reference to neighbors6">
+neighbors6
+<span class="since" role="note" aria-label="Since version">
+4.1
+</span></a></h3><h4 id="neighborsneighbors6" class="section-heading"><a href="3d.html#neighborsneighbors6" class="section-anchor"><span class="prim_example"><p>neighbors</p></span><span class="prim_example"><p>neighbors6</p></span><img src="../../assets/dict/guides/turtle.webp" alt="Turtle Command" width="16" height="16"><img src="../../assets/dict/guides/patch.webp" alt="Patch Command" width="16" height="16"></a></h4><p>3D versions of <code class="netlogo-command"><a href="../../dictionary.html#neighbors" class="netlogo-wiki-link" title="neighbors">neighbors</a></code> and <code class="netlogo-command"><a href="../../dictionary.html#neighbors" class="netlogo-wiki-link" title="neighbors4">neighbors4</a></code>.</p><p>Reports an agentset containing the 26 surrounding patches (neighbors) or 6 surrounding patches (neighbors6).</p><pre class="copy-code"><code><span class="token command">show</span> <span class="token reporter">sum</span> <span class="token reporter">values-from</span> <span class="token reporter">neighbors</span> [<span class="token reporter">count</span> <span class="token reporter">turtles-here</span>]
+  <span class="token comment">;; prints the total number of turtles on the twenty-six</span>
+  <span class="token comment">;; patches around this turtle or patch</span>
+<span class="token command">ask</span> <span class="token variable">neighbors6</span> [ <span class="token command">set</span> <span class="token reporter">pcolor</span> <span class="token constant">red</span> ]
+  <span class="token comment">;; turns the six neighboring patches red</span>
+</code></pre></div><div class="dict_entry" id="orbit-cmds" role="region"><h3 id="orbit-down41orbit-left41orbit-right41orbit-up41"><a href="3d.html#orbit-cmds" role="doc-noteref" aria-label="Reference to orbit-down">
+orbit-down
+<span class="since" role="note" aria-label="Since version">
+4.1
+</span></a><a href="3d.html#orbit-cmds" role="doc-noteref" aria-label="Reference to orbit-left">
+orbit-left
+<span class="since" role="note" aria-label="Since version">
+4.1
+</span></a><a href="3d.html#orbit-cmds" role="doc-noteref" aria-label="Reference to orbit-right">
+orbit-right
+<span class="since" role="note" aria-label="Since version">
+4.1
+</span></a><a href="3d.html#orbit-cmds" role="doc-noteref" aria-label="Reference to orbit-up">
+orbit-up
+<span class="since" role="note" aria-label="Since version">
+4.1
+</span></a></h3><h4 id="orbit-down-numberorbit-left-numberorbit-right-numberorbit-up-number" class="section-heading"><a href="3d.html#orbit-down-numberorbit-left-numberorbit-right-numberorbit-up-number" class="section-anchor"><span class="prim_example"><p>orbit-down <em>number</em></p></span><span class="prim_example"><p>orbit-left <em>number</em></p></span><span class="prim_example"><p>orbit-right <em>number</em></p></span><span class="prim_example"><p>orbit-up <em>number</em></p></span><img src="../../assets/dict/guides/observermovement.webp" alt="Observer Movement Command" width="16" height="16"></a></h4><p>Rotate the observer around the last point faced. Imagine the observer is on the surface of a sphere, the
+last point face is the center of that sphere. Up and down orbit along the lines of longitude and right and
+left orbit along the lines of latitude. The observer will remain facing the last point faced so the heading
+and pitch may change as result of orbiting. However, because we assume an absolute north pole (parallel to
+the positive z-axis) the roll will never change.</p><p>See also <code class="netlogo-command"><a href="3d.html#setxyz" class="router-link-active router-link-exact-active netlogo-wiki-link" title="setxyz">setxyz</a></code>, <code class="netlogo-command"><a href="../../dictionary.html#face" class="netlogo-wiki-link" title="face">face</a></code> and <code class="netlogo-command"><a href="3d.html#zoom" class="router-link-active router-link-exact-active netlogo-wiki-link" title="zoom">zoom</a></code></p></div><div class="dict_entry" id="observer-cors" role="region"><h3 id="__oxcor__oycor__ozcor"><a href="3d.html#observer-cors" role="doc-noteref" aria-label="Reference to __oxcor">
+__oxcor
+</a><a href="3d.html#observer-cors" role="doc-noteref" aria-label="Reference to __oycor">
+__oycor
+</a><a href="3d.html#observer-cors" role="doc-noteref" aria-label="Reference to __ozcor">
+__ozcor
+</a></h3><h4 id="__oxcor__oycor__ozcor-1" class="section-heading"><a href="3d.html#__oxcor__oycor__ozcor-1" class="section-anchor"><span class="prim_example"><p>__oxcor</p></span><span class="prim_example"><p>__oycor</p></span><span class="prim_example"><p>__ozcor</p></span><img src="../../assets/dict/guides/observermovement.webp" alt="Observer Movement Command" width="16" height="16"></a></h4><p>Reports the x-, y-, or z-coordinate of the observer.</p><p>See also <code class="netlogo-command"><a href="3d.html#setxyz" class="router-link-active router-link-exact-active netlogo-wiki-link" title="setxyz">setxyz</a></code></p></div><div class="dict_entry" id="patch-3d" role="region"><h3 id="patch41"><a href="3d.html#patch-3d" role="doc-noteref" aria-label="Reference to patch">
+patch
+<span class="since" role="note" aria-label="Since version">
+4.1
+</span></a></h3><h4 id="patch-x-y-z" class="section-heading"><a href="3d.html#patch-x-y-z" class="section-anchor"><span class="prim_example"><p>patch <em>x</em> <em>y</em> <em>z</em></p></span><img src="../../assets/dict/guides/patch.webp" alt="Patch Command" width="16" height="16"></a></h4><p>3D version of <code class="netlogo-command"><a href="../../dictionary.html#patch" class="netlogo-wiki-link" title="patch">patch</a></code>.</p><p>Given three integers, reports the single patch with the given pxcor, pycor and pzcor. <em>pxcor</em>, <em>pycor</em> and <em>pzcor</em>must be integers.</p><pre class="copy-code"><code><span class="token command">ask</span> (<span class="token reporter">patch</span> <span class="token number">3</span> <span class="token number">-4</span> <span class="token number">2</span>) [ <span class="token command">set</span> <span class="token reporter">pcolor</span> <span class="token constant">green</span> ]
+<span class="token comment">;; patch with pxcor of 3 and pycor of -4 and pzcor of 2 turns green</span>
+</code></pre><p>See also <code class="netlogo-command"><a href="../../dictionary.html#patch" class="netlogo-wiki-link" title="patch">patch</a></code></p></div><div class="dict_entry" id="patch-at-3d" role="region"><h3 id="patch-at41"><a href="3d.html#patch-at-3d" role="doc-noteref" aria-label="Reference to patch-at">
+patch-at
+<span class="since" role="note" aria-label="Since version">
+4.1
+</span></a></h3><h4 id="patch-at-dx-dy-dz" class="section-heading"><a href="3d.html#patch-at-dx-dy-dz" class="section-anchor"><span class="prim_example"><p>patch-at <em>dx</em> <em>dy</em> <em>dz</em></p></span><img src="../../assets/dict/guides/turtle.webp" alt="Turtle Command" width="16" height="16"><img src="../../assets/dict/guides/patch.webp" alt="Patch Command" width="16" height="16"></a></h4><p>3D version of <code class="netlogo-command"><a href="../../dictionary.html#patch-at" class="netlogo-wiki-link" title="patch-at">patch-at</a></code>.</p><p>Reports the single patch at (dx, dy, dz) from the caller, that is, dx patches east, dy patches north and dz
+patches up from the caller.</p><pre class="copy-code"><code><span class="token command">ask</span> <span class="token reporter">patch-at</span> <span class="token number">1</span> <span class="token number">-1</span> <span class="token number">1</span> [ <span class="token command">set</span> <span class="token reporter">pcolor</span> <span class="token constant">green</span> ]
+<span class="token comment">;; turns the patch just southeast and up from the caller green</span>
+</code></pre></div><div class="dict_entry" id="patch-at-heading-pitch-and-distance" role="region"><h3 id="patch-at-heading-pitch-and-distance41"><a href="3d.html#patch-at-heading-pitch-and-distance" role="doc-noteref" aria-label="Reference to patch-at-heading-pitch-and-distance">
+patch-at-heading-pitch-and-distance
+<span class="since" role="note" aria-label="Since version">
+4.1
+</span></a></h3><h4 id="patch-at-heading-pitch-and-distance-heading-pitch-distance" class="section-heading"><a href="3d.html#patch-at-heading-pitch-and-distance-heading-pitch-distance" class="section-anchor"><span class="prim_example"><p>patch-at-heading-pitch-and-distance <em>heading</em> <em>pitch</em> <em>distance</em></p></span><img src="../../assets/dict/guides/turtle.webp" alt="Turtle Command" width="16" height="16"><img src="../../assets/dict/guides/patch.webp" alt="Patch Command" width="16" height="16"></a></h4><p>3D version of <code class="netlogo-command"><a href="../../dictionary.html#patch-at-heading-and-distance" class="netlogo-wiki-link" title="patch-at-heading-and-distance">patch-at-heading-and-distance</a></code>.</p><p>patch-at-heading-pitch-and-distance reports the single patch that is the given distance from this turtle or
+patch, along the given absolute heading and pitch. (In contrast to patch-left-and-ahead and
+patch-right-and-ahead, this turtle’s current heading is not taken into account.)</p><pre class="copy-code"><code><span class="token command">ask</span> <span class="token variable">patch-at-heading-pitch-and-distance</span> <span class="token number">0</span> <span class="token number">90</span> <span class="token number">1</span> [ <span class="token command">set</span> <span class="token reporter">pcolor</span> <span class="token constant">green</span> ]
+<span class="token comment">;; turns the patch directly above the caller green.</span>
+</code></pre></div><div class="dict_entry" id="pitch" role="region"><h3><a href="3d.html#pitch" role="doc-noteref" aria-label="Reference to pitch">
+pitch
+</a></h3><h4 id="pitch-1" class="section-heading"><a href="3d.html#pitch-1" class="section-anchor"><span class="prim_example"><p>pitch</p></span><img src="../../assets/dict/guides/turtle.webp" alt="Turtle Command" width="16" height="16"></a></h4><p>This is a built-in turtle variable. Pitch is the angle between the “nose” of the turtle and the
+xy-plane. Heading and pitch together define the forward vector of the turtle or the direction that the
+turtle is facing.</p><p>This is a number greater than or equal to 0 and less than 360. 0 is parallel to the xy-plane, 90 is parallel
+to the z-axis. While you can set pitch we recommend that you use the primitives to turn the turtle.
+Depending on the position more than one relative angle (heading, pitch and roll) may change at once.</p><p>Example:</p><pre class="copy-code"><code><span class="token comment">;; assume roll and heading are 0</span>
+<span class="token command">set</span> <span class="token variable">pitch</span> <span class="token number">45</span>      <span class="token comment">;; turtle is now north and up</span>
+<span class="token command">set</span> <span class="token reporter">heading</span> <span class="token reporter">heading</span> <span class="token reporter">+</span> <span class="token number">10</span> <span class="token comment">;; same effect as "tilt-up 10"</span>
+</code></pre><p>See also <code class="netlogo-command"><a href="../../dictionary.html#heading" class="netlogo-wiki-link" title="heading">heading</a></code>, <code class="netlogo-command"><a href="3d.html#roll" class="router-link-active router-link-exact-active netlogo-wiki-link" title="roll">roll</a></code>, <code class="netlogo-command"><a href="../tilt-cmds.html#tilt-cmds" class="netlogo-wiki-link" title="tilt-up">tilt-up</a></code>, <code class="netlogo-command"><a href="3d.html#tilt-cmds" class="router-link-active router-link-exact-active netlogo-wiki-link" title="tilt-down">tilt-down</a></code>, <code class="netlogo-command"><a href="3d.html#right" class="router-link-active router-link-exact-active netlogo-wiki-link" title="right">right</a></code>, <code class="netlogo-command"><a href="3d.html#left" class="router-link-active router-link-exact-active netlogo-wiki-link" title="left">left</a></code></p></div><div class="dict_entry" id="pzcor" role="region"><h3><a href="3d.html#pzcor" role="doc-noteref" aria-label="Reference to pzcor">
+pzcor
+</a></h3><h4 id="pzcor-1" class="section-heading"><a href="3d.html#pzcor-1" class="section-anchor"><span class="prim_example"><p>pzcor</p></span><img src="../../assets/dict/guides/patch.webp" alt="Patch Command" width="16" height="16"><img src="../../assets/dict/guides/turtle.webp" alt="Turtle Command" width="16" height="16"></a></h4><p>This is a built-in patch variable. It holds the z coordinate of the patch. It is always an integer. You
+cannot set this variable, because patches don’t move.</p><p>pzcor is greater than or equal to min-pzcor and less than or equal to max-pzcor.</p><p>All patch variables can be directly accessed by any turtle standing on the patch.</p><p>See also <code class="netlogo-command"><a href="../../dictionary.html#pcor" class="netlogo-wiki-link" title="pxcor, pycor">pxcor, pycor</a></code>, <code class="netlogo-command"><a href="3d.html#zcor" class="router-link-active router-link-exact-active netlogo-wiki-link" title="zcor">zcor</a></code>.</p></div><div class="dict_entry" id="random-pzcor" role="region"><h3 id="random-pzcor41"><a href="3d.html#random-pzcor" role="doc-noteref" aria-label="Reference to random-pzcor">
+random-pzcor
+<span class="since" role="note" aria-label="Since version">
+4.1
+</span></a></h3><h4 class="section-heading"><a href="3d.html#random-pzcor" class="section-anchor"><span class="prim_example"><p>random-pzcor</p></span></a></h4><p>Reports a random integer ranging from min-pzcor to max-pzcor inclusive.</p><pre class="copy-code"><code><span class="token command">ask</span> <span class="token reporter">turtles</span> [
+  <span class="token comment">;; move each turtle to the center of a random patch</span>
+  <span class="token variable">setxyz</span> <span class="token reporter">random-pxcor</span> <span class="token reporter">random-pycor</span> <span class="token variable">random-pzcor</span>
+]
+</code></pre><p>See also <code class="netlogo-command"><a href="../../dictionary.html#random-pcor" class="netlogo-wiki-link" title="random-pxcor">random-pxcor</a></code>, <code class="netlogo-command"><a href="../../dictionary.html#random-pcor" class="netlogo-wiki-link" title="random-pycor">random-pycor</a></code>.</p></div><div class="dict_entry" id="random-zcor" role="region"><h3 id="random-zcor41"><a href="3d.html#random-zcor" role="doc-noteref" aria-label="Reference to random-zcor">
+random-zcor
+<span class="since" role="note" aria-label="Since version">
+4.1
+</span></a></h3><h4 class="section-heading"><a href="3d.html#random-zcor" class="section-anchor"><span class="prim_example"><p>random-zcor</p></span></a></h4><p>Reports a random floating point number from the allowable range of turtle coordinates along the z axis.</p><p>Turtle coordinates range from min-pzcor - 0.5 (inclusive) to max-pzcor + 0.5 (exclusive).</p><pre class="copy-code"><code><span class="token command">ask</span> <span class="token reporter">turtles</span> [
+  <span class="token comment">;; move each turtle to a random point</span>
+  <span class="token variable">setxyz</span> <span class="token reporter">random-xcor</span> <span class="token reporter">random-ycor</span> <span class="token variable">random-zcor</span>
+]
+</code></pre><p>See also <code class="netlogo-command"><a href="../../dictionary.html#random-cor" class="netlogo-wiki-link" title="random-xcor">random-xcor</a></code>, <code class="netlogo-command"><a href="../../dictionary.html#random-cor" class="netlogo-wiki-link" title="random-ycor">random-ycor</a></code>.</p></div><div class="dict_entry" id="right" role="region"><h3 id="right41"><a href="3d.html#right" role="doc-noteref" aria-label="Reference to right">
+right
+<span class="since" role="note" aria-label="Since version">
+4.1
+</span></a></h3><h4 id="right-number" class="section-heading"><a href="3d.html#right-number" class="section-anchor"><span class="prim_example"><p>right <em>number</em></p></span><img src="../../assets/dict/guides/turtle.webp" alt="Turtle Command" width="16" height="16"></a></h4><p>The turtle turns right by <em>number</em> degrees, relative to its current orientation. While right in a 2D
+world only modifies the turtle’s heading, right in a 3D world may also modify the turtle’s pitch and roll.</p><p>See also <code class="netlogo-command"><a href="3d.html#right" class="router-link-active router-link-exact-active netlogo-wiki-link" title="right">right</a></code> and <code class="netlogo-command"><a href="3d.html#left" class="router-link-active router-link-exact-active netlogo-wiki-link" title="left">left</a></code></p></div><div class="dict_entry" id="roll" role="region"><h3><a href="3d.html#roll" role="doc-noteref" aria-label="Reference to roll">
+roll
+</a></h3><h4 id="roll-1" class="section-heading"><a href="3d.html#roll-1" class="section-anchor"><span class="prim_example"><p>roll</p></span><img src="../../assets/dict/guides/turtle.webp" alt="Turtle Command" width="16" height="16"></a></h4><p>This is a built-in turtle variable. Roll is the angle between the “wing-tip” of the turtle and the
+xy-plane.</p><p>This is a number greater than or equal to 0 and less than 360. You can set this variable to make a turtle
+roll. Since roll is always from the turtle’s point of view, rolling right and left only only change roll
+regardless of turtle orientation.</p><p>Example:</p><pre class="copy-code"><code><span class="token command">set</span> <span class="token variable">roll</span> <span class="token number">45</span>      <span class="token comment">;; turtle rotated right</span>
+<span class="token command">set</span> <span class="token variable">roll</span> <span class="token variable">roll</span> <span class="token reporter">+</span> <span class="token number">10</span> <span class="token comment">;; same effect as "roll-right 10"</span>
+</code></pre><p>See also <code class="netlogo-command"><a href="../../dictionary.html#heading" class="netlogo-wiki-link" title="heading">heading</a></code>, <code class="netlogo-command"><a href="3d.html#pitch" class="router-link-active router-link-exact-active netlogo-wiki-link" title="pitch">pitch</a></code>, <code class="netlogo-command"><a href="3d.html#roll-left" class="router-link-active router-link-exact-active netlogo-wiki-link" title="roll-left">roll-left</a></code>, <code class="netlogo-command"><a href="3d.html#roll-right" class="router-link-active router-link-exact-active netlogo-wiki-link" title="roll-right">roll-right</a></code>.</p></div><div class="dict_entry" id="roll-left" role="region"><h3 id="roll-left41"><a href="3d.html#roll-left" role="doc-noteref" aria-label="Reference to roll-left">
+roll-left
+<span class="since" role="note" aria-label="Since version">
+4.1
+</span></a></h3><h4 id="roll-left-number" class="section-heading"><a href="3d.html#roll-left-number" class="section-anchor"><span class="prim_example"><p>roll-left <em>number</em></p></span><img src="../../assets/dict/guides/turtle.webp" alt="Turtle Command" width="16" height="16"></a></h4><p>The wingtip of the turtle rotates to the left <em>number</em> degrees with respect to the current heading and
+pitch.</p></div><div class="dict_entry" id="roll-right" role="region"><h3 id="roll-right41"><a href="3d.html#roll-right" role="doc-noteref" aria-label="Reference to roll-right">
+roll-right
+<span class="since" role="note" aria-label="Since version">
+4.1
+</span></a></h3><h4 id="roll-right-number" class="section-heading"><a href="3d.html#roll-right-number" class="section-anchor"><span class="prim_example"><p>roll-right <em>number</em></p></span><img src="../../assets/dict/guides/turtle.webp" alt="Turtle Command" width="16" height="16"></a></h4><p>The wingtip of the turtle rotates to the right <em>number</em>degrees with respect to the current heading and pitch.</p></div><div class="dict_entry" id="setxyz" role="region"><h3 id="setxyz41"><a href="3d.html#setxyz" role="doc-noteref" aria-label="Reference to setxyz">
+setxyz
+<span class="since" role="note" aria-label="Since version">
+4.1
+</span></a></h3><h4 id="setxyz-x-y-z" class="section-heading"><a href="3d.html#setxyz-x-y-z" class="section-anchor"><span class="prim_example"><p>setxyz <em>x y z</em></p></span><img src="../../assets/dict/guides/turtle.webp" alt="Turtle Command" width="16" height="16"><img src="../../assets/dict/guides/observermovement.webp" alt="Observer Movement Command" width="16" height="16"></a></h4><p>3D version of <code class="netlogo-command"><a href="../../dictionary.html#setxy" class="netlogo-wiki-link" title="setxy">setxy</a></code>.</p><p>The agent, a turtle or the observer, sets its x-coordinate to <em>x</em>, its y-coordinate to <em>y</em> and its z-coordinate to <em>z</em>. When the observer uses <code>setxyz</code> it remains facing the same point so the heading, pitch, and roll, may also change.</p><p>For turtles equivalent to <code><span class="token command">set</span> <span class="token reporter">xcor</span> <span class="token variable">x</span> <span class="token command">set</span> <span class="token reporter">ycor</span> <span class="token variable">y</span> <span class="token command">set</span> <span class="token variable">zcor</span> <span class="token variable">z</span></code>, except it happens in one time step
+instead of three.</p><pre class="copy-code"><code><span class="token variable">setxyz</span> <span class="token number">0</span> <span class="token number">0</span> <span class="token number">0</span>
+<span class="token comment">;; agent moves to the middle of the center patch</span>
+</code></pre><p>See also <code class="netlogo-command"><a href="../../dictionary.html#face" class="netlogo-wiki-link" title="face">face</a></code></p></div><div class="dict_entry" id="tilt-cmds" role="region"><h3 id="tilt-down41tilt-up41"><a href="3d.html#tilt-cmds" role="doc-noteref" aria-label="Reference to tilt-down">
+tilt-down
+<span class="since" role="note" aria-label="Since version">
+4.1
+</span></a><a href="3d.html#tilt-cmds" role="doc-noteref" aria-label="Reference to tilt-up">
+tilt-up
+<span class="since" role="note" aria-label="Since version">
+4.1
+</span></a></h3><h4 id="tilt-down-numbertilt-up-number" class="section-heading"><a href="3d.html#tilt-down-numbertilt-up-number" class="section-anchor"><span class="prim_example"><p>tilt-down <em>number</em></p></span><span class="prim_example"><p>tilt-up <em>number</em></p></span><img src="../../assets/dict/guides/turtle.webp" alt="Turtle Command" width="16" height="16"></a></h4><p>The nose of the turtle rotates by <em>number</em> degrees, relative to its current orientation. Depending on
+the orientation of the turtle more than one of the relative angles (heading, pitch, and roll) may change
+when a turtle turns.</p></div><div class="dict_entry" id="towards-pitch-cmd" role="region"><h3 id="towards-pitch41towards-pitch-nowrap41"><a href="3d.html#towards-pitch-cmd" role="doc-noteref" aria-label="Reference to towards-pitch">
+towards-pitch
+<span class="since" role="note" aria-label="Since version">
+4.1
+</span></a><a href="3d.html#towards-pitch-cmd" role="doc-noteref" aria-label="Reference to towards-pitch-nowrap">
+towards-pitch-nowrap
+<span class="since" role="note" aria-label="Since version">
+4.1
+</span></a></h3><h4 id="towards-pitch-agenttowards-pitch-nowrap-agent" class="section-heading"><a href="3d.html#towards-pitch-agenttowards-pitch-nowrap-agent" class="section-anchor"><span class="prim_example"><p>towards-pitch <em>agent</em></p></span><span class="prim_example"><p>towards-pitch-nowrap <em>agent</em></p></span><img src="../../assets/dict/guides/turtle.webp" alt="Turtle Command" width="16" height="16"><img src="../../assets/dict/guides/patch.webp" alt="Patch Command" width="16" height="16"></a></h4><p>Reports the pitch from this agent to the given agent.</p><p>If the wrapped distance (around the edges of the screen) is shorter than the on-screen distance,
+towards-pitch will report the pitch of the wrapped path. towards-pitch-nowrap never uses the wrapped path.</p><p>Note: In order to get one turtle to face another you need to use both towards-pitch and towards.</p><p>Note: asking for the pitch from an agent to itself, or an agent on the same location, will cause a runtime
+error.</p><p>See also <code class="netlogo-command"><a href="../../dictionary.html#towards" class="netlogo-wiki-link" title="towards">towards</a></code></p></div><div class="dict_entry" id="towards-pitch-xyz-cmd" role="region"><h3 id="towards-pitch-xyz41towards-pitch-xyz-nowrap41"><a href="3d.html#towards-pitch-xyz-cmd" role="doc-noteref" aria-label="Reference to towards-pitch-xyz">
+towards-pitch-xyz
+<span class="since" role="note" aria-label="Since version">
+4.1
+</span></a><a href="3d.html#towards-pitch-xyz-cmd" role="doc-noteref" aria-label="Reference to towards-pitch-xyz-nowrap">
+towards-pitch-xyz-nowrap
+<span class="since" role="note" aria-label="Since version">
+4.1
+</span></a></h3><h4 id="towards-pitch-xyz-x-y-ztowards-pitch-xyz-no-wrap-x-y-z" class="section-heading"><a href="3d.html#towards-pitch-xyz-x-y-ztowards-pitch-xyz-no-wrap-x-y-z" class="section-anchor"><span class="prim_example"><p>towards-pitch-xyz <em>x</em> <em>y</em> <em>z</em></p></span><span class="prim_example"><p>towards-pitch-xyz-no-wrap <em>x</em> <em>y</em> <em>z</em></p></span><img src="../../assets/dict/guides/turtle.webp" alt="Turtle Command" width="16" height="16"><img src="../../assets/dict/guides/patch.webp" alt="Patch Command" width="16" height="16"></a></h4><p>Reports the pitch from this agent to the coordinates x, y, z</p><p>If the wrapped distance (around the edges of the screen) is shorter than the on-screen distance,
+towards-pitch will report the pitch of the wrapped path. towards-pitch-nowrap never uses the wrapped path.</p><p>Note: In order to get a turtle to face a given location you need to use both towards-pitch-xyz and
+towardsxy.</p><p>Note: asking for the pitch from an agent to the location it is standing on will cause a runtime error.</p><p>See also <code class="netlogo-command"><a href="../../dictionary.html#towardsxy" class="netlogo-wiki-link" title="towardsxy">towardsxy</a></code></p></div><div class="dict_entry" id="turtles-at-3d" role="region"><h3 id="turtles-at41breeds-at"><a href="3d.html#turtles-at-3d" role="doc-noteref" aria-label="Reference to turtles-at">
+turtles-at
+<span class="since" role="note" aria-label="Since version">
+4.1
+</span></a><a href="3d.html#turtles-at-3d" role="doc-noteref" aria-label="Reference to &lt;breeds&gt;-at">
+&lt;breeds&gt;-at
+</a></h3><h4 id="turtles-at-dx-dy-dzbreeds-at-dx-dy-dz" class="section-heading"><a href="3d.html#turtles-at-dx-dy-dzbreeds-at-dx-dy-dz" class="section-anchor"><span class="prim_example"><p>turtles-at <em>dx</em> <em>dy</em> <em>dz</em></p></span><span class="prim_example"><p>&lt;breeds&gt;-at <em>dx</em> <em>dy</em> <em>dz</em></p></span><img src="../../assets/dict/guides/turtle.webp" alt="Turtle Command" width="16" height="16"><img src="../../assets/dict/guides/patch.webp" alt="Patch Command" width="16" height="16"></a></h4><p>3D versions of <code class="netlogo-command"><a href="../../dictionary.html#turtles-at" class="netlogo-wiki-link" title="turtles-at">turtles-at</a></code> and <code class="netlogo-command"><a href="../../dictionary.html#turtles-at" class="netlogo-wiki-link" title="breeds-at">breeds-at</a></code>.</p><p>Reports an agentset containing the turtles on the patch (dx, dy, dz) from the caller (including the caller
+itself if it’s a turtle).</p><pre class="copy-code"><code><span class="token comment">;; suppose I have 40 turtles at the origin</span>
+<span class="token command">show</span> [<span class="token reporter">count</span> <span class="token reporter">turtles-at</span> <span class="token number">0</span> <span class="token number">0</span> <span class="token number">0</span>] <span class="token reporter">of</span> <span class="token reporter">turtle</span> <span class="token number">0</span>
+<span class="token variable">=&gt;</span> <span class="token number">40</span>
+</code></pre></div><div class="dict_entry" id="world-depth" role="region"><h3 id="world-depth41"><a href="3d.html#world-depth" role="doc-noteref" aria-label="Reference to world-depth">
+world-depth
+<span class="since" role="note" aria-label="Since version">
+4.1
+</span></a></h3><h4 class="section-heading"><a href="3d.html#world-depth" class="section-anchor"><span class="prim_example"><p>world-depth</p></span></a></h4><p>Reports the total depth of the NetLogo world.</p><p>The depth of the world is the same as max-pzcor - min-pzcor + 1.</p><p>See also <code class="netlogo-command"><a href="3d.html#min-max-pzcor" class="router-link-active router-link-exact-active netlogo-wiki-link" title="max-pzcor">max-pzcor</a></code>, <code class="netlogo-command"><a href="3d.html#min-max-pzcor" class="router-link-active router-link-exact-active netlogo-wiki-link" title="min-pzcor">min-pzcor</a></code>, <code class="netlogo-command"><a href="../../dictionary.html#world-dim" class="netlogo-wiki-link" title="world-width">world-width</a></code>,
+and <code class="netlogo-command"><a href="../../dictionary.html#world-dim" class="netlogo-wiki-link" title="world-height">world-height</a></code></p></div><div class="dict_entry" id="zcor" role="region"><h3><a href="3d.html#zcor" role="doc-noteref" aria-label="Reference to zcor">
+zcor
+</a></h3><h4 id="zcor-1" class="section-heading"><a href="3d.html#zcor-1" class="section-anchor"><span class="prim_example"><p>zcor</p></span><img src="../../assets/dict/guides/turtle.webp" alt="Turtle Command" width="16" height="16"></a></h4><p>This is a built-in turtle variable. It holds the current z coordinate of the turtle. This is a floating
+point number, not an integer. You can set this variable to change the turtle’s location.</p><p>This variable is always greater than or equal to (- screen-edge-z) and strictly less than screen-edge-z.</p><p>See also <code class="netlogo-command"><a href="3d.html#setxyz" class="router-link-active router-link-exact-active netlogo-wiki-link" title="setxy">setxy</a></code>, <code class="netlogo-command"><a href="../../dictionary.html#xcor" class="netlogo-wiki-link" title="xcor">xcor</a></code>, <code class="netlogo-command"><a href="../../dictionary.html#ycor" class="netlogo-wiki-link" title="ycor">ycor</a></code>, <code class="netlogo-command"><a href="../../dictionary.html#pcor" class="netlogo-wiki-link" title="pxcor">pxcor</a></code>, <code class="netlogo-command"><a href="../../dictionary.html#pcor" class="netlogo-wiki-link" title="pycor">pycor</a></code>, <code class="netlogo-command"><a href="3d.html#pzcor" class="router-link-active router-link-exact-active netlogo-wiki-link" title="pzcor">pzcor</a></code></p></div><div class="dict_entry" id="zoom" role="region"><h3 id="zoom41"><a href="3d.html#zoom" role="doc-noteref" aria-label="Reference to zoom">
+zoom
+<span class="since" role="note" aria-label="Since version">
+4.1
+</span></a></h3><h4 id="zoom-number" class="section-heading"><a href="3d.html#zoom-number" class="section-anchor"><span class="prim_example"><p>zoom <em>number</em></p></span><img src="../../assets/dict/guides/observermovement.webp" alt="Observer Movement Command" width="16" height="16"></a></h4><p>Move the observer toward the point it is facing, <em>number</em> steps. The observer will never move beyond
+the point it is facing so if <em>number</em> is greater than the distance to that point it will only move as
+far as the point it is facing.</p></div></article>
+  </main>
+  <footer>
+    <p>NetLogo User Manual (7.1.0-alpha1), by Uri Wilensky, Center for Connected Learning and Computer-Based Modeling, Northwestern University. Copyright 1999-2025 by Uri Wilensky. Adapted for MemoSim by changing the page layout, navigation and links. The adapted reference material is licensed under <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported</a>.</p>
+    <p><a href="../../dict/upstream-notices.html">Upstream copyright and third-party notices</a> · <a href="https://github.com/NetLogo/docs/blob/8e165bbbe204b417e899413d097265592f98a951/7.1.0-alpha1/3d.html">Pinned source: NetLogo/docs 8e165bb</a> (2026-08-13) · <a href="https://docs.netlogo.org/7.1.0-alpha1/3d">Original upstream page (online)</a></p>
+  </footer>
+</body>
+</html>

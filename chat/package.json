@@ -1,0 +1,41 @@
+{
+  "name": "memosim",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -H 127.0.0.1",
+    "build": "next build",
+    "start": "next start -H 127.0.0.1",
+    "lint": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "e2e": "playwright test",
+    "fetch-nlw": "bash scripts/fetch-nlw.sh",
+    "postinstall": "bash scripts/fetch-nlw.sh || true"
+  },
+  "dependencies": {
+    "better-sqlite3": "^13.1.1",
+    "next": "^15.5.29",
+    "openai": "^7.55.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-markdown": "^10.1.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.0",
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@xmldom/xmldom": "^0.9.12",
+    "autoprefixer": "^10.6.2",
+    "postcss": "^8.5.32",
+    "tailwindcss": "^3.4.19",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "vitest": "^5.1.0",
+    "yaml": "^2.9.1"
+  },
+  "license": "GPL-2.0-or-later"
+}

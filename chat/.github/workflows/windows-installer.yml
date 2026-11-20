@@ -1,0 +1,99 @@
+name: Windows installer (x64)
+
+# Builds the MemoSim Windows installer on a real Windows runner.
+# jpackage cannot cross-build, so this is the only way to produce MemoSim-<version>.exe from macOS.
+#
+# Needs:
+#   vars.NETLOGO_SRC_REPO   owner/repo of the pushed NetLogo Desktop fork (private is fine)
+#   secrets.NETLOGO_SRC_TOKEN  fine-grained PAT with read access to that repo
+# Run it from Actions > "Windows installer (x64)" > Run workflow.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "App version (matches the macOS build, e.g. 1.0.4)"
+        required: false
+        default: "1.0.4"
+      type:
+        description: "Installer type"
+        type: choice
+        options: [exe, msi]
+        default: exe
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout MemoSim (chat app)
+        uses: actions/checkout@v4
+        with:
+          path: chat
+          fetch-depth: 1
+
+      - name: Checkout NetLogo Desktop fork
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.NETLOGO_SRC_REPO }}
+          token: ${{ secrets.NETLOGO_SRC_TOKEN }}
+          path: netlogo-desktop
+          fetch-depth: 1
+
+      - name: JDK 21 (jpackage, jlink)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Node 22 x64
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          architecture: x64
+
+      - name: sbt
+        uses: sbt/setup-sbt@v1
+
+      - name: WiX Toolset 3.14 (needed for .exe/.msi)
+        shell: pwsh
+        run: |
+          choco install wixtoolset --version=3.14.1 --allow-downgrade -y --no-progress
+          "C:\Program Files (x86)\WiX Toolset v3.14\bin" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+
+      - name: Build installer
+        shell: pwsh
+        working-directory: chat
+        env:
+          APP_VERSION: ${{ github.event.inputs.version }}
+        run: |
+          # The NetLogo build needs Git Bash's sh.exe for its interface resources.
+          "C:\Program Files\Git\usr\bin" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+          $env:PATH = "C:\Program Files\Git\usr\bin;C:\Program Files (x86)\WiX Toolset v3.14\bin;$env:PATH"
+          ./scripts/build-windows-app.ps1 `
+            -NetLogoSrc "$env:GITHUB_WORKSPACE\netlogo-desktop" `
+            -BuildRoot "$env:GITHUB_WORKSPACE\build" `
+            -Version $env:APP_VERSION `
+            -Type "${{ github.event.inputs.type }}"
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: MemoSim-${{ github.event.inputs.version }}-windows-x64
+          path: |
+            build/release/*.exe
+            build/release/*.msi
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload build logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: |
+            chat/build-windows.log
+            chat/.next-app/**/*.log
+          if-no-files-found: ignore
+          retention-days: 7

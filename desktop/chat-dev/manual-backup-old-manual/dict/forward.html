@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>forward / fd | MemoSim Dictionary</title>
+  <link rel="icon" href="../assets/memosim-icon.png" type="image/png">
+  <link rel="stylesheet" href="../docs.css">
+  <script src="../docs.js" defer></script>
+</head>
+<body data-manual="dictionary">
+  <a class="skip-link" href="#content">Skip to dictionary content</a>
+  <header><a class="brand" href="../index.html">MemoSim <small>Offline documentation</small></a></header>
+  <nav aria-label="Main"><a href="../index.html">User manual</a> <a href="../tutorial.html">Tutorial</a> <a href="../dictionary.html">Dictionary</a> <a href="../legal.html">Licenses &amp; credits</a> <a href="../manual.pdf">PDF manual</a></nav>
+  <main id="content">
+    <p><a href="../dictionary.html#dictionary-search">Back to dictionary search</a> · NetLogo language reference (7.1.0-alpha1)</p>
+    <h1>forward / fd</h1>
+    <article aria-label="NetLogo language reference"><div class="dict_entry" id="forward" role="region"><h3 id="forward10fd10"><a href="#forward" role="doc-noteref" aria-label="Reference to forward">
+forward
+<span class="since" role="note" aria-label="Since version">
+1.0
+</span></a><a href="#forward" role="doc-noteref" aria-label="Reference to fd">
+fd
+<span class="since" role="note" aria-label="Since version">
+1.0
+</span></a></h3><h4 id="forward-number" class="section-heading"><a href="#forward-number" class="section-anchor"><span class="prim_example"><p>forward <em>number</em></p></span><img src="../assets/dict/turtle.webp" alt="Turtle Command" width="16" height="16"></a></h4><p>The turtle moves forward by <em>number</em> steps, one step at a
+time. (If <em>number</em> is negative, the turtle moves backward.)</p><p><code><span class="token command">fd</span> <span class="token number">10</span></code> is equivalent to <code><span class="token command">repeat</span> <span class="token number">10</span> [ <span class="token command">jump</span> <span class="token number">1</span> ]</code>. <code><span class="token command">fd</span> <span class="token number">10.5</span></code> is equivalent to <code><span class="token command">repeat</span> <span class="token number">10</span> [ <span class="token command">jump</span> <span class="token number">1</span> ] <span class="token command">jump</span>
+ <span class="token number">0.5</span></code>.</p><p>If the turtle cannot move forward <em>number</em> steps because it is
+not permitted by the current topology the turtle will complete as
+many steps of 1 as it can, then stop.</p><p>See also <code class="netlogo-command"><a href="../dictionary.html#jump" class="netlogo-wiki-link" title="jump">jump</a></code>, <code class="netlogo-command"><a href="../dictionary.html#can-move" class="netlogo-wiki-link" title="can-move?">can-move?</a></code>.</p></div></article>
+  </main>
+  <footer>
+    <p>NetLogo User Manual (7.1.0-alpha1), by Uri Wilensky, Center for Connected Learning and Computer-Based Modeling, Northwestern University. Copyright 1999-2025 by Uri Wilensky. Adapted for MemoSim by changing the page layout, navigation and links. The adapted reference material is licensed under <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported</a>.</p>
+    <p><a href="../dict/upstream-notices.html">Upstream copyright and third-party notices</a> · <a href="https://github.com/NetLogo/docs/blob/8e165bbbe204b417e899413d097265592f98a951/7.1.0-alpha1/dict/forward.html">Pinned source: NetLogo/docs 8e165bb</a> (2026-08-13) · <a href="https://docs.netlogo.org/7.1.0-alpha1/dict/forward">Original upstream page (online)</a></p>
+  </footer>
+</body>
+</html>

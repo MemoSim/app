@@ -1,0 +1,56 @@
+# ---- OS / editor junk ----
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+*.log
+
+# ---- secrets ----
+.env
+.env.*
+!.env.example
+*.pem
+*.p12
+*.key
+
+# ---- Node / Next.js (chat/) ----
+node_modules/
+.next/
+.next-app/
+out/
+coverage/
+tsconfig.tsbuildinfo
+npm-debug.log*
+vercel.json.bak
+
+# ---- Scala / sbt (desktop/) ----
+target/
+project/target/
+project/project/
+.bsp/
+.bloop/
+.metals/
+.scala-build/
+*.class
+*.jar.tmp
+desktop/chat-dev/classpath.txt
+
+# ---- build products ----
+dist/
+bundle/
+build-scala.log
+build-windows.log
+*.dmg
+*.pkg
+*.exe
+*.msi
+*.zip.tmp
+
+# ---- runtime data (never commit user data) ----
+chat/data/*.db
+chat/data/*.db-shm
+chat/data/*.db-wal
+chat/reference/reference.db
+/tmp/
+desktop/tmp/

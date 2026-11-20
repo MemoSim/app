@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>patch-at | MemoSim Dictionary</title>
+  <link rel="icon" href="../assets/memosim-icon.png" type="image/png">
+  <link rel="stylesheet" href="../docs.css">
+  <script src="../docs.js" defer></script>
+</head>
+<body data-manual="dictionary">
+  <a class="skip-link" href="#content">Skip to dictionary content</a>
+  <header><a class="brand" href="../index.html">MemoSim <small>Offline documentation</small></a></header>
+  <nav aria-label="Main"><a href="../index.html">User manual</a> <a href="../tutorial.html">Tutorial</a> <a href="../dictionary.html">Dictionary</a> <a href="../legal.html">Licenses &amp; credits</a> <a href="../manual.pdf">PDF manual</a></nav>
+  <main id="content">
+    <p><a href="../dictionary.html#dictionary-search">Back to dictionary search</a> · NetLogo language reference (7.1.0-alpha1)</p>
+    <h1>patch-at</h1>
+    <article aria-label="NetLogo language reference"><div class="dict_entry" id="patch-at" role="region"><h3 id="patch-at10"><a href="#patch-at" role="doc-noteref" aria-label="Reference to patch-at">
+patch-at
+<span class="since" role="note" aria-label="Since version">
+1.0
+</span></a></h3><h4 id="patch-at-dx-dy" class="section-heading"><a href="#patch-at-dx-dy" class="section-anchor"><span class="prim_example"><p>patch-at <em>dx</em> <em>dy</em></p></span><img src="../assets/dict/turtle.webp" alt="Turtle Command" width="16" height="16"><img src="../assets/dict/patch.webp" alt="Patch Command" width="16" height="16"></a></h4><p>Reports the patch at (dx, dy) from the caller, that is, the patch
+containing the point dx east and dy patches north of this agent.</p><p>Reports nobody if there is no such patch because that point is
+beyond a non-wrapping world boundary.</p><pre class="copy-code"><code><span class="token command">ask</span> <span class="token reporter">patch-at</span> <span class="token number">1</span> <span class="token number">-1</span> [ <span class="token command">set</span> <span class="token reporter">pcolor</span> <span class="token constant">green</span> ]
+<span class="token comment">;; if caller is a turtle or patch, turns the</span>
+<span class="token comment">;;   patch just southeast of the caller green</span></code></pre><p>See also <code class="netlogo-command"><a href="../dictionary.html#patch" class="netlogo-wiki-link" title="patch">patch</a></code>, <code class="netlogo-command"><a href="../dictionary.html#patch-ahead" class="netlogo-wiki-link" title="patch-ahead">patch-ahead</a></code>, <code class="netlogo-command"><a href="../dictionary.html#patch-lr-and-ahead" class="netlogo-wiki-link" title="patch-left-and-ahead">patch-left-and-ahead</a></code>, <code class="netlogo-command"><a href="../dictionary.html#patch-lr-and-ahead" class="netlogo-wiki-link" title="patch-right-and-ahead">patch-right-and-ahead</a></code>, <code class="netlogo-command"><a href="../dictionary.html#patch-at-heading-and-distance" class="netlogo-wiki-link" title="patch-at-heading-and-distance">patch-at-heading-and-distance</a></code>.</p></div></article>
+  </main>
+  <footer>
+    <p>NetLogo User Manual (7.1.0-alpha1), by Uri Wilensky, Center for Connected Learning and Computer-Based Modeling, Northwestern University. Copyright 1999-2025 by Uri Wilensky. Adapted for MemoSim by changing the page layout, navigation and links. The adapted reference material is licensed under <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported</a>.</p>
+    <p><a href="../dict/upstream-notices.html">Upstream copyright and third-party notices</a> · <a href="https://github.com/NetLogo/docs/blob/8e165bbbe204b417e899413d097265592f98a951/7.1.0-alpha1/dict/patch-at.html">Pinned source: NetLogo/docs 8e165bb</a> (2026-08-13) · <a href="https://docs.netlogo.org/7.1.0-alpha1/dict/patch-at">Original upstream page (online)</a></p>
+  </footer>
+</body>
+</html>

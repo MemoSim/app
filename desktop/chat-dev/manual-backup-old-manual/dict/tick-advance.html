@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>tick-advance | MemoSim Dictionary</title>
+  <link rel="icon" href="../assets/memosim-icon.png" type="image/png">
+  <link rel="stylesheet" href="../docs.css">
+  <script src="../docs.js" defer></script>
+</head>
+<body data-manual="dictionary">
+  <a class="skip-link" href="#content">Skip to dictionary content</a>
+  <header><a class="brand" href="../index.html">MemoSim <small>Offline documentation</small></a></header>
+  <nav aria-label="Main"><a href="../index.html">User manual</a> <a href="../tutorial.html">Tutorial</a> <a href="../dictionary.html">Dictionary</a> <a href="../legal.html">Licenses &amp; credits</a> <a href="../manual.pdf">PDF manual</a></nav>
+  <main id="content">
+    <p><a href="../dictionary.html#dictionary-search">Back to dictionary search</a> · NetLogo language reference (7.1.0-alpha1)</p>
+    <h1>tick-advance</h1>
+    <article aria-label="NetLogo language reference"><div class="dict_entry" id="tick-advance" role="region"><h3 id="tick-advance40"><a href="#tick-advance" role="doc-noteref" aria-label="Reference to tick-advance">
+tick-advance
+<span class="since" role="note" aria-label="Since version">
+4.0
+</span></a></h3><h4 id="tick-advance-number" class="section-heading"><a href="#tick-advance-number" class="section-anchor"><span class="prim_example"><p>tick-advance <em>number</em></p></span></a></h4><p>Advances the tick counter by <em>number</em>. The input may be an
+integer or a floating point number. (Some models divide ticks more
+finely than by ones.) The input may not be negative.</p><p>When using <a href="guides/programming.html#view-updates" class="">tick-based view
+updates</a>, the view is normally updated every 1.0 ticks, so using <code>tick-advance</code> with a number less then 1.0 may not always
+trigger an update. If you want to make sure that the view is
+updated, you can use the <code>display</code> command.</p><p>If the tick counter has not been started yet with <code>reset-ticks</code>, an error results.</p><p>Does not update plots.</p><p>See also <code class="netlogo-command"><a href="../dictionary.html#tick" class="netlogo-wiki-link" title="tick">tick</a></code>, <code class="netlogo-command"><a href="../dictionary.html#ticks" class="netlogo-wiki-link" title="ticks">ticks</a></code>, <code class="netlogo-command"><a href="../dictionary.html#reset-ticks" class="netlogo-wiki-link" title="reset-ticks">reset-ticks</a></code>, <code class="netlogo-command"><a href="../dictionary.html#clear-ticks" class="netlogo-wiki-link" title="clear-ticks">clear-ticks</a></code>.</p></div></article>
+  </main>
+  <footer>
+    <p>NetLogo User Manual (7.1.0-alpha1), by Uri Wilensky, Center for Connected Learning and Computer-Based Modeling, Northwestern University. Copyright 1999-2025 by Uri Wilensky. Adapted for MemoSim by changing the page layout, navigation and links. The adapted reference material is licensed under <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported</a>.</p>
+    <p><a href="../dict/upstream-notices.html">Upstream copyright and third-party notices</a> · <a href="https://github.com/NetLogo/docs/blob/8e165bbbe204b417e899413d097265592f98a951/7.1.0-alpha1/dict/tick-advance.html">Pinned source: NetLogo/docs 8e165bb</a> (2026-08-13) · <a href="https://docs.netlogo.org/7.1.0-alpha1/dict/tick-advance">Original upstream page (online)</a></p>
+  </footer>
+</body>
+</html>

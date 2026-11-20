@@ -1,0 +1,53 @@
+{
+  "name": "ecology-sir",
+  "title": "SIR classroom simulation",
+  "discipline": "Ecology",
+  "turns": [
+    {
+      "title": "Build and run the baseline",
+      "prompt": "Create a fictional agent-based SIR teaching model in this MemoSim project. Use 100 turtles, initially 99 susceptible and one infected, no births or deaths, random movement, and abstract contact and recovery probabilities controlled by sliders transmission-rate and recovery-rate. Use Setup and Go, a three-series population plot and public reporters susceptible-count, infected-count, recovered-count. Let go advance one tick even after infection disappears. Use tools to build and test it at 20 ticks, and report the three counts. Keep it short.",
+      "tools": ["test_model"],
+      "validation": {
+        "commands": "setup",
+        "reporters": [
+          { "code": "count turtles", "expected": 100 },
+          { "code": "susceptible-count", "expected": 99 },
+          { "code": "infected-count", "expected": 1 },
+          { "code": "recovered-count", "expected": 0 }
+        ]
+      }
+    },
+    {
+      "title": "Add the vaccination control",
+      "prompt": "Keep the current SIR model and its controls. Add a vaccination-rate slider ranging 0 to 1 with default 0. During setup vaccinate floor(99 * vaccination-rate) of the 99 susceptible turtles by making them immune (recovered). Preserve one initial infected turtle and all three public count reporters. Validate both the 0 and 0.5 settings using tools and report the setup counts. Restore vaccination-rate to 0 afterward.",
+      "tools": [],
+      "validation": {
+        "commands": "set vaccination-rate 0.5 setup",
+        "reporters": [
+          { "code": "susceptible-count", "expected": 50 },
+          { "code": "infected-count", "expected": 1 },
+          { "code": "recovered-count", "expected": 49 },
+          { "code": "count turtles", "expected": 100 }
+        ]
+      }
+    },
+    {
+      "title": "Run a four-run BehaviorSpace experiment",
+      "prompt": "Define and execute a native BehaviorSpace experiment named vaccination-sweep using the current model. Use setup and go for exactly 20 ticks. Sweep vaccination-rate over 0 and 0.5 with two repetitions each, measuring only final susceptible-count, infected-count, recovered-count, and count turtles. Use define_experiment and run_experiment. Summarize the four observed runs and the limits of comparing two repetitions. Preserve the current model and setup defaults.",
+      "tools": ["define_experiment", "run_experiment"],
+      "validation": {
+        "commands": "set vaccination-rate 0 setup repeat 20 [ go ]",
+        "reporters": [
+          { "code": "ticks", "expected": 20 },
+          { "code": "susceptible-count + infected-count + recovered-count", "expected": 100 }
+        ],
+        "experiment": {
+          "name": "vaccination-sweep",
+          "runs": 4,
+          "finalStep": 20,
+          "columns": ["vaccination-rate", "susceptible-count", "infected-count", "recovered-count", "count turtles"]
+        }
+      }
+    }
+  ]
+}

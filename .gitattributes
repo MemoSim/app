@@ -1,0 +1,25 @@
+# Default: let git decide, but keep shell scripts LF so they run on macOS/Linux
+* text=auto
+
+*.sh    text eol=lf
+*.bash  text eol=lf
+*.ps1   text eol=lf
+*.bat   text eol=crlf
+*.cmd   text eol=crlf
+*.md    text eol=lf
+*.json  text eol=lf
+
+# Binary assets — never diff or convert
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.icns  binary
+*.ico   binary
+*.pdf   binary
+*.ttf   binary
+*.otf   binary
+*.jar   binary
+*.zip   binary
+*.db    binary
+*.nlogox binary

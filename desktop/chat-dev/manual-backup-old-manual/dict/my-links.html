@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>my-&lt;breeds&gt; / my-links | MemoSim Dictionary</title>
+  <link rel="icon" href="../assets/memosim-icon.png" type="image/png">
+  <link rel="stylesheet" href="../docs.css">
+  <script src="../docs.js" defer></script>
+</head>
+<body data-manual="dictionary">
+  <a class="skip-link" href="#content">Skip to dictionary content</a>
+  <header><a class="brand" href="../index.html">MemoSim <small>Offline documentation</small></a></header>
+  <nav aria-label="Main"><a href="../index.html">User manual</a> <a href="../tutorial.html">Tutorial</a> <a href="../dictionary.html">Dictionary</a> <a href="../legal.html">Licenses &amp; credits</a> <a href="../manual.pdf">PDF manual</a></nav>
+  <main id="content">
+    <p><a href="../dictionary.html#dictionary-search">Back to dictionary search</a> · NetLogo language reference (7.1.0-alpha1)</p>
+    <h1>my-&lt;breeds&gt; / my-links</h1>
+    <article aria-label="NetLogo language reference"><div class="dict_entry" id="my-links" role="region"><h3 id="my-breedsmy-links40"><a href="#my-links" role="doc-noteref" aria-label="Reference to my-&lt;breeds&gt;">
+my-&lt;breeds&gt;
+</a><a href="#my-links" role="doc-noteref" aria-label="Reference to my-links">
+my-links
+<span class="since" role="note" aria-label="Since version">
+4.0
+</span></a></h3><h4 id="my-breedsmy-links" class="section-heading"><a href="#my-breedsmy-links" class="section-anchor"><span class="prim_example"><p>my-&lt;breeds&gt;</p></span><span class="prim_example"><p>my-links</p></span><img src="../assets/dict/turtle.webp" alt="Turtle Command" width="16" height="16"></a></h4><p>Reports an agentset of all links connected to the caller of
+the corresponding breed, regardless of directedness.
+Generally, you might consider using [[|my-out-links]] instead
+of this primitive, as it works well for either directed or
+undirected networks (since it excludes directed, incoming
+links).|my-out-links]] instead
+of this primitive, as it works well for either directed or
+undirected networks (since it excludes directed, incoming
+links).</p><pre class="copy-code"><code><span class="token command">crt</span> <span class="token number">5</span>
+<span class="token command">ask</span> <span class="token reporter">turtle</span> <span class="token number">0</span>
+[
+  <span class="token command">create-links-with</span> <span class="token reporter">other</span> <span class="token reporter">turtles</span>
+  <span class="token command">show</span> <span class="token reporter">my-links</span> <span class="token comment">;; prints the agentset containing all links</span>
+                <span class="token comment">;; (since all the links we created were with turtle 0 )</span>
+]
+<span class="token command">ask</span> <span class="token reporter">turtle</span> <span class="token number">1</span>
+[
+  <span class="token command">show</span> <span class="token reporter">my-links</span> <span class="token comment">;; shows an agentset containing the link 0 1</span>
+]<span class="token keyword">
+end</span></code></pre><p>If you only want the undirected links connected to a node, you
+can do <code><span class="token reporter">my-links</span> <span class="token reporter">with</span> [ <span class="token reporter">not</span> <span class="token reporter">is-directed-link?</span> <span class="token reporter">self</span> ]</code>.</p></div></article>
+  </main>
+  <footer>
+    <p>NetLogo User Manual (7.1.0-alpha1), by Uri Wilensky, Center for Connected Learning and Computer-Based Modeling, Northwestern University. Copyright 1999-2025 by Uri Wilensky. Adapted for MemoSim by changing the page layout, navigation and links. The adapted reference material is licensed under <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported</a>.</p>
+    <p><a href="../dict/upstream-notices.html">Upstream copyright and third-party notices</a> · <a href="https://github.com/NetLogo/docs/blob/8e165bbbe204b417e899413d097265592f98a951/7.1.0-alpha1/dict/my-links.html">Pinned source: NetLogo/docs 8e165bb</a> (2026-08-13) · <a href="https://docs.netlogo.org/7.1.0-alpha1/dict/my-links">Original upstream page (online)</a></p>
+  </footer>
+</body>
+</html>

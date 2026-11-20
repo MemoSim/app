@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>layout-tutte | MemoSim Dictionary</title>
+  <link rel="icon" href="../assets/memosim-icon.png" type="image/png">
+  <link rel="stylesheet" href="../docs.css">
+  <script src="../docs.js" defer></script>
+</head>
+<body data-manual="dictionary">
+  <a class="skip-link" href="#content">Skip to dictionary content</a>
+  <header><a class="brand" href="../index.html">MemoSim <small>Offline documentation</small></a></header>
+  <nav aria-label="Main"><a href="../index.html">User manual</a> <a href="../tutorial.html">Tutorial</a> <a href="../dictionary.html">Dictionary</a> <a href="../legal.html">Licenses &amp; credits</a> <a href="../manual.pdf">PDF manual</a></nav>
+  <main id="content">
+    <p><a href="../dictionary.html#dictionary-search">Back to dictionary search</a> · NetLogo language reference (7.1.0-alpha1)</p>
+    <h1>layout-tutte</h1>
+    <article aria-label="NetLogo language reference"><div class="dict_entry" id="layout-tutte" role="region"><h3 id="layout-tutte40"><a href="#layout-tutte" role="doc-noteref" aria-label="Reference to layout-tutte">
+layout-tutte
+<span class="since" role="note" aria-label="Since version">
+4.0
+</span></a></h3><h4 id="layout-tutte-turtle-set-link-set-radius" class="section-heading"><a href="#layout-tutte-turtle-set-link-set-radius" class="section-anchor"><span class="prim_example"><p>layout-tutte <em>turtle-set</em> <em>link-set</em> <em>radius</em></p></span></a></h4><p>The turtles that are connected by links in <em>link-set</em> but not
+included in <em>turtle-set</em> are placed in a circle layout with
+the given <em>radius</em>. There should be at least 3 agents in this
+agentset.</p><p>The turtles in <em>turtle-set</em> are then laid out in the following
+manner: Each turtle is placed at centroid (or barycenter) of the
+polygon formed by its linked neighbors. (The centroid is like a
+2-dimensional average of the coordinates of the neighbors.)</p><p>(The purpose of the circle of “anchor agents” is to
+prevent all the turtles from collapsing down to one point.)</p><p>After a few iterations of this, the layout will stabilize.</p><p>This layout is named after the mathematician William Thomas Tutte,
+who proposed it as a method for graph layout.</p><pre class="copy-code"><code><span class="token keyword">to</span> <span class="token variable">make-a-tree</span>
+  <span class="token command">set-default-shape</span> <span class="token reporter">turtles</span> <span class="token string">"circle"</span>
+  <span class="token command">crt</span> <span class="token number">8</span>
+  <span class="token command">ask</span> <span class="token reporter">turtle</span> <span class="token number">0</span> [
+    <span class="token command">create-link-with</span> <span class="token reporter">turtle</span> <span class="token number">1</span>
+    <span class="token command">create-link-with</span> <span class="token reporter">turtle</span> <span class="token number">2</span>
+    <span class="token command">create-link-with</span> <span class="token reporter">turtle</span> <span class="token number">3</span>
+  ]
+  <span class="token command">ask</span> <span class="token reporter">turtle</span> <span class="token number">1</span> [
+    <span class="token command">create-link-with</span> <span class="token reporter">turtle</span> <span class="token number">4</span>
+    <span class="token command">create-link-with</span> <span class="token reporter">turtle</span> <span class="token number">5</span>
+    <span class="token command">create-link-with</span> <span class="token reporter">turtle</span> <span class="token number">6</span>
+    <span class="token command">create-link-with</span> <span class="token reporter">turtle</span> <span class="token number">7</span>
+  ]
+  <span class="token comment">; place all the turtles with just one</span>
+  <span class="token comment">; neighbor on the perimeter of a circle</span>
+  <span class="token comment">; and then place the remaining turtles inside</span>
+  <span class="token comment">; this circle, spread between their neighbors.</span>
+  <span class="token command">repeat</span> <span class="token number">10</span> [ <span class="token command">layout-tutte</span> (<span class="token reporter">turtles</span> <span class="token reporter">with</span> [<span class="token reporter">count</span> <span class="token reporter">link-neighbors</span> <span class="token reporter">&gt;</span> <span class="token number">1</span>]) <span class="token reporter">links</span> <span class="token number">8</span> ]<span class="token keyword">
+end</span></code></pre></div></article>
+  </main>
+  <footer>
+    <p>NetLogo User Manual (7.1.0-alpha1), by Uri Wilensky, Center for Connected Learning and Computer-Based Modeling, Northwestern University. Copyright 1999-2025 by Uri Wilensky. Adapted for MemoSim by changing the page layout, navigation and links. The adapted reference material is licensed under <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported</a>.</p>
+    <p><a href="../dict/upstream-notices.html">Upstream copyright and third-party notices</a> · <a href="https://github.com/NetLogo/docs/blob/8e165bbbe204b417e899413d097265592f98a951/7.1.0-alpha1/dict/layout-tutte.html">Pinned source: NetLogo/docs 8e165bb</a> (2026-08-13) · <a href="https://docs.netlogo.org/7.1.0-alpha1/dict/layout-tutte">Original upstream page (online)</a></p>
+  </footer>
+</body>
+</html>

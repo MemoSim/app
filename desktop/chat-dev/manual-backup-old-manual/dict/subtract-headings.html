@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>subtract-headings | MemoSim Dictionary</title>
+  <link rel="icon" href="../assets/memosim-icon.png" type="image/png">
+  <link rel="stylesheet" href="../docs.css">
+  <script src="../docs.js" defer></script>
+</head>
+<body data-manual="dictionary">
+  <a class="skip-link" href="#content">Skip to dictionary content</a>
+  <header><a class="brand" href="../index.html">MemoSim <small>Offline documentation</small></a></header>
+  <nav aria-label="Main"><a href="../index.html">User manual</a> <a href="../tutorial.html">Tutorial</a> <a href="../dictionary.html">Dictionary</a> <a href="../legal.html">Licenses &amp; credits</a> <a href="../manual.pdf">PDF manual</a></nav>
+  <main id="content">
+    <p><a href="../dictionary.html#dictionary-search">Back to dictionary search</a> · NetLogo language reference (7.1.0-alpha1)</p>
+    <h1>subtract-headings</h1>
+    <article aria-label="NetLogo language reference"><div class="dict_entry" id="subtract-headings" role="region"><h3 id="subtract-headings21"><a href="#subtract-headings" role="doc-noteref" aria-label="Reference to subtract-headings">
+subtract-headings
+<span class="since" role="note" aria-label="Since version">
+2.1
+</span></a></h3><h4 id="subtract-headings-heading1-heading2" class="section-heading"><a href="#subtract-headings-heading1-heading2" class="section-anchor"><span class="prim_example"><p>subtract-headings <em>heading1 heading2</em></p></span></a></h4><p>Computes the difference between the given headings, that is, the
+number of degrees in the smallest angle by which heading2 could be
+rotated to produce heading1. A positive answer means a clockwise
+rotation, a negative answer counterclockwise. The result is always
+in the range -180 to 180, but is never exactly -180.</p><p>Note that simply subtracting the two headings using the - (minus)
+operator wouldn’t work. Just subtracting corresponds to always
+rotating clockwise from heading2 to heading1; but sometimes the
+counterclockwise rotation is shorter. For example, the difference
+between 5 degrees and 355 degrees is 10 degrees, not -350 degrees.</p><pre class="copy-code"><code><span class="token command">show</span> <span class="token reporter">subtract-headings</span> <span class="token number">80</span> <span class="token number">60</span>
+<span class="token variable">=&gt;</span> <span class="token number">20</span>
+<span class="token command">show</span> <span class="token reporter">subtract-headings</span> <span class="token number">60</span> <span class="token number">80</span>
+<span class="token variable">=&gt;</span> <span class="token number">-20</span>
+<span class="token command">show</span> <span class="token reporter">subtract-headings</span> <span class="token number">5</span> <span class="token number">355</span>
+<span class="token variable">=&gt;</span> <span class="token number">10</span>
+<span class="token command">show</span> <span class="token reporter">subtract-headings</span> <span class="token number">355</span> <span class="token number">5</span>
+<span class="token variable">=&gt;</span> <span class="token number">-10</span>
+<span class="token command">show</span> <span class="token reporter">subtract-headings</span> <span class="token number">180</span> <span class="token number">0</span>
+<span class="token variable">=&gt;</span> <span class="token number">180</span>
+<span class="token command">show</span> <span class="token reporter">subtract-headings</span> <span class="token number">0</span> <span class="token number">180</span>
+<span class="token variable">=&gt;</span> <span class="token number">180</span></code></pre></div></article>
+  </main>
+  <footer>
+    <p>NetLogo User Manual (7.1.0-alpha1), by Uri Wilensky, Center for Connected Learning and Computer-Based Modeling, Northwestern University. Copyright 1999-2025 by Uri Wilensky. Adapted for MemoSim by changing the page layout, navigation and links. The adapted reference material is licensed under <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported</a>.</p>
+    <p><a href="../dict/upstream-notices.html">Upstream copyright and third-party notices</a> · <a href="https://github.com/NetLogo/docs/blob/8e165bbbe204b417e899413d097265592f98a951/7.1.0-alpha1/dict/subtract-headings.html">Pinned source: NetLogo/docs 8e165bb</a> (2026-08-13) · <a href="https://docs.netlogo.org/7.1.0-alpha1/dict/subtract-headings">Original upstream page (online)</a></p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>pitch | MemoSim Dictionary</title>
+  <link rel="icon" href="../assets/memosim-icon.png" type="image/png">
+  <link rel="stylesheet" href="../docs.css">
+  <script src="../docs.js" defer></script>
+</head>
+<body data-manual="dictionary">
+  <a class="skip-link" href="#content">Skip to dictionary content</a>
+  <header><a class="brand" href="../index.html">MemoSim <small>Offline documentation</small></a></header>
+  <nav aria-label="Main"><a href="../index.html">User manual</a> <a href="../tutorial.html">Tutorial</a> <a href="../dictionary.html">Dictionary</a> <a href="../legal.html">Licenses &amp; credits</a> <a href="../manual.pdf">PDF manual</a></nav>
+  <main id="content">
+    <p><a href="../dictionary.html#dictionary-search">Back to dictionary search</a> · NetLogo 3D language reference (7.1.0-alpha1)</p>
+    <h1>pitch</h1>
+    <article aria-label="NetLogo 3D language reference"><div class="dict_entry" id="pitch" role="region"><h3><a href="#pitch" role="doc-noteref" aria-label="Reference to pitch">
+pitch
+</a></h3><h4 id="pitch-1" class="section-heading"><a href="#pitch-1" class="section-anchor"><span class="prim_example"><p>pitch</p></span><img src="../assets/dict/turtle.webp" alt="Turtle Command" width="16" height="16"></a></h4><p>This is a built-in turtle variable. Pitch is the angle between the “nose” of the turtle and the
+xy-plane. Heading and pitch together define the forward vector of the turtle or the direction that the
+turtle is facing.</p><p>This is a number greater than or equal to 0 and less than 360. 0 is parallel to the xy-plane, 90 is parallel
+to the z-axis. While you can set pitch we recommend that you use the primitives to turn the turtle.
+Depending on the position more than one relative angle (heading, pitch and roll) may change at once.</p><p>Example:</p><pre class="copy-code"><code><span class="token comment">;; assume roll and heading are 0</span>
+<span class="token command">set</span> <span class="token variable">pitch</span> <span class="token number">45</span>      <span class="token comment">;; turtle is now north and up</span>
+<span class="token command">set</span> <span class="token reporter">heading</span> <span class="token reporter">heading</span> <span class="token reporter">+</span> <span class="token number">10</span> <span class="token comment">;; same effect as "tilt-up 10"</span>
+</code></pre><p>See also <code class="netlogo-command"><a href="../dictionary.html#heading" class="netlogo-wiki-link" title="heading">heading</a></code>, <code class="netlogo-command"><a href="guides/3d.html#roll" class="netlogo-wiki-link" title="roll">roll</a></code>, <code class="netlogo-command"><a href="tilt-cmds.html#tilt-cmds" class="netlogo-wiki-link" title="tilt-up">tilt-up</a></code>, <code class="netlogo-command"><a href="guides/3d.html#tilt-cmds" class="netlogo-wiki-link" title="tilt-down">tilt-down</a></code>, <code class="netlogo-command"><a href="guides/3d.html#right" class="netlogo-wiki-link" title="right">right</a></code>, <code class="netlogo-command"><a href="guides/3d.html#left" class="netlogo-wiki-link" title="left">left</a></code></p></div></article>
+  </main>
+  <footer>
+    <p>NetLogo User Manual (7.1.0-alpha1), by Uri Wilensky, Center for Connected Learning and Computer-Based Modeling, Northwestern University. Copyright 1999-2025 by Uri Wilensky. Adapted for MemoSim by changing the page layout, navigation and links. The adapted reference material is licensed under <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported</a>.</p>
+    <p><a href="../dict/upstream-notices.html">Upstream copyright and third-party notices</a> · <a href="https://github.com/NetLogo/docs/blob/8e165bbbe204b417e899413d097265592f98a951/7.1.0-alpha1/dict/pitch.html">Pinned source: NetLogo/docs 8e165bb</a> (2026-08-13) · <a href="https://docs.netlogo.org/7.1.0-alpha1/dict/pitch">Original upstream page (online)</a></p>
+  </footer>
+</body>
+</html>

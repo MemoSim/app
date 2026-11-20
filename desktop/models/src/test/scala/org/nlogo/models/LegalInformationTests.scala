@@ -1,0 +1,36 @@
+package org.nlogo.models
+
+import java.io.ByteArrayInputStream
+
+import difflib.DiffUtils
+
+import scala.jdk.CollectionConverters.{ ListHasAsScala, SeqHasAsJava }
+import scala.io.Source
+import scala.util.Try
+
+class LegalInformationTests extends TestModels {
+
+  testModels("The model should include a valid citation element") { model =>
+    for {
+      error <- Try(LegalInfo(model)).failed.toOption
+      if !error.isInstanceOf[UnsupportedOperationException]
+    } yield error
+  }
+
+  testModels("The notarizer should work properly on all models") { model =>
+    for {
+      error <- Try(Notarizer.notarize(model)).failed.toOption
+      if !error.isInstanceOf[UnsupportedOperationException]
+    } yield error
+  }
+
+  testModels("Model file should be identical to output of Notarizer") { model =>
+    val savedLines = Source.fromFile(model.file.getPath, "UTF-8").getLines.toSeq.asJava
+    for {
+      notarizedModel <- Try(Notarizer.notarize(model)).toOption
+      patch = DiffUtils.diff(savedLines, notarizedModel.linesIterator.toSeq.asJava)
+      if ! patch.getDeltas.isEmpty
+    } yield DiffUtils.generateUnifiedDiff(model.file.getPath, model.file.getPath, savedLines, patch, 3).asScala.mkString("\n")
+  }
+
+}

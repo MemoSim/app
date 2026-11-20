@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shapes | MemoSim Dictionary</title>
+  <link rel="icon" href="../../assets/memosim-icon.png" type="image/png">
+  <link rel="stylesheet" href="../../docs.css">
+  <script src="../../docs.js" defer></script>
+</head>
+<body data-manual="dictionary">
+  <a class="skip-link" href="#content">Skip to dictionary content</a>
+  <header><a class="brand" href="../../index.html">MemoSim <small>Offline documentation</small></a></header>
+  <nav aria-label="Main"><a href="../../index.html">User manual</a> <a href="../../tutorial.html">Tutorial</a> <a href="../../dictionary.html">Dictionary</a> <a href="../../legal.html">Licenses &amp; credits</a> <a href="../../manual.pdf">PDF manual</a></nav>
+  <main id="content">
+    <p><a href="../../dictionary.html">Back to MemoSim Dictionary</a> · Technical guide for NetLogo 7.1.0-alpha1</p>
+    <p class="callout">This is upstream technical guidance for the NetLogo language and engine, used by MemoSim without changes to language semantics. Desktop interface descriptions may differ from MemoSim workflows. Original content is retained and links adapted for offline navigation.</p>
+    <article aria-label="Shapes"><h2 id="shapes" class="section-heading"><a href="shapes.html#shapes" class="section-anchor">Shapes</a></h2><p>The Turtle and Link Shape Editors allows you to create and save turtle and link
+designs.</p><p>NetLogo uses fully scalable and rotatable vector shapes, which means you can
+create designs by combining basic geometric elements, which can appear on-screen
+in any size or orientation.</p><div class="toc"><h4 id="table-of-contents" class="section-heading"><a href="shapes.html#table-of-contents" class="section-anchor">Table of Contents</a></h4><ul><li><a href="shapes.html#getting-started">Getting started</a></li><li><a href="shapes.html#creating-and-editing-turtle-shapes">Creating and editing turtle shapes</a></li><li><a href="shapes.html#creating-and-editing-link-shapes">Creating and editing link shapes</a></li><li><a href="shapes.html#using-shapes-in-a-model">Using shapes in a model</a></li></ul></div><h2 id="getting-started" class="section-heading"><a href="shapes.html#getting-started" class="section-anchor">Getting started</a></h2><p>To begin making shapes, choose <strong>Turtle Shapes Editor</strong> or <strong>Link Shapes
+Editor</strong> in the Tools menu. A new window will open listing all the shapes
+currently in the model, beginning with <em>default</em>, the default shape. The Shapes
+Editor allows you to edit shapes, create new shapes, and borrow from another
+model. You can also import turtle shapes from a library of pre-existing shapes.</p><h3 id="importing-shapes" class="section-heading"><a href="shapes.html#importing-shapes" class="section-anchor">Importing shapes</a></h3><p>Every new model in NetLogo starts off containing a small core set of frequently
+used shapes. Many more turtle shapes are available by using the <strong>Import from
+library…</strong> button. This brings up a dialog where you can select one or more
+shapes and bring them into your model. Select the shapes, then press the
+<strong>Import</strong> button.</p><p>Similarly, you can use the <strong>Import from model…</strong> button to borrow shapes from
+another model.</p><p><strong>Default shapes</strong></p><p>Here are the turtle shapes that are included by default in every new NetLogo
+model: <img src="../../assets/dict/guides/shapes/shapes.webp" alt="shapes/shapes.webp" width="420" height="360" class="netlogo-image"></p><p>First row: default, airplane, arrow, box, bug, butterfly, car Second row:
+circle, circle 2, cow, cylinder, dot, face happy, face neutral Third row: face
+sad, fish, flag, flower, house, leaf, line Fourth row: line half, pentagon,
+person, plant, sheep, square, square 2 Fifth row: star, target, tree, triangle,
+triangle 2, truck, turtle Sixth row: wheel, x</p><p><strong>Shapes library</strong></p><p>And here are the shapes in the shapes library (including all of the default
+shapes, too): <img src="../../assets/dict/guides/shapes/library.webp" alt="shapes/library.webp" width="396" height="756" class="netlogo-image"></p><p>By default there is only one Link shape in a model, that is “default”. This
+shape is simply a single straight line with a simple arrowhead (if the link
+happens to be directed). <img src="../../assets/dict/guides/shapes/defaultlinkshape.webp" alt="shapes/defaultlinkshape.webp" width="330" height="330" class="netlogo-image"></p><h2 id="creating-and-editing-turtle-shapes" class="section-heading"><a href="shapes.html#creating-and-editing-turtle-shapes" class="section-anchor">Creating and editing turtle shapes</a></h2><p>Pressing the <strong>New</strong> button will make a new shape. Or, you may select an
+existing shape and press <strong>Edit</strong>.</p><h3 id="tools" class="section-heading"><a href="shapes.html#tools" class="section-anchor">Tools</a></h3><p>In the upper left corner of the editing window is a group of drawing tools. The
+arrow is the selection tool, which selects an already drawn element.</p><p>To draw a new element, use one of the other seven tools:</p><ul><li>The <strong>line</strong> tool draws line segments.</li><li>The <strong>circle</strong>, <strong>square</strong>, and <strong>polygon</strong> tools come in two versions, solid
+and outline.</li></ul><p>When using the polygon tool, click the mouse to add a new segment to the
+polygon. When you’re done adding segments, double click.</p><p>After you draw a new element, it is selected, so you can move, delete, or
+reshape it if you want:</p><ul><li>To move it, drag it with the mouse</li><li>To delete it, press the Delete button.</li><li>To reshape it, drag the small “handles” that appear on the element only when
+it is selected.</li><li>To change its color, click on the new color.</li></ul><h3 id="previews" class="section-heading"><a href="shapes.html#previews" class="section-anchor">Previews</a></h3><p>As you draw your shape, you will also see it in five smaller sizes in the five
+preview areas found near the bottom of the editing window. The previews show
+your shape as it might appear in your model, including how it looks as it
+rotates. The number below each preview is the size of the preview in pixels.
+When you edit the view, patch size is also measured in pixels. So for example,
+the preview with “20” below it shows you how your shape would look on a turtle
+(of size 1) on patches of size 20 pixels.</p><p>The rotatable feature can be turned off if you want a shape that always faces
+the same way, regardless of the turtle’s heading.</p><h3 id="overlapping-shapes" class="section-heading"><a href="shapes.html#overlapping-shapes" class="section-anchor">Overlapping shapes</a></h3><p>New elements go on top of previous elements. You can change the layering order
+by selecting an element and then using the <strong>Bring to front</strong> and <strong>Send to
+back</strong> buttons.</p><h3 id="undo" class="section-heading"><a href="shapes.html#undo" class="section-anchor">Undo</a></h3><p>At any point you can use the <strong>Undo</strong> button to undo the edit you just
+performed.</p><h3 id="colors" class="section-heading"><a href="shapes.html#colors" class="section-anchor">Colors</a></h3><p>Elements whose color matches the <em>Color that changes</em> (selected from a drop-down
+menu — the default is gray) will change color according to the value of each
+turtle’s <em>color</em> variable in your model. Elements of other colors don’t change.
+For example, you could create cars that always have yellow headlights and black
+wheels, but different body colors.</p><h3 id="other-buttons" class="section-heading"><a href="shapes.html#other-buttons" class="section-anchor">Other buttons</a></h3><p>The “Rotate Left” and “Rotate Right” buttons rotate elements by 90 degrees. The
+“Flip Horizontal” and “Flip Vertical” buttons reflect elements across the axes.</p><p>These four buttons will rotate or flip the entire shape, unless an element is
+selected, in which case only that element is affected.</p><p>These buttons are especially handy in conjunction with the “Duplicate” button if
+you want to make shapes that are symmetrical. For example, if you were making a
+butterfly, you could draw the butterfly’s left wing with the polygon tool, then
+duplicate the wing with the “Duplicate” button, then turn the copy into a right
+wing with the “Flip Horizontal” button.</p><h3 id="shape-design" class="section-heading"><a href="shapes.html#shape-design" class="section-anchor">Shape design</a></h3><p>It’s tempting to draw complicated, interesting shapes, but remember that in most
+models, the patch size is so small that you won’t be able to see very much
+detail. Simple, bold, iconic shapes are usually best.</p><h3 id="keeping-a-shape" class="section-heading"><a href="shapes.html#keeping-a-shape" class="section-anchor">Keeping a shape</a></h3><p>When the shape is done, give it a name and press the <strong>Done</strong> button at the
+bottom of the editing window. The shape and its name will now be included in the
+list of shapes along with the “default” shape.</p><h2 id="creating-and-editing-link-shapes" class="section-heading"><a href="shapes.html#creating-and-editing-link-shapes" class="section-anchor">Creating and editing link shapes</a></h2><p>Managing link shapes is very similar to managing turtle shapes. So, you can
+create a new shape by pressing the <strong>New</strong> button or you can edit existing
+shapes. When you are done editing a shape press <strong>Done</strong> if you want to keep it.</p><h3 id="changing-link-shape-properties" class="section-heading"><a href="shapes.html#changing-link-shape-properties" class="section-anchor">Changing link shape properties</a></h3><p>There are several different properties for each link shape that you are allowed
+to change:</p><ul><li>Name - link shapes can have the same name as turtle shapes but must be unique
+among link shapes.</li><li>Direction Indicator - the direction indicator (the little arrow on directed
+links) is just like the turtle vector shapes, you can edit it using the same
+editor by pressing the <strong>Edit</strong> button.</li><li>Curviness - this is the amount of bend in a link expressed in patches (this is
+particularly useful if you have directed links going in both directions so you
+can discern both links)</li><li>Number of lines: You can have 1, 2, or 3 lines in each link shape, you control
+this by selecting line patterns in the “left line”, “middle line”, and “right
+line” selection boxes.</li><li>Dash pattern of lines: There are several dashed line patterns available in the
+selection boxes so not all lines need be solid.</li></ul><p>Here are some link shapes with various properties: <img src="../../assets/dict/guides/shapes/linkshapes.webp" alt="shapes/linkshapes.webp" width="380" height="380" class="netlogo-image"></p><h2 id="using-shapes-in-a-model" class="section-heading"><a href="shapes.html#using-shapes-in-a-model" class="section-anchor">Using shapes in a model</a></h2><p>In the model’s code or in the command center, you can use any of the shapes that
+are in the model (though only turtles can have turtle shapes and only links can
+have link shapes). For example, suppose you want to create 50 turtles with the
+shape “rabbit”. Provided there is some turtle shape called <em>rabbit</em> in this
+model, give this command to the observer in the command center:</p><pre class="copy-code"><code><span class="token variable">observer&gt;</span> <span class="token command">crt</span> <span class="token number">50</span></code></pre><p>And then give these commands to the turtles to spread them out, then change
+their shape:</p><pre class="copy-code"><code><span class="token variable">turtles&gt;</span> <span class="token command">fd</span> <span class="token reporter">random</span> <span class="token number">15</span>
+<span class="token variable">turtles&gt;</span> <span class="token command">set</span> <span class="token reporter">shape</span> <span class="token string">"rabbit"</span></code></pre><p>Voila! Rabbits! Note the use of double quotes around the shape name. Shape names
+are strings.</p><p>Similarly, you can set the shape variable of links. Assuming there is a link
+shape called “road” in this model:</p><pre class="copy-code"><code><span class="token variable">observer&gt;</span> <span class="token command">crt</span> <span class="token number">5</span> [ <span class="token command">create-links-with</span> <span class="token reporter">other</span> <span class="token reporter">turtles</span> ]
+<span class="token variable">turtles&gt;</span> <span class="token command">fd</span> <span class="token number">5</span>
+<span class="token variable">links&gt;</span> <span class="token command">set</span> <span class="token reporter">shape</span> <span class="token string">"road"</span></code></pre><p>The <code>set-default-shape</code> command is also useful for assigning shapes to turtles
+and links.</p></article>
+  </main>
+  <footer>
+    <p>NetLogo User Manual (7.1.0-alpha1), by Uri Wilensky, Center for Connected Learning and Computer-Based Modeling, Northwestern University. Copyright 1999-2025 by Uri Wilensky. Adapted for MemoSim by changing the page layout, navigation and links. The adapted reference material is licensed under <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported</a>.</p>
+    <p><a href="../../dict/upstream-notices.html">Upstream copyright and third-party notices</a> · <a href="https://github.com/NetLogo/docs/blob/8e165bbbe204b417e899413d097265592f98a951/7.1.0-alpha1/shapes.html">Pinned source: NetLogo/docs 8e165bb</a> (2026-08-13) · <a href="https://docs.netlogo.org/7.1.0-alpha1/shapes">Original upstream page (online)</a></p>
+  </footer>
+</body>
+</html>

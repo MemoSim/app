@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1536" height="840" viewBox="0 0 1536 840">
+  <title>MemoSim startup</title>
+  <rect width="1536" height="840" fill="#102C3A"/>
+  <g fill="none" stroke="#244957" stroke-width="3">
+    <path d="M1000 0L1170 190L1070 430L1350 590L1536 400M1170 190L1480 120M1070 430L990 840M1350 590L1460 840"/>
+    <circle cx="1170" cy="190" r="12"/><circle cx="1070" cy="430" r="12"/><circle cx="1350" cy="590" r="12"/>
+  </g>
+  <g transform="translate(100 130) scale(.43)">
+    <path d="M246 716V322L512 588L778 322V716" fill="none" stroke="#60E0C3" stroke-width="80" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="246" cy="322" r="66" fill="#F4F1E8"/>
+    <circle cx="778" cy="322" r="66" fill="#F4F1E8"/>
+    <circle cx="512" cy="588" r="66" fill="#F4BE69"/>
+    <circle cx="246" cy="716" r="48" fill="#60E0C3"/>
+    <circle cx="778" cy="716" r="48" fill="#60E0C3"/>
+  </g>
+  <text x="560" y="375" font-family="Arial, sans-serif" font-size="126" font-weight="bold" fill="#F4F1E8">MemoSim</text>
+  <text x="568" y="450" font-family="Arial, sans-serif" font-size="34" fill="#60E0C3">Explore ideas. Build simulations.</text>
+  <path d="M144 642H1392" stroke="#34515D" stroke-width="2"/>
+  <text x="144" y="710" font-family="Arial, sans-serif" font-size="26" fill="#C2D3D7">Starting your modeling workspace...</text>
+  <text x="1392" y="770" text-anchor="end" font-family="Arial, sans-serif" font-size="22" fill="#8DA9B3">Powered by NetLogo</text>
+</svg>

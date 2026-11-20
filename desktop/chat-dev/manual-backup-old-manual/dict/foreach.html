@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>foreach | MemoSim Dictionary</title>
+  <link rel="icon" href="../assets/memosim-icon.png" type="image/png">
+  <link rel="stylesheet" href="../docs.css">
+  <script src="../docs.js" defer></script>
+</head>
+<body data-manual="dictionary">
+  <a class="skip-link" href="#content">Skip to dictionary content</a>
+  <header><a class="brand" href="../index.html">MemoSim <small>Offline documentation</small></a></header>
+  <nav aria-label="Main"><a href="../index.html">User manual</a> <a href="../tutorial.html">Tutorial</a> <a href="../dictionary.html">Dictionary</a> <a href="../legal.html">Licenses &amp; credits</a> <a href="../manual.pdf">PDF manual</a></nav>
+  <main id="content">
+    <p><a href="../dictionary.html#dictionary-search">Back to dictionary search</a> · NetLogo language reference (7.1.0-alpha1)</p>
+    <h1>foreach</h1>
+    <article aria-label="NetLogo language reference"><div class="dict_entry" id="foreach" role="region"><h3 id="foreach13"><a href="#foreach" role="doc-noteref" aria-label="Reference to foreach">
+foreach
+<span class="since" role="note" aria-label="Since version">
+1.3
+</span></a></h3><h4 id="foreach-list-commandforeach-list1-command" class="section-heading"><span id="foreach-list-commandforeach-list1--command"></span><a href="#foreach-list-commandforeach-list1--command" class="section-anchor"><span class="prim_example"><p>foreach <em>list</em> <em>command</em></p></span><span class="prim_example"><p>(foreach <em>list1</em> … <em>command</em>)</p></span></a></h4><p>With a single list, runs the command for each item of <em>list</em>. <em>command</em> may be the name of a command, or an anonymous command
+created with <code class="netlogo-command"><a href="../dictionary.html#arrow" class="netlogo-wiki-link" title="-&gt;">-&gt;</a></code>.</p><pre class="copy-code"><code><span class="token command">foreach</span> [<span class="token number">1.1</span> <span class="token number">2.2</span> <span class="token number">2.6</span>] <span class="token command">show</span>
+<span class="token variable">=&gt;</span> <span class="token number">1.1</span>
+<span class="token variable">=&gt;</span> <span class="token number">2.2</span>
+<span class="token variable">=&gt;</span> <span class="token number">2.6</span>
+<span class="token command">foreach</span> [<span class="token number">1.1</span> <span class="token number">2.2</span> <span class="token number">2.6</span>] [ <span class="token variable">x</span> <span class="token reporter">-&gt;</span> <span class="token command">show</span> (<span class="token reporter">word</span> <span class="token variable">x</span> <span class="token string">" -&gt; "</span> <span class="token reporter">round</span> <span class="token variable">x</span>) ]
+<span class="token variable">=&gt;</span> <span class="token number">1.1</span> <span class="token reporter">-&gt;</span> <span class="token number">1</span>
+<span class="token variable">=&gt;</span> <span class="token number">2.2</span> <span class="token reporter">-&gt;</span> <span class="token number">2</span>
+<span class="token variable">=&gt;</span> <span class="token number">2.6</span> <span class="token reporter">-&gt;</span> <span class="token number">3</span></code></pre><p>With multiple lists, runs <em>command</em> for each group of items
+from each list.
+So, they are run once for the first items, once for
+the second items, and so on. All the lists must be the same length.</p><p>Some examples make this clearer:</p><pre class="copy-code"><code>(<span class="token command">foreach</span> [<span class="token number">1</span> <span class="token number">2</span> <span class="token number">3</span>] [<span class="token number">2</span> <span class="token number">4</span> <span class="token number">6</span>]
+   [ [<span class="token variable">a</span> <span class="token variable">b</span>] <span class="token reporter">-&gt;</span> <span class="token command">show</span> <span class="token reporter">word</span> <span class="token string">"the sum is: "</span> (<span class="token variable">a</span> <span class="token reporter">+</span> <span class="token variable">b</span>) ])
+<span class="token variable">=&gt;</span> <span class="token string">"the sum is: 3"</span>
+<span class="token variable">=&gt;</span> <span class="token string">"the sum is: 6"</span>
+<span class="token variable">=&gt;</span> <span class="token string">"the sum is: 9"</span>
+(<span class="token command">foreach</span> <span class="token reporter">list</span> (<span class="token reporter">turtle</span> <span class="token number">1</span>) (<span class="token reporter">turtle</span> <span class="token number">2</span>) [<span class="token number">3</span> <span class="token number">4</span>]
+  [ [<span class="token variable">the-turtle</span> <span class="token variable">num-steps</span>] <span class="token reporter">-&gt;</span> <span class="token command">ask</span> <span class="token variable">the-turtle</span> [ <span class="token command">fd</span> <span class="token variable">num-steps</span> ] ])
+<span class="token comment">;; turtle 1 moves forward 3 patches</span>
+<span class="token comment">;; turtle 2 moves forward 4 patches</span></code></pre><p>See also <code class="netlogo-command"><a href="../dictionary.html#map" class="netlogo-wiki-link" title="map">map</a></code>, <code class="netlogo-command"><a href="../dictionary.html#arrow" class="netlogo-wiki-link" title="-&gt; (anonymous procedure)">-&gt; (anonymous procedure)</a></code>.</p></div></article>
+  </main>
+  <footer>
+    <p>NetLogo User Manual (7.1.0-alpha1), by Uri Wilensky, Center for Connected Learning and Computer-Based Modeling, Northwestern University. Copyright 1999-2025 by Uri Wilensky. Adapted for MemoSim by changing the page layout, navigation and links. The adapted reference material is licensed under <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported</a>.</p>
+    <p><a href="../dict/upstream-notices.html">Upstream copyright and third-party notices</a> · <a href="https://github.com/NetLogo/docs/blob/8e165bbbe204b417e899413d097265592f98a951/7.1.0-alpha1/dict/foreach.html">Pinned source: NetLogo/docs 8e165bb</a> (2026-08-13) · <a href="https://docs.netlogo.org/7.1.0-alpha1/dict/foreach">Original upstream page (online)</a></p>
+  </footer>
+</body>
+</html>
