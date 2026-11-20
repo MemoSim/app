@@ -8,7 +8,7 @@ dashboard and a visual System Dynamics modeler.
 | Platform | File | SHA-256 |
 |---|---|---|
 | macOS 11+ (Apple silicon) | `MemoSim-1.0.4-macOS.dmg` | `3fdbdbbd17952b3bcf7974409f5fe113d2f0568164256a93e8714738d6e074d7` |
-| Windows 10/11 x64 | `MemoSim-1.0.4-Windows-x64.exe` | *(added when the Windows build finishes)* |
+| Windows 10/11 x64 | `MemoSim-1.0.4.exe` | `0ed12383a292dfe0fa57367022e68e14f2bb0c582ec51575f2cfea685f809d88` |
 | Corresponding source | `MemoSim-1.0.4-source.tar.gz` | `d466a7f4e3b8b12e0c1cc021de154fe39d38e1a334f0e810edf896d23ae1bfc6` |
 
 Installing: macOS — open the DMG, drag `MemoSim.app` to Applications, then right-click → **Open** the

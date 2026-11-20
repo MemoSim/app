@@ -14,7 +14,7 @@ Prebuilt installers are attached to [Releases](../../releases); nothing else is 
 
 | Platform | File | Notes |
 |---|---|---|
-| Windows 10/11 x64 | `MemoSim-1.0.4-Windows-x64.exe` | Self-contained installer (bundled JRE and Node). Signed builds are not available yet, so SmartScreen may warn: choose **More info → Run anyway**. |
+| Windows 10/11 x64 | `MemoSim-1.0.4.exe` | Self-contained installer (bundled JRE and Node). Signed builds are not available yet, so SmartScreen may warn: choose **More info → Run anyway**. |
 | macOS 11+ (Apple silicon) | `MemoSim-1.0.4-macOS.dmg` | Drag `MemoSim.app` to Applications. The bundle is ad-hoc signed and not notarised, so the first launch needs right-click → **Open**. |
 
 The first run asks you to connect an OpenAI- or Anthropic-compatible endpoint; there is no built-in
@@ -75,7 +75,7 @@ Verify a download before installing:
 
 ```bash
 shasum -a 256 MemoSim-1.0.4-macOS.dmg          # macOS
-certutil -hashfile MemoSim-1.0.4-Windows-x64.exe SHA256   # Windows
+certutil -hashfile MemoSim-1.0.4.exe SHA256   # Windows
 ```
 
 ## Documentation
