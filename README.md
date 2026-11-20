@@ -8,6 +8,19 @@ assistant that can read, edit, run and explain models, plus a curated model libr
 - **Version in this repo:** 1.0.4
 - **License:** GPL-2.0-or-later (see [LICENSE](LICENSE) and [LICENSING.md](LICENSING.md))
 
+## Download and install
+
+Prebuilt installers are attached to [Releases](../../releases); nothing else is needed to run the app.
+
+| Platform | File | Notes |
+|---|---|---|
+| Windows 10/11 x64 | `MemoSim-1.0.4-Windows-x64.exe` | Self-contained installer (bundled JRE and Node). Signed builds are not available yet, so SmartScreen may warn: choose **More info → Run anyway**. |
+| macOS 11+ (Apple silicon) | `MemoSim-1.0.4-macOS.dmg` | Drag `MemoSim.app` to Applications. The bundle is ad-hoc signed and not notarised, so the first launch needs right-click → **Open**. |
+
+The first run asks you to connect an OpenAI- or Anthropic-compatible endpoint; there is no built-in
+provider and no key is shipped. Models, projects and settings are stored per user and survive an
+upgrade.
+
 ## Repository layout
 
 ```
@@ -48,7 +61,28 @@ Build outputs land in `~/dev/netlogo-chat-build/dist` (`MemoSim.app`, `release/M
 ## Releases
 
 Prebuilt installers are attached to GitHub Releases. Because MemoSim is a GPL fork, every binary
-release also carries the corresponding source (a source snapshot archive built from the same commit).
+release also carries the corresponding source (a source snapshot archive built from the same commit),
+so a downloader can rebuild exactly what they are running.
+
+Each release ships:
+
+- the platform installer,
+- `MemoSim-1.0.4-source.tar.gz` — full corresponding source for that build (GPL-2.0 §3(a)),
+- `SOURCE-OFFER.md` and `COMPLIANCE-REPORT.md` — what is licensed how, and what was verified,
+- `.sha256` files for every artifact.
+
+Verify a download before installing:
+
+```bash
+shasum -a 256 MemoSim-1.0.4-macOS.dmg          # macOS
+certutil -hashfile MemoSim-1.0.4-Windows-x64.exe SHA256   # Windows
+```
+
+## Documentation
+
+The application ships its own offline help: the complete field manual (single-file HTML), a printable
+PDF edition, the language dictionary and the licences-and-attribution page, all reachable from the
+**Help** menu. The manual sources live in `desktop/chat-dev/manual/`.
 
 ## License
 

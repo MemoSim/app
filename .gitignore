@@ -54,3 +54,14 @@ chat/data/*.db-wal
 chat/reference/reference.db
 /tmp/
 desktop/tmp/
+
+# ---- MemoSim: keep the published tree clean ----
+desktop/chat-dev/manual-backup-*/
+desktop/chat-dev/manual-old*/
+chat/build-scala.log
+chat/build-windows.log
+chat/.next-app/
+*.dmg
+*.exe
+*.msi
+*.sha256
