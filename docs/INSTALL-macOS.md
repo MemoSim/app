@@ -7,12 +7,17 @@ damaged — this is the standard warning for any app that is not signed with a p
 ## Option 1 — Homebrew (no warning at all)
 
 ```bash
+brew tap MemoSim/memosim
+brew trust MemoSim/memosim            # Homebrew 7+ asks before loading third-party taps
 brew install --cask --no-quarantine memosim
 ```
 
 Homebrew downloads the DMG and strips the quarantine attribute itself, so the app opens with a normal
 double-click. The `--no-quarantine` flag is required; without it Gatekeeper blocks the first launch
 exactly as it does for a manual download.
+
+The tap lives at <https://github.com/MemoSim/homebrew-memosim>; `Casks/memosim.rb` pins the released
+DMG's `version` and `sha256`.
 
 ## Option 2 — Manual download
 

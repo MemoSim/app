@@ -1,0 +1,71 @@
+name: release-macos-signed
+
+# Builds the macOS DMG and, when Developer ID secrets are configured, signs + notarizes + staples it
+# so end users get no Gatekeeper warning. Without the secrets it stops after the build and says so.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  signed-dmg:
+    runs-on: macos-14
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install sbt and ImageMagick
+        run: brew install sbt imagemagick
+
+      - name: Build DMG
+        working-directory: chat
+        run: |
+          npm ci
+          ./scripts/build-mac-app.sh --no-install --installer dmg
+
+      - name: Sign + notarize + staple
+        env:
+          MACOS_CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
+          MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+        run: |
+          if [ -z "${MACOS_CERT_P12:-}" ]; then
+            echo "::warning title=Not notarized::No MACOS_CERT_P12 secret — shipping an ad-hoc DMG that users must open with right-click > Open"
+            exit 0
+          fi
+          echo "$MACOS_CERT_P12" | base64 --decode > /tmp/cert.p12
+          security create-keychain -p ci build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p ci build.keychain
+          security import /tmp/cert.p12 -k build.keychain -P "$MACOS_CERT_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k ci build.keychain
+          xcrun notarytool store-credentials "memosim-notary" \
+            --apple-id "$APPLE_ID" --team-id "$APPLE_TEAM_ID" --password "$APPLE_APP_PASSWORD"
+          chmod +x tools/notarize-macos.sh
+          tools/notarize-macos.sh \
+            "$HOME/dev/netlogo-chat-build/dist/MemoSim.app" \
+            "$HOME/dev/netlogo-chat-build/release/MemoSim-1.0.4.dmg"
+
+      - name: Upload DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: MemoSim-macOS-dmg-signed
+          path: |
+            /Users/runner/dev/netlogo-chat-build/release/*.dmg
+            /Users/runner/dev/netlogo-chat-build/release/*.sha256
+          if-no-files-found: error

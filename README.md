@@ -64,6 +64,19 @@ Prebuilt installers are attached to GitHub Releases. Because MemoSim is a GPL fo
 release also carries the corresponding source (a source snapshot archive built from the same commit),
 so a downloader can rebuild exactly what they are running.
 
+### Installing on macOS
+
+The DMG is ad-hoc signed (no paid Developer ID), so Gatekeeper warns on first launch. Cleanest route:
+
+```bash
+brew tap MemoSim/memosim && brew trust MemoSim/memosim
+brew install --cask --no-quarantine memosim
+```
+
+Manual download, the one-line `xattr` fix and the notarization path are in
+[docs/INSTALL-macOS.md](docs/INSTALL-macOS.md); `tools/notarize-macos.sh` performs
+sign → notarize → staple once a Developer ID certificate exists.
+
 Each release ships:
 
 - the platform installer,
