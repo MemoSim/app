@@ -156,13 +156,20 @@ if (-not $SkipScala) {
     if (-not (Test-Path (Join-Path $projDir "out\index.html"))) { Die "$proj bundle is missing from the checkout (out/index.html)" }
     if (-not (Test-Path $gitBash)) { Die "git bash not found at $gitBash; sbt needs it to evaluate the $proj bundle" }
     Say "stamping $proj/.last-build so sbt reuses the committed bundle"
-    $stampFile = Join-Path $env:TEMP "nl-stamp-$proj.sh"
+    # each stage.sh computes its own hash from a slightly different file list, so reuse its own command
+    # instead of duplicating the list here
+    $stampFile = Join-Path $env:TEMP "nl-stamp-bundle.sh"
     Set-Content -Path $stampFile -Encoding ASCII -Value @'
-find ./deps/ ./html/ ./stylesheets/ ./typescripts/ ./package.json ./stage.sh ./tsconfig.json ./webpack.config.mjs -type f -print0 | sort -z | xargs -0 sha1sum | sha1sum | cut -d ' ' -f1
+cd "$1" || exit 1
+cmd=$(sed -n 's/^CURR_HASH=`\(.*\)`$/\1/p' stage.sh)
+[ -n "$cmd" ] || { echo "no CURR_HASH line in $1/stage.sh" >&2; exit 2; }
+mkdir -p out
+eval "$cmd" > out/.last-build
+cat out/.last-build
 '@
     $posixDir = $projDir -replace '\\', '/'
     $posixScript = $stampFile -replace '\\', '/'
-    $out = & $gitBash -lc "cd '$posixDir' && mkdir -p out && sh '$posixScript' > out/.last-build && cat out/.last-build" 2>&1
+    $out = & $gitBash -lc "sh '$posixScript' '$posixDir'" 2>&1
     if ($LASTEXITCODE -ne 0) { Die "could not stamp $proj/.last-build: $out" }
     Write-Host "    $proj hash $out"
   }
