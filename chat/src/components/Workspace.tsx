@@ -31,7 +31,11 @@ type Part =
   | { k: "thinking"; text: string; open: boolean }
   | { k: "tool"; id: string; name: string; args: unknown; result?: unknown; ok?: boolean; ms?: number }
   | { k: "notice"; level: "info" | "warn" | "ok"; text: string };
-type Item = { role: "user" | "assistant"; parts: Part[] };
+/**
+ * `internal` marks a user turn that exists only to instruct the model (approved plan, plan revision).
+ * Its text must reach the LLM but must NOT be echoed as a bubble: the plan card already shows it.
+ */
+type Item = { role: "user" | "assistant"; parts: Part[]; internal?: string };
 
 const LEGACY_STORE = "nlchat:v2";
 const NLW_VERSION = process.env.NEXT_PUBLIC_NLW_VERSION ?? "2.15.3";
@@ -43,6 +47,23 @@ const ZERO_USAGE: Usage = { input: 0, output: 0, cacheRead: 0, calls: 0, cost: 0
 
 const fmtTokens = (n: number) => (n >= 1_000_000 ? `${(n / 1_000_000).toFixed(2)}M` : n >= 10_000 ? `${(n / 1000).toFixed(0)}k` : n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n));
 const fmtCost = (c: number, unpriced: number) => (unpriced && c === 0 ? "n/a" : `${unpriced ? "≥" : "≈"}$${c < 0.01 ? c.toFixed(4) : c.toFixed(2)}`);
+
+/**
+ * Older chats stored the machine instruction for an approved plan as a normal bubble, so a project saved
+ * yesterday still shows the whole plan twice. Rewrite those on load; the LLM history keeps the full text.
+ */
+function normalizeItems(items: Item[]): Item[] {
+  return items.map((it) => {
+    if (it.role !== "user" || it.internal) return it;
+    const text = it.parts.map((p) => (p.k === "text" ? p.text : "")).join("\n");
+    if (/^\[Approved plan\]/i.test(text.trim())) return { ...it, parts: [], internal: "You approved the plan" };
+    if (/^\[Plan revision\]/i.test(text.trim())) {
+      const m = /My correction:\s*([^\n]+)/.exec(text);
+      return { ...it, parts: [], internal: m ? `You asked for: ${m[1]}` : "You asked for a change" };
+    }
+    return it;
+  });
+}
 
 /** The plan a propose_plan tool call produced, if any. */
 function planOf(p: Part): ModelPlan | null {
@@ -134,7 +155,7 @@ export default function Workspace({ mode }: { mode: "web" | "desktop" }) {
   const itemsRef = useRef<Item[]>([]);
   const busyRef = useRef(false);
   const armedRef = useRef(false); // user-run error watcher enabled only after startup restore
-  const startTurnRef = useRef<(text: string, auto: boolean) => Promise<void>>(async () => {});
+  const startTurnRef = useRef<(text: string, auto: boolean, internal?: string) => Promise<void>>(async () => {});
 
   const [items, setItems] = useState<Item[]>([]);
   const [input, setInput] = useState("");
@@ -337,7 +358,8 @@ export default function Workspace({ mode }: { mode: "web" | "desktop" }) {
   }, []);
 
   const startTurn = useCallback(
-    async (text: string, auto: boolean) => {
+    /** `internal` = a one-line label for the pane when the message itself is machine instructions. */
+    async (text: string, auto: boolean, internal?: string) => {
       const bridge = bridgeRef.current;
       const mc = mcRef.current;
       if (!bridge || !mc || busyRef.current) return;
@@ -349,7 +371,9 @@ export default function Workspace({ mode }: { mode: "web" | "desktop" }) {
       // The assistant item exists from the first moment, so the work log can show "waiting for the model"
       // even before the first token arrives.
       setItems((p) => {
-        const next = auto ? [...p] : [...p, { role: "user" as const, parts: [{ k: "text" as const, text }] }];
+        const next = auto
+          ? [...p]
+          : [...p, internal ? { role: "user" as const, parts: [] as Part[], internal } : { role: "user" as const, parts: [{ k: "text" as const, text }] }];
         return [...next, { role: "assistant" as const, parts: [] as Part[] }];
       });
       if (auto) handleEvent({ type: "notice", level: "warn", text: text.split("\n")[0]!.slice(0, 220) });
@@ -396,7 +420,7 @@ export default function Workspace({ mode }: { mode: "web" | "desktop" }) {
       storeRef.current = { id: full.id, rev: full.rev, title: full.title, blocked: false, timer: null, chain: Promise.resolve() };
       setConflict(false);
       historyRef.current = full.state.history as ChatMsg[];
-      const its = full.state.items as Item[];
+      const its = normalizeItems(full.state.items as Item[]);
       itemsRef.current = its;
       setItems(its);
       setCurrentId(full.id);
@@ -602,14 +626,22 @@ export default function Workspace({ mode }: { mode: "web" | "desktop" }) {
       })),
     );
     save();
-    void startTurn(`[Approved plan]\n${planToText(plan)}\n\nBuild exactly this plan. Verify it with test_model, then tell me what changed and what I can adjust.`, false);
+    void startTurn(
+      `[Approved plan]\n${planToText(plan)}\n\nBuild exactly this plan. Verify it with test_model, then tell me what changed and what I can adjust.`,
+      false,
+      "You approved the plan",
+    );
   }
 
   /** "Change something" on a plan card: the model re-plans instead of building the wrong model. */
   function revisePlan(plan: ModelPlan, note: string) {
     if (busyRef.current) return;
     sessionRef.current.revise();
-    void startTurn(`[Plan revision]\nPlan so far:\n${planToText(plan)}\n\nMy correction: ${note}\n\nPropose the revised plan. Do not build anything yet.`, false);
+    void startTurn(
+      `[Plan revision]\nPlan so far:\n${planToText(plan)}\n\nMy correction: ${note}\n\nPropose the revised plan. Do not build anything yet.`,
+      false,
+      `You asked for: ${note}`,
+    );
   }
 
   /** Only the user can unfreeze the model after an experiment pinned it. */
@@ -894,6 +926,14 @@ export default function Workspace({ mode }: { mode: "web" | "desktop" }) {
             <div className="space-y-3.5">
               {items.map((m, i) => {
                 const last = i === items.length - 1;
+                if (m.role === "user" && m.internal) {
+                  return (
+                    <div key={i} className="flex items-center justify-end gap-1.5 text-[10.5px]" style={{ color: "var(--faint)" }}>
+                      <Icon name="check" size={11} />
+                      <span className="max-w-[85%] truncate">{m.internal}</span>
+                    </div>
+                  );
+                }
                 if (m.role === "user") {
                   const text = m.parts.map((p) => (p.k === "text" ? p.text : "")).join("\n");
                   return (

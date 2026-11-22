@@ -94,7 +94,9 @@ export async function POST(req: Request) {
   // and give the answer more room. The original cap is restored automatically if the provider rejects the bigger one.
   const originalMax = cfg.maxTokens;
   if (parsed.data.thinking && parsed.data.thinking !== cfg.thinking) cfg = { ...cfg, thinking: parsed.data.thinking };
-  if (parsed.data.outputBudget === "boost" || autoBoost.has(cfg.model)) {
+  // Reasoning shares the output budget, so a profile with thinking on starts with a bigger cap instead of
+  // discovering the ceiling by being cut off (which costs a minute of reasoning).
+  if (parsed.data.outputBudget === "boost" || autoBoost.has(cfg.model) || cfg.thinking === "on") {
     const current = cfg.maxTokens ?? 0;
     cfg = { ...cfg, maxTokens: current ? Math.min(32_768, Math.max(8_192, current * 2)) : 16_384 };
   }
