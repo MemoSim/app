@@ -19,7 +19,7 @@ npm ci
 ./scripts/build-mac-app.sh --installer dmg
 ```
 
-- Result: `~/dev/netlogo-chat-build/release/MemoSim-1.0.4.dmg`; drag `MemoSim.app` to Applications or another chosen folder in Finder.
+- Result: `~/dev/netlogo-chat-build/release/MemoSim-1.1.4.dmg`; drag `MemoSim.app` to Applications or another chosen folder in Finder.
 - `--no-install` builds without copying the app to `/Applications`; `--installer pkg` makes a `.pkg` instead.
 - The DMG is **arm64** (Apple Silicon); it bundles an arm64 Node and runtime.
 - `BUILD_ROOT` must not contain spaces (`jpackage` limitation); it defaults to `~/dev/netlogo-chat-build`.
@@ -37,7 +37,7 @@ npm ci
 powershell -ExecutionPolicy Bypass -File scripts\build-windows-app.ps1
 ```
 
-- Result: `%USERPROFILE%\dev\netlogo-chat-build\release\MemoSim-1.0.4.exe` (an installer, not a folder).
+- Result: `%USERPROFILE%\dev\netlogo-chat-build\release\MemoSim-1.1.4.exe` (an installer, not a folder).
 - `-Type msi` makes an `.msi`, `-SkipWeb` / `-SkipScala` reuse the previous builds.
 - The installer is per-user (no admin prompt), asks for an install folder, and adds a Start-menu entry and a desktop shortcut.
 - User data lives in `%APPDATA%\NetLogo Chat` and survives upgrades.

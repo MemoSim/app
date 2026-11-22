@@ -258,7 +258,7 @@ async function manifest() {
   const tested = !smokeOnly && !bridgeOnly && summary.status === "passed" && stages.length === stageNames.length;
   const baseModelPath = scenario.baseModel ? join(run, "00-before-chat.nlogox") : stages[1]?.modelPath;
   const finalModelPath = stages.at(-1)?.modelPath;
-  await json("manifest", { schemaVersion: 1, appVersion: process.env.MEMOSIM_APP_VERSION ?? "1.0.4", generatedAt: new Date().toISOString(), statusReport,
+  await json("manifest", { schemaVersion: 1, appVersion: process.env.MEMOSIM_APP_VERSION ?? "1.1.4", generatedAt: new Date().toISOString(), statusReport,
     scenarios: stages.length ? [{ id: scenario.name, title: scenario.title ?? scenario.name, discipline: scenario.discipline, tested,
       status: tested ? "passed" : summary.status === "passed" ? "smoke only" : "failed", evidenceMode: "actual-chat", stages, baseModelPath, finalModelPath,
       summary: scenario.baseModel ? "The test loaded an existing baseline before sending live chat prompts to extend and test it." : "Live chat created and extended the model in a new desktop project.",

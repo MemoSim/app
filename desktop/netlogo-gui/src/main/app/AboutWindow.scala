@@ -23,7 +23,7 @@ object AboutWindow {
     ProductBranding.isMemoSim(System.getProperty("netlogo.product.name", "NetLogo"))
 
   private[app] def memoSimNameVersion: String =
-    "MemoSim " + System.getProperty("memosim.release.version", System.getProperty("jpackage.app-version", "1.0.4"))
+    "MemoSim " + System.getProperty("memosim.release.version", System.getProperty("jpackage.app-version", "1.1.4"))
 
   private[app] def title: String =
     if (isMemoSim) s"About $memoSimNameVersion" else I18N.gui.get("dialog.about")

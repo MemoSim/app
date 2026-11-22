@@ -41,15 +41,15 @@ try {
     }, name.replace('.html', ''));
     parts.push(`<article class="manual-part" id="part-${name.replace('.html', '')}"><div id="${name.replace('.html', '')}-content">${main}</div></article>`);
   }
-  const combined = `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>MemoSim 1.0.4 User Manual and Beginner Tutorial</title><link rel="stylesheet" href="docs.css"></head><body><main>
-  <section><img src="assets/memosim-icon.png" width="96" alt="MemoSim"><h1>MemoSim 1.0.4</h1><p>User manual · Beginner tutorial · Language dictionary</p><p>Offline edition · November 19, 2026</p><p>Powered by NetLogo. Modified modeling workspace with assistant, live dashboard and visual System Dynamics.</p><p>This PDF includes the user guide, course, complete primitive reference and legal information. Searchable offline Help, copying code and lesson progress are available in the web edition.</p><nav class="print-toc">${chapterFiles.map(name => `<p><a href="#part-${name.replace('.html', '')}">${name.replace('.html', '')}</a></p>`).join('')}</nav></section>${parts.join('\n')}</main></body></html>`;
+  const combined = `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>MemoSim 1.1.4 User Manual and Beginner Tutorial</title><link rel="stylesheet" href="docs.css"></head><body><main>
+  <section><img src="assets/memosim-icon.png" width="96" alt="MemoSim"><h1>MemoSim 1.1.4</h1><p>User manual · Beginner tutorial · Language dictionary</p><p>Offline edition · November 22, 2026</p><p>Powered by NetLogo. Modified modeling workspace with assistant, live dashboard and visual System Dynamics.</p><p>This PDF includes the user guide, course, complete primitive reference and legal information. Searchable offline Help, copying code and lesson progress are available in the web edition.</p><nav class="print-toc">${chapterFiles.map(name => `<p><a href="#part-${name.replace('.html', '')}">${name.replace('.html', '')}</a></p>`).join('')}</nav></section>${parts.join('\n')}</main></body></html>`;
   writeFileSync(path.join(docs, 'print-manual.html'), combined);
   console.log('Rendering printable manual');
   await page.goto(pathToFileURL(path.join(docs, 'print-manual.html')).href, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => [...document.images].every(img => img.complete), null, { timeout: 20000 });
   await page.pdf({ path: path.join(docs, 'manual.pdf'), format: 'A4', printBackground: true,
     displayHeaderFooter: true, headerTemplate: '<span></span>',
-    footerTemplate: '<div style="font-size:9px;width:100%;padding:0 40px;color:#526780;display:flex;justify-content:space-between"><span>MemoSim 1.0.4 · Powered by NetLogo</span><span><span class="pageNumber"></span> / <span class="totalPages"></span></span></div>',
+    footerTemplate: '<div style="font-size:9px;width:100%;padding:0 40px;color:#526780;display:flex;justify-content:space-between"><span>MemoSim 1.1.4 · Powered by NetLogo</span><span><span class="pageNumber"></span> / <span class="totalPages"></span></span></div>',
     margin: { top: '18mm', bottom: '20mm', left: '16mm', right: '16mm' }, outline: true });
   console.log('PDF generated; validating offline links and browser interactions');
 

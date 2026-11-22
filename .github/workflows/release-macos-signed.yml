@@ -59,7 +59,7 @@ jobs:
           chmod +x tools/notarize-macos.sh
           tools/notarize-macos.sh \
             "$HOME/dev/netlogo-chat-build/dist/MemoSim.app" \
-            "$HOME/dev/netlogo-chat-build/release/MemoSim-1.0.4.dmg"
+            "$HOME/dev/netlogo-chat-build/release/MemoSim-1.1.4.dmg"
 
       - name: Upload DMG
         uses: actions/upload-artifact@v4

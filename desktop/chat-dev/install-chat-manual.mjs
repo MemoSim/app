@@ -42,11 +42,11 @@ for (const scenario of manifest.scenarios) {
   cpSync(scenario.baseModelPath, path.join(folder, 'base.nlogox'));
   cpSync(scenario.finalModelPath, path.join(folder, 'final.nlogox'));
 }
-run('/usr/libexec/PlistBuddy', ['-c', 'Set :CFBundleVersion 1.0.4.3', path.join(contents, 'Info.plist')]);
+run('/usr/libexec/PlistBuddy', ['-c', 'Set :CFBundleVersion 1.1.4.1', path.join(contents, 'Info.plist')]);
 run('codesign', ['--force', '--deep', '--sign', '-', staged]);
 run('codesign', ['--verify', '--deep', '--strict', staged]);
 const record = {
-  product: 'MemoSim', version: '1.0.4', build: '1.0.4.3', base: 'installed 1.0.4.2; originally integrated from 1.0.3',
+  product: 'MemoSim', version: '1.1.4', build: '1.1.4.1', base: 'installed 1.0.4; manual rewritten for 1.1.4',
   installedUTC: new Date().toISOString(), scenarios: manifest.scenarios.map(s => ({ id: s.id, evidenceMode: s.evidenceMode, stages: s.stages.length })),
   htmlSHA256: createHash('sha256').update(readFileSync(manual)).digest('hex'),
   pdfSHA256: createHash('sha256').update(readFileSync(pdf)).digest('hex'),
