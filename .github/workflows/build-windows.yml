@@ -58,14 +58,9 @@ jobs:
             Get-ChildItem -Path $env:GITHUB_WORKSPACE -Filter "*.log" -Recurse -ErrorAction SilentlyContinue |
               Select-Object -First 10 FullName
           }
-        if: failure()
-        run: |
           Write-Host "--- java/sbt ---"
           java -version 2>&1 | Out-String | Write-Host
           sbt --version 2>&1 | Out-String | Write-Host
-          Write-Host "--- logs found ---"
-          Get-ChildItem -Path . -Recurse -Filter 'build-windows.log' -ErrorAction SilentlyContinue | Select-Object FullName,Length | Format-Table | Out-String | Write-Host
-          Get-ChildItem -Path $env:USERPROFILE -Filter 'build-windows.log' -ErrorAction SilentlyContinue | ForEach-Object { Write-Host "== $($_.FullName)"; Get-Content $_.FullName -Tail 100 }
 
       - name: Show artefact
         run: |
