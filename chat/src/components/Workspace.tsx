@@ -19,10 +19,9 @@ import { applySdm } from "@/client/model/apply-sdm";
 import Header, { type Theme } from "@/components/chat/Header";
 import Composer from "@/components/chat/Composer";
 import EmptyState from "@/components/chat/EmptyState";
-import Activity, { ThinkingRow, type ToolPart } from "@/components/chat/Activity";
+import TurnLog, { ThinkingRow, type LiveState, type WorkPart } from "@/components/chat/Activity";
 import Markdown from "@/components/chat/Markdown";
 import PlanCard from "@/components/chat/PlanCard";
-import StatusStrip from "@/components/chat/StatusStrip";
 import ModelHistory, { type VersionRow } from "@/components/chat/ModelHistory";
 import Diagnostics, { type DiagEntry } from "@/components/chat/Diagnostics";
 import Icon, { Logo } from "@/components/ui/Icon";
@@ -45,24 +44,6 @@ const ZERO_USAGE: Usage = { input: 0, output: 0, cacheRead: 0, calls: 0, cost: 0
 const fmtTokens = (n: number) => (n >= 1_000_000 ? `${(n / 1_000_000).toFixed(2)}M` : n >= 10_000 ? `${(n / 1000).toFixed(0)}k` : n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n));
 const fmtCost = (c: number, unpriced: number) => (unpriced && c === 0 ? "n/a" : `${unpriced ? "≥" : "≈"}$${c < 0.01 ? c.toFixed(4) : c.toFixed(2)}`);
 
-const NOTICE_STYLE = {
-  info: { bg: "var(--surface-2)", fg: "var(--muted)", bd: "var(--border)", icon: "info" },
-  warn: { bg: "var(--warn-soft)", fg: "var(--warn)", bd: "var(--warn)", icon: "warning" },
-  ok: { bg: "var(--ok-soft)", fg: "var(--ok)", bd: "var(--ok)", icon: "check" },
-} as const;
-
-function Notice({ level, text }: { level: "info" | "warn" | "ok"; text: string }) {
-  const s = NOTICE_STYLE[level];
-  return (
-    <div className="my-1.5 flex items-start gap-1.5 rounded-lg px-2 py-1.5 text-[11.5px] leading-snug" style={{ background: s.bg, color: s.fg, border: `1px solid ${s.bd}` }}>
-      <span className="mt-[1px] shrink-0 opacity-80">
-        <Icon name={s.icon} size={12} />
-      </span>
-      <span className="min-w-0 break-words">{text}</span>
-    </div>
-  );
-}
-
 /** The plan a propose_plan tool call produced, if any. */
 function planOf(p: Part): ModelPlan | null {
   if (p.k !== "tool" || p.name !== "propose_plan") return null;
@@ -76,11 +57,16 @@ function planApproved(p: Part): boolean {
   return Boolean((p.result as { plan_approved?: boolean } | undefined)?.plan_approved);
 }
 
-/** Assistant parts in order, with consecutive tool calls folded into one activity card. */
+/**
+ * One assistant turn: a single collapsible work log for everything the assistant did (calls + notices),
+ * the plan card when a plan was proposed, then the reply text. Keeping the machinery in one quiet block
+ * is what stops the chat from being interrupted by a card per step.
+ */
 function Parts({
   parts,
   streaming,
   busy,
+  live,
   approvedPlans,
   onApprovePlan,
   onRevisePlan,
@@ -88,23 +74,19 @@ function Parts({
   parts: Part[];
   streaming: boolean;
   busy: boolean;
+  live?: LiveState;
   approvedPlans: string[];
   onApprovePlan: (plan: ModelPlan, id: string) => void;
   onRevisePlan: (plan: ModelPlan, note: string) => void;
 }) {
-  const out: React.ReactNode[] = [];
-  let run: ToolPart[] = [];
-  const flush = (key: string) => {
-    if (!run.length) return;
-    out.push(<Activity key={key} parts={run} />);
-    run = [];
-  };
+  const work: WorkPart[] = [];
+  const plans: React.ReactNode[] = [];
+  const words: React.ReactNode[] = [];
   parts.forEach((p, j) => {
     const plan = planOf(p);
     if (plan) {
-      flush(`act${j}`);
       const id = (p as Extract<Part, { k: "tool" }>).id;
-      out.push(
+      plans.push(
         <PlanCard
           key={`plan${j}`}
           plan={plan}
@@ -116,19 +98,16 @@ function Parts({
       );
       return;
     }
-    if (p.k === "tool") {
-      run.push(p);
-      return;
-    }
-    flush(`act${j}`);
-    if (p.k === "thinking") out.push(<ThinkingRow key={j} text={p.text} />);
-    else if (p.k === "notice") out.push(<Notice key={j} level={p.level} text={p.text} />);
-    else out.push(<Markdown key={j} text={p.text} />);
+    if (p.k === "tool" || p.k === "notice") work.push(p);
+    else if (p.k === "thinking") words.push(<ThinkingRow key={j} text={p.text} />);
+    else words.push(<Markdown key={j} text={p.text} />);
   });
-  flush("act-end");
+  const out = <TurnLog work={work} live={live} />;
   return (
     <>
       {out}
+      {plans}
+      {words}
       {streaming && (
         <span
           className="ml-0.5 inline-block h-[13px] w-[2px] translate-y-[2px] animate-blink rounded-sm align-baseline"
@@ -365,7 +344,12 @@ export default function Workspace({ mode }: { mode: "web" | "desktop" }) {
       softStopRef.current = false;
       setSoftStop(false);
       setLive({ phase: "queued", step: 1, maxStep: 12, startedAt: Date.now(), inTok: 0, outTok: 0 });
-      setItems((p) => (auto ? p : [...p, { role: "user", parts: [{ k: "text", text }] }]));
+      // The assistant item exists from the first moment, so the work log can show "waiting for the model"
+      // even before the first token arrives.
+      setItems((p) => {
+        const next = auto ? [...p] : [...p, { role: "user" as const, parts: [{ k: "text" as const, text }] }];
+        return [...next, { role: "assistant" as const, parts: [] as Part[] }];
+      });
       if (auto) handleEvent({ type: "notice", level: "warn", text: text.split("\n")[0]!.slice(0, 220) });
       const ac = new AbortController();
       abortRef.current = ac;
@@ -937,6 +921,26 @@ export default function Workspace({ mode }: { mode: "web" | "desktop" }) {
                         parts={m.parts}
                         streaming={busy && last}
                         busy={busy}
+                        live={
+                          busy && last
+                            ? {
+                                phase: live.phase,
+                                detail: live.detail,
+                                tool: live.tool,
+                                step: live.step,
+                                maxStep: live.maxStep,
+                                startedAt: live.startedAt,
+                                inTok: live.inTok,
+                                outTok: live.outTok,
+                                softStop,
+                                onSoftStop: () => {
+                                  softStopRef.current = true;
+                                  setSoftStop(true);
+                                },
+                                onStop: () => abortRef.current?.abort(),
+                              }
+                            : undefined
+                        }
                         approvedPlans={approvedPlans}
                         onApprovePlan={approvePlan}
                         onRevisePlan={revisePlan}
@@ -945,24 +949,6 @@ export default function Workspace({ mode }: { mode: "web" | "desktop" }) {
                   </div>
                 );
               })}
-              {busy && (
-                <StatusStrip
-                  phase={live.phase}
-                  detail={live.detail}
-                  tool={live.tool}
-                  step={live.step}
-                  maxStep={live.maxStep}
-                  startedAt={live.startedAt}
-                  tokensIn={live.inTok}
-                  tokensOut={live.outTok}
-                  softStop={softStop}
-                  onSoftStop={() => {
-                    softStopRef.current = true;
-                    setSoftStop(true);
-                  }}
-                  onStop={() => abortRef.current?.abort()}
-                />
-              )}
               {!busy && !switching && versions.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 pt-0.5">
                   {FOLLOWUPS.map((f) => (
