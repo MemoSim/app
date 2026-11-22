@@ -29,9 +29,11 @@ jobs:
 
       - name: Install sbt and WiX Toolset
         run: |
-          choco install sbt --no-progress -y
-          choco install wixtoolset --version=3.14.1 --no-progress -y
+          # The runner already ships sbt and a newer WiX; a pinned/locked choco call exits 1 and fails the job.
+          choco install sbt --no-progress -y || true
+          choco install wixtoolset --no-progress -y || true
           echo "C:\ProgramData\chocolatey\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+          sbt --version; candle.exe -? 2>&1 | Select-Object -First 1
 
       - name: Install chat dependencies
         working-directory: chat
