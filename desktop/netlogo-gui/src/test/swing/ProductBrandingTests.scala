@@ -5,7 +5,7 @@ import org.nlogo.util.AnyFunSuiteEx
 
 class ProductBrandingTests extends AnyFunSuiteEx {
   test("MemoSim releases always use MemoSim splash and native icons") {
-    for (product <- Seq("MemoSim", "MemoSim 1.0.4", "MemoSim 7.2.0-beta.3");
+    for (product <- Seq("MemoSim", "MemoSim 1.1.4", "MemoSim 7.2.0-beta.3");
          dark <- Seq(false, true); is3D <- Seq(false, true)) {
       assert(ProductBranding.splashResource(product, dark) == "/images/memosim-splash.png")
       assert(ProductBranding.windowIconResource(product, is3D) == "/images/memosim-icon.png")

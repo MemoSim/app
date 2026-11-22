@@ -32,7 +32,7 @@ try {
   await page.pdf({ path: output, format: 'A4', printBackground: true, preferCSSPageSize: true,
     displayHeaderFooter: true, margin: { top: '15mm', bottom: '18mm', left: '14mm', right: '14mm' },
     headerTemplate: '<span></span>',
-    footerTemplate: '<div style="font:9px sans-serif;width:100%;padding:0 40px;color:#52736b;display:flex;justify-content:space-between"><span>MemoSim 1.0.4 · Chat-first field manual</span><span><span class="pageNumber"></span> / <span class="totalPages"></span></span></div>',
+    footerTemplate: '<div style="font:9px sans-serif;width:100%;padding:0 40px;color:#52736b;display:flex;justify-content:space-between"><span>MemoSim 1.1.4 · Chat-first field manual</span><span><span class="pageNumber"></span> / <span class="totalPages"></span></span></div>',
     outline: true });
   if (readFileSync(output).subarray(0, 5).toString() !== '%PDF-') throw new Error('Invalid generated PDF');
   console.log(JSON.stringify({ input, output, bytes: statSync(output).size, offline: true, brokenImages: broken }));

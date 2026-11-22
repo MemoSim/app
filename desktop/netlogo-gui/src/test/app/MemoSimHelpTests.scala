@@ -25,16 +25,16 @@ class MemoSimHelpTests extends AnyFunSuiteEx {
 
   test("MemoSim never asks for NetLogo analytics consent") {
     assert(!App.shouldAskAnalyticsConsent("MemoSim", "$$$"))
-    assert(!App.shouldAskAnalyticsConsent("MemoSim 1.0.4", "true"))
+    assert(!App.shouldAskAnalyticsConsent("MemoSim 1.1.4", "true"))
     assert(App.shouldAskAnalyticsConsent("NetLogo", "$$$"))
     assert(!App.shouldAskAnalyticsConsent("NetLogo", "false"))
   }
 
   test("MemoSim About uses the release version before the packaged or engine version") {
     withProperties("netlogo.product.name" -> "MemoSim 7.2.0-beta.3",
-                   "memosim.release.version" -> "1.0.4", "jpackage.app-version" -> "1.0.3") {
-      assert(AboutWindow.title == "About MemoSim 1.0.4")
-      assert(new ShowAboutWindow(null).getValue(Action.NAME) == "About MemoSim 1.0.4")
+                   "memosim.release.version" -> "1.1.4", "jpackage.app-version" -> "1.0.3") {
+      assert(AboutWindow.title == "About MemoSim 1.1.4")
+      assert(new ShowAboutWindow(null).getValue(Action.NAME) == "About MemoSim 1.1.4")
       val citation = AboutWindow.memoSimCitation
       assert(citation.contains("Powered by NetLogo"))
       assert(citation.contains("Uri Wilensky, Northwestern University"))
@@ -50,7 +50,7 @@ class MemoSimHelpTests extends AnyFunSuiteEx {
       assert(AboutWindow.memoSimNameVersion == "MemoSim 1.0.5")
     }
     withProperties("memosim.release.version" -> null, "jpackage.app-version" -> null) {
-      assert(AboutWindow.memoSimNameVersion == "MemoSim 1.0.4")
+      assert(AboutWindow.memoSimNameVersion == "MemoSim 1.1.4")
     }
   }
 

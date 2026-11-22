@@ -28,7 +28,7 @@ try {
   const pdf = readFileSync(path.join(docs, 'manual.pdf'));
   if (pdf.subarray(0, 5).toString() !== '%PDF-') failures.push({ error: 'PDF signature invalid' });
   const report = { checkedAtUTC: new Date().toISOString(), docs, dictionaryPagesRendered: files.length, attemptedExternalRequests: requests.length, pdfBytes: pdf.length, failures };
-  writeFileSync('/Users/lilo-jali/Documents/MemoSim Releases/1.0.4-build2-help-20261119/installed-docs-verification.json', JSON.stringify(report, null, 2) + '\n');
+  writeFileSync('/Users/lilo-jali/Documents/MemoSim Releases/1.1.4-build2-help-20261119/installed-docs-verification.json', JSON.stringify(report, null, 2) + '\n');
   console.log(JSON.stringify(report, null, 2));
   if (failures.length) process.exitCode = 1;
 } finally { await browser.close(); }

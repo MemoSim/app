@@ -46,11 +46,11 @@ run('/usr/libexec/PlistBuddy', ['-c', 'Set :CFBundleVersion 1.1.4.1', path.join(
 run('codesign', ['--force', '--deep', '--sign', '-', staged]);
 run('codesign', ['--verify', '--deep', '--strict', staged]);
 const record = {
-  product: 'MemoSim', version: '1.1.4', build: '1.1.4.1', base: 'installed 1.0.4; manual rewritten for 1.1.4',
+  product: 'MemoSim', version: '1.1.4', build: '1.1.4.1', base: 'installed 1.1.4; manual rewritten for 1.1.4',
   installedUTC: new Date().toISOString(), scenarios: manifest.scenarios.map(s => ({ id: s.id, evidenceMode: s.evidenceMode, stages: s.stages.length })),
   htmlSHA256: createHash('sha256').update(readFileSync(manual)).digest('hex'),
   pdfSHA256: createHash('sha256').update(readFileSync(pdf)).digest('hex'),
-  sources: '/Users/lilo-jali/Documents/MemoSim Source Versions/1.0.4-build3-chat-manual',
+  sources: '/Users/lilo-jali/Documents/MemoSim Source Versions/1.1.4-build3-chat-manual',
   binaryPreservation: 'Only latest app retained per user instruction; transient rollback removed after verified replacement.',
 };
 const rollback = path.join(stageRoot, 'previous-MemoSim.app');

@@ -234,7 +234,7 @@ try {
     ...omitted.map(scenario => ({ title: scenario.title || scenario.id || 'Scenario', status: scenario.status || 'not verified', detail: scenario.detail || scenario.reason || scenario.error || 'Excluded from the scenario notebook because tested:true and status:passed were not both recorded.' })),
   ];
   const summary = {
-    generator: 'chat-dev/build-chat-manual.mjs', templateVersion: 1, appVersion: manifest.appVersion || '1.0.4', generatedAt: new Date().toISOString(),
+    generator: 'chat-dev/build-chat-manual.mjs', templateVersion: 1, appVersion: manifest.appVersion || '1.1.4', generatedAt: new Date().toISOString(),
     manifestPresent: manifestExists, manifestSHA256: manifestExists ? hash(readFileSync(manifestPath)) : null,
     passedScenarios: passed.length, actualChatScenarios: passed.filter(scenario => scenario.evidenceMode === 'actual-chat').length,
     scriptedReplayScenarios: passed.filter(scenario => scenario.evidenceMode === 'scripted-tool-replay').length, excludedScenarios: omitted.length,

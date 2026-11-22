@@ -2,7 +2,7 @@
   'use strict';
   const $ = selector => document.querySelector(selector);
   const $$ = selector => [...document.querySelectorAll(selector)];
-  const storageKey = 'memosim-manual-1.0.4-progress-v1';
+  const storageKey = 'memosim-manual-1.1.4-progress-v1';
   let saved = {};
   try { saved = JSON.parse(localStorage.getItem(storageKey) || '{}'); } catch { /* Storage can be disabled for local files. */ }
   if (!saved || typeof saved !== 'object' || Array.isArray(saved)) saved = {};

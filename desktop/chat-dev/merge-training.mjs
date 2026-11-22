@@ -57,7 +57,7 @@ for (const entry of readdirSync(root, { withFileTypes: true })) {
 const ordered = expected.filter(id => scenarios.has(id)).map(id => scenarios.get(id));
 const missing = expected.filter(id => !scenarios.has(id));
 const manifest = {
-  schemaVersion: 1, appVersion: '1.0.4', generatedAt: new Date().toISOString(), scenarios: ordered,
+  schemaVersion: 1, appVersion: '1.1.4', generatedAt: new Date().toISOString(), scenarios: ordered,
   statusReport: [
     ...ordered.map(scenario => ({ title: scenario.title, status: 'passed', detail: `Actual chat with recorded tool calls, native model outputs and independent checks. Source: ${path.relative(root, scenario.sourceManifest)}` })),
     ...missing.map(id => ({ title: id, status: 'pending', detail: 'Not included as a tested lesson until its actual chat workflow passes.' })),

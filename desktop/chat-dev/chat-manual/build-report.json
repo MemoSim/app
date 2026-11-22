@@ -1,7 +1,7 @@
 {
   "generator": "chat-dev/build-chat-manual.mjs",
   "templateVersion": 1,
-  "appVersion": "1.0.4",
+  "appVersion": "1.1.4",
   "generatedAt": "2026-11-19T04:01:52.096Z",
   "manifestPresent": true,
   "manifestSHA256": "f2d2557c3c46cd36cd8a6f8bddbe73899f59c63ae7ef711a4aa04d6049aa2607",
