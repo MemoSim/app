@@ -10,7 +10,9 @@ permissions:
 
 jobs:
   windows:
-    runs-on: windows-latest
+    # windows-2022 ships the Visual Studio C++ workload that node-gyp needs for better-sqlite3;
+    # windows-latest does not, and `npm ci` then dies building that native module.
+    runs-on: windows-2022
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
