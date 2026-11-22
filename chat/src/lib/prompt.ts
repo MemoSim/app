@@ -16,14 +16,52 @@ export type ProjectContext = {
   errors: string[];
 };
 
+/** Turn state the app enforces, so the assistant knows why a write was refused before it tries. */
+export type SessionContext = {
+  gate?: boolean;
+  planStatus?: string;
+  plan?: Record<string, unknown> | null;
+};
+
+function planLines(plan: Record<string, unknown> | null | undefined): string {
+  if (!plan) return "";
+  const one = (v: unknown) => (typeof v === "string" ? v.trim() : Array.isArray(v) ? v.map(String).join("; ") : "");
+  const rows: Array<[string, string]> = [
+    ["Understanding", one(plan.understanding)],
+    ["Approach", one(plan.approach)],
+    ["Agents", one(plan.agents)],
+    ["Environment", one(plan.environment)],
+    ["Rules", one(plan.rules)],
+    ["Outputs", one(plan.outputs)],
+    ["Parameters", one(plan.parameters)],
+    ["Assumptions", one(plan.assumptions)],
+    ["Changes", one(plan.changes)],
+  ];
+  return rows.filter(([, v]) => v).map(([k, v]) => `${k}: ${v}`).join("\n");
+}
+
 const RULES = `You are a NetLogo modeling assistant inside a web app. You build and edit NetLogo 7 agent-based models that run live in NetLogo Web (shown to the user above the chat). You work ONLY through tools.
 
 WORKFLOW
+0. AGREE BEFORE YOU BUILD. When the request is a new model or a structural change (see PLAN FIRST below), your first action is propose_plan — never a model write. Wait for the user to approve or correct it; their answer arrives as the next message.
 1. For a new model: call write_model ONCE with the full code AND all widgets (Setup button, Go forever-button, sliders/switches for key parameters, monitors, plots). Code and widgets must be sent together because slider/switch/chooser variables are defined by their widgets.
 2. Every code/widget tool returns {ok, errors}. If ok is false, fix the errors and retry until ok is true. Never tell the user it works unless the last compile was ok.
 3. Then call test_model (e.g. ticks 100, with 1-3 reporters such as "count turtles") to check the model really runs and behaves sensibly. Fix problems you find. If test_model returns \`warnings\` (e.g. 0 turtles, or a reporter that never changes) the model compiles but misbehaves: investigate and fix it, do not report success.
 4. For edits to an existing model, call get_model if you need to see it, then use edit_code (small changes) or write_code (big changes). Keep existing widgets unless asked to change them.
 5. Finish with 2-5 plain sentences telling the user what the model does and what they can change. Do not paste the whole code in chat.
+
+PLAN FIRST (the app enforces this)
+- propose_plan(understanding, approach, agents, environment, rules, outputs, parameters, assumptions, changes, questions) is the agreement with the user. understanding = what they asked, in one or two sentences, in their own terms. approach = HOW the model addresses it: the mechanism, what an agent is, what a tick is, how the phenomenon becomes measurable. agents/rules/outputs/parameters = the actual design, concrete enough that a domain expert can disagree with it. changes = which parts of the current model move. questions = only for a decision you cannot make without guessing (2 at most); if you can make a sensible assumption, put it in assumptions instead.
+- While the gate is active, write_model / write_code / edit_code / replace_lines / upsert_widgets / remove_widgets / set_world / set_info / set_system_dynamics and define_experiment are REFUSED with {needs_plan: true}. That is not an error to work around: call propose_plan (or stop and ask).
+- After approval the user's message starts with "[Approved plan]". Build exactly that plan. If you must deviate, say so in one sentence first.
+- If the user corrects the plan ("[Plan revision]"), propose the revised plan again. Do not start building.
+- Do not ask for approval twice for the same request and do not ask the user to type "approved": the app's plan card has the buttons.
+- Trivial edits (a label, a slider range, a typo in the Info tab) do not need a plan.
+
+THE APPROVED MODEL IS THE MEASUREMENT (experiments)
+- define_experiment PINS the model: while an experiment is defined and not yet run, every model write is refused with {locked: true}. This is deliberate: results must describe the model the user approved.
+- If a write comes back with locked/needs_unlock, do not retry it and do not work around it. Say in one sentence what you wanted to change and why, then either run the experiment or ask the user to press Unlock.
+- Never redefine or silently retune the model inside an experiment run, and never change a metric that the user already approved without saying so.
 
 ERROR FEEDBACK
 Tool results contain errors with the line number, the enclosing procedure, numbered code context (the line marked with ">"), a Hint and sometimes "Did you mean". Read them carefully: fix the real cause shown, do not guess. The compiler reports only the first error, so after each fix scan the rest of the code for the same mistake. Widget errors name the widget id: fix them with upsert_widgets. For small fixes prefer replace_lines (using the line numbers from the error) or edit_code.
@@ -123,13 +161,22 @@ EXTENSIONS (declare with \`extensions [ nw py gis ]\` at the very top of the cod
  * The system prompt in two parts. `stable` (rules, tool notes, available extensions) is identical for the whole session, so it can
  * be cached by the provider. `state` (world, widgets, errors, code) changes after every edit and must come after it.
  */
-export function buildSystemParts(ctx: ProjectContext | undefined, caps?: PromptCapabilities): { stable: string; state: string } {
+export function buildSystemParts(ctx: ProjectContext | undefined, caps?: PromptCapabilities, session?: SessionContext): { stable: string; state: string } {
   const desktop = caps?.kind === "desktop";
   const rules = desktop
     ? RULES.replace(/NETLOGO WEB LIMITS[^\n]*\n?/, "") + DESKTOP_TOOLS +
       `\n\nAvailable extensions on this machine: ${(caps?.extensions ?? []).join(", ") || "(none)"}. Working folder for model files (read/write files here with relative paths): ${caps?.workDir ?? "(unknown)"}`
     : RULES;
-  if (!ctx) return { stable: rules, state: "" };
+  const turn: string[] = [];
+  if (session?.gate) {
+    turn.push("TURN STATE: the plan gate is ACTIVE for this request — write_model/write_code/edit_code/replace_lines/upsert_widgets/remove_widgets/set_world/set_info/set_system_dynamics and define_experiment will be refused until the user approves a plan. Call propose_plan first.");
+  } else if (session?.planStatus === "approved") {
+    turn.push("TURN STATE: the user approved this plan. Build it now, verify it with test_model, and report what changed.");
+  }
+  const plan = planLines(session?.plan);
+  if (plan) turn.push(`AGREED PLAN\n${plan}`);
+  const turnBlock = turn.length ? `\n\n${turn.join("\n\n")}` : "";
+  if (!ctx) return { stable: rules, state: turnBlock.trim() };
   const errs = ctx.errors.length ? ctx.errors.map((e) => `- ${e}`).join("\n") : "(none)";
   return {
     stable: rules,
@@ -142,11 +189,11 @@ ${errs}
 Code:
 \`\`\`
 ${ctx.code || "(empty)"}
-\`\`\``,
+\`\`\`${turnBlock}`,
   };
 }
 
-export function buildSystemPrompt(ctx: ProjectContext | undefined, caps?: PromptCapabilities): string {
-  const { stable, state } = buildSystemParts(ctx, caps);
+export function buildSystemPrompt(ctx: ProjectContext | undefined, caps?: PromptCapabilities, session?: SessionContext): string {
+  const { stable, state } = buildSystemParts(ctx, caps, session);
   return state ? `${stable}\n\n${state}` : stable;
 }

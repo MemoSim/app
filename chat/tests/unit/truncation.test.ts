@@ -14,9 +14,12 @@ function setup(script: Array<Array<[string, unknown]>>) {
   let n = 0;
   const loads: string[] = [];
   const requests: Array<Array<{ role: string; content: string }>> = [];
+  const bodies: Array<Record<string, unknown>> = [];
   vi.stubGlobal("fetch", async (url: string, init?: { body?: string }) => {
     if (url !== "/api/llm") return new Response("{}", { status: 404 });
-    requests.push(JSON.parse(init!.body!).messages);
+    const body = JSON.parse(init!.body!) as { messages: Array<{ role: string; content: string }> };
+    requests.push(body.messages);
+    bodies.push(body as unknown as Record<string, unknown>);
     return sse(script[Math.min(n++, script.length - 1)]!);
   });
   const engine = {
@@ -29,7 +32,7 @@ function setup(script: Array<Array<[string, unknown]>>) {
   const history: ChatMsg[] = [];
   const events: UiEvent[] = [];
   const run = () => runTurn({ history, userText: "make a model", tools: createTools(engine, mc), mc, bridge: engine, signal: new AbortController().signal, emit: (e) => events.push(e) });
-  return { run, events, history, loads, requests, calls: () => n };
+  return { run, events, history, loads, requests, bodies, calls: () => n };
 }
 
 const cutOff: Array<[string, unknown]> = [["tool_call", { id: "c1", name: "write_model", args: "{}" }], ["done", { finish: "length" }]];
@@ -37,22 +40,24 @@ const good: Array<[string, unknown]> = [["tool_call", { id: "c2", name: "write_c
 const finished: Array<[string, unknown]> = [["text", { delta: "Done." }], ["done", { finish: "stop" }]];
 
 describe("replies cut off by the output limit", () => {
-  it("does not run the truncated call, tells the user, asks for smaller pieces, then recovers", async () => {
+  it("does not run an empty call, retries once without reasoning, then recovers", async () => {
     const t = setup([cutOff, good, finished]);
     await t.run();
     expect(t.events.some((e) => e.type === "tool_start" && e.name === "write_model")).toBe(false); // the incomplete call never ran
-    expect(t.events.some((e) => e.type === "notice" && /cut off at the output limit/.test(e.text))).toBe(true);
-    const second = t.requests[1]!;
-    expect(second.at(-1)!.content).toMatch(/NOTHING from it was applied/);
-    expect(second.at(-1)!.content).toMatch(/smaller steps/);
+    expect(t.events.some((e) => e.type === "notice" && /extended reasoning/.test(e.text))).toBe(true);
+    // The first truncation is answered by a reasoning-off retry, not by a "work in smaller pieces" prompt.
+    expect(t.requests[1]!.at(-1)!.content).not.toMatch(/NOTHING from it was applied/);
+    // The retry that follows a truncation asks the server to skip extended reasoning, which shares the output budget.
+    expect((t.bodies[1] as { thinking?: string }).thinking).toBe("off");
     expect(t.loads.length).toBeGreaterThan(0); // the retry (write_code) did build a model
     expect(t.events.some((e) => e.type === "error")).toBe(false);
   });
 
-  it("stops after the second truncation instead of burning tokens in a loop", async () => {
+  it("stops after two failed truncations instead of burning tokens in a loop", async () => {
     const t = setup([cutOff]);
     await t.run();
-    expect(t.calls()).toBe(2); // not 12
+    // 1st truncation -> retry without reasoning, 2nd -> asks for smaller pieces, 3rd -> gives up.
+    expect(t.calls()).toBe(3); // not 12
     const err = t.events.find((e) => e.type === "error") as { message: string } | undefined;
     expect(err?.message).toMatch(/Max output tokens/);
     expect(t.loads).toHaveLength(0);

@@ -14,6 +14,9 @@ const FIELD_HINT: Record<string, string> = {
 
 export type ApplyResult = { ok: boolean; errors: string[]; note?: string; dictionary?: string };
 
+/** A model version the user can go back to (one per successful change). */
+export type ModelVersion = { at: number; label: string; spec: ModelSpec };
+
 const FIRST_ERROR_NOTE =
   "NetLogo reports only the FIRST compile error. After fixing it, re-read the WHOLE code for the same kind of mistake before resubmitting, so later errors do not cost extra rounds.";
 
@@ -42,6 +45,9 @@ export class ModelController {
   dirty = false;
   /** Models that already failed to load, keyed by content, so identical resubmissions are caught without reloading. */
   private failedStates = new Map<string, string[]>();
+  /** Recent successful versions, newest last. The UI offers "restore this version", so an edit is never lossy. */
+  versions: ModelVersion[] = [];
+  private static readonly MAX_VERSIONS = 40;
 
   private stateKey(): string {
     const s = this.spec;
@@ -168,7 +174,10 @@ export class ModelController {
       this.failedStates.set(key, errors);
       if (this.failedStates.size > 60) this.failedStates.delete(this.failedStates.keys().next().value as string);
     }
-    if (ok && this.spec.code.trim()) this.lastGood = structuredClone(this.spec);
+    if (ok && this.spec.code.trim()) {
+      this.lastGood = structuredClone(this.spec);
+      this.recordVersion("change", this.spec);
+    }
     this.onChange();
     return { ok, errors, ...(docs ? { dictionary: docs } : {}), ...(codeErrors ? { note: FIRST_ERROR_NOTE } : {}) };
   }
@@ -179,6 +188,26 @@ export class ModelController {
     const good = structuredClone(this.lastGood);
     const res = await this.apply(() => good);
     return res.ok;
+  }
+
+  /** Forget a version that is already in the list (same content). */
+  private recordVersion(label: string, spec: ModelSpec): void {
+    const key = this.stateKey();
+    const last = this.versions[this.versions.length - 1];
+    if (last) {
+      const lastKey = JSON.stringify([last.spec.code, last.spec.widgets, last.spec.sdm, last.spec.world, last.spec.experiments]);
+      if (lastKey === key) return;
+    }
+    this.versions.push({ at: Date.now(), label, spec: structuredClone(spec) });
+    if (this.versions.length > ModelController.MAX_VERSIONS) this.versions.shift();
+  }
+
+  /** Re-apply a stored version (used by the Model history dialog). */
+  async restoreVersion(index: number): Promise<ApplyResult> {
+    const v = this.versions[index];
+    if (!v) return { ok: false, errors: ["that version is no longer available"] };
+    const res = await this.apply(() => structuredClone(v.spec));
+    return res;
   }
 
   /**

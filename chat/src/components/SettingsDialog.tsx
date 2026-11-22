@@ -570,6 +570,12 @@ export default function SettingsDialog({ open, firstRun, onClose, onSkip, onChan
                       </select>
                     </div>
                   </div>
+                  {draft.thinking === "on" && (
+                    <p className="mt-1.5 text-[10.5px] leading-snug" style={{ color: "var(--muted)" }}>
+                      Reasoning uses the same output budget as the answer. If replies get cut off, raise{" "}
+                      <span className="font-medium">Max tokens</span> or set thinking to Off — the app retries once without reasoning when that happens.
+                    </p>
+                  )}
                 </div>
 
                 <details className="rounded-xl px-2.5 py-2" style={{ border: "1px solid var(--border)" }}>

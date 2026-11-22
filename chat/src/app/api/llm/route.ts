@@ -6,6 +6,7 @@ import { buildSystemParts } from "@/lib/prompt";
 import { getUid } from "@/lib/auth";
 import { acquireLlmSlot } from "@/lib/limiter";
 import { costOf, priceFor, recordUsage } from "@/lib/usage";
+import { classifyLlmError, type LlmErrorInfo } from "@/lib/llm-errors";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -31,6 +32,16 @@ const body = z.object({
       errors: z.array(z.string()),
     })
     .optional(),
+  /** Per-request override: "off" makes the next call skip extended reasoning (used when reasoning ate the output budget). */
+  thinking: z.enum(["on", "off", "omit"]).optional(),
+  /** Turn state the client enforces (plan gate, approved plan). Unknown keys are dropped by zod. */
+  session: z
+    .object({
+      gate: z.boolean().optional(),
+      planStatus: z.string().max(20).optional(),
+      plan: z.record(z.string(), z.unknown()).nullable().optional(),
+    })
+    .optional(),
 });
 
 function sse(event: string, data: unknown): string {
@@ -46,9 +57,9 @@ export async function GET() {
   try {
     await assertAllowedEndpoint(cfg.baseUrl);
     const r = await fetch(modelsUrl(cfg), { headers: protocolHeaders(cfg, uid), signal: AbortSignal.timeout(8000), redirect: "error" });
-    return Response.json({ ok: r.ok, configured: true, model: cfg.model, source: cfg.source, setupSkipped });
+    return Response.json({ ok: r.ok, configured: true, model: cfg.model, baseUrl: cfg.baseUrl, source: cfg.source, setupSkipped });
   } catch {
-    return Response.json({ ok: false, configured: true, model: cfg.model, source: cfg.source, setupSkipped });
+    return Response.json({ ok: false, configured: true, model: cfg.model, baseUrl: cfg.baseUrl, source: cfg.source, setupSkipped });
   }
 }
 
@@ -58,9 +69,9 @@ export async function POST(req: Request) {
   if (!uid) return Response.json({ error: "unauthorized" }, { status: 401 });
   const parsed = body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return Response.json({ error: parsed.error.message }, { status: 400 });
-  const { messages, tools, context, capabilities } = parsed.data;
+  const { messages, tools, context, capabilities, session } = parsed.data;
 
-  const cfg = resolveLlm(uid);
+  let cfg = resolveLlm(uid);
   if (!cfg) {
     return Response.json({ error: "No LLM is configured. Open Settings and enter an OpenAI-compatible endpoint, API key and model." }, { status: 400 });
   }
@@ -70,7 +81,9 @@ export async function POST(req: Request) {
     if (err instanceof EndpointError) return Response.json({ error: err.message }, { status: 400 });
     throw err;
   }
-  const parts = buildSystemParts(context, capabilities);
+  // A retry after an output-limit truncation: reasoning shares the max_tokens budget, so turn it off for this call only.
+  if (parsed.data.thinking && parsed.data.thinking !== cfg.thinking) cfg = { ...cfg, thinking: parsed.data.thinking };
+  const parts = buildSystemParts(context, capabilities, session);
   // Claude: the unchanging part is its own system block marked for caching; the model state follows it (same text, same order).
   // Other providers get one system message as before (an extra field could be rejected by strict servers).
   const systemMsgs =
@@ -86,20 +99,58 @@ export async function POST(req: Request) {
     return Response.json({ error: "request cancelled while waiting for a free LLM slot" }, { status: 499 });
   }
 
-  const upstream = await fetchLlm(cfg, fullMessages, tools, {
-    stream: true,
-    uid,
-    cache: true,
-    signal: AbortSignal.any([req.signal, AbortSignal.timeout(180_000)]),
-  }).catch((err: unknown) => err as Error);
+  // Upstream timing. One wall-clock cap for the whole stream is wrong in both directions: a busy gateway can queue for
+  // minutes before the first token (the cap then reports a bogus "timed out" although the model never ran), and a long
+  // but perfectly healthy generation is cut off at the same moment. So: wait generously for the answer to START, then
+  // abort only when the stream actually STALLS (no chunk for LLM_IDLE_TIMEOUT_MS).
+  const upstreamCtl = new AbortController();
+  const abortUpstream = () => upstreamCtl.abort();
+  req.signal.addEventListener("abort", abortUpstream, { once: true });
+  const connectMsg = `no answer from the LLM within ${Math.round(e.LLM_CONNECT_TIMEOUT_MS / 1000)}s (the endpoint is queuing or unreachable)`;
+  const idleMsg = `the LLM stopped sending data for ${Math.round(e.LLM_IDLE_TIMEOUT_MS / 1000)}s`;
+  let watchdog = setTimeout(() => upstreamCtl.abort(new DOMException(connectMsg, "TimeoutError")), e.LLM_CONNECT_TIMEOUT_MS);
+  const kick = (ms: number, msg: string) => {
+    clearTimeout(watchdog);
+    watchdog = setTimeout(() => upstreamCtl.abort(new DOMException(msg, "TimeoutError")), ms);
+  };
+
+  const started = Date.now();
+  // Retry the opening of the stream once or twice for failures that are worth retrying (429, 5xx, a
+  // dropped connection). Only headers are in at this point, so a retry cannot duplicate model output.
+  let upstream: Response | Error = new Error("not attempted");
+  let info: LlmErrorInfo | null = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const res = await fetchLlm(cfg, fullMessages, tools, { stream: true, uid, cache: true, signal: upstreamCtl.signal }).catch((err: unknown) => err as Error);
+    upstream = res;
+    if (!(res instanceof Error) && res.ok && res.body) break;
+    const body = res instanceof Error ? undefined : (await res.text().catch(() => "")).slice(0, 400);
+    info = classifyLlmError({
+      status: res instanceof Error ? undefined : res.status,
+      message: res instanceof Error ? res.message : `LLM HTTP ${res.status}: ${body ?? ""}`,
+      body,
+      retryAfter: res instanceof Error ? null : res.headers.get("retry-after"),
+      aborted: upstreamCtl.signal.aborted,
+    });
+    if (!info.retryable || attempt === 2 || upstreamCtl.signal.aborted) break;
+    const wait = Math.min(4_000, info.retryAfterMs ?? 700 * (attempt + 1));
+    console.error(`[llm] ${cfg.model} attempt ${attempt + 1} failed (${info.class}): ${info.message}; retrying in ${wait}ms`);
+    await new Promise((r) => setTimeout(r, wait));
+    kick(e.LLM_CONNECT_TIMEOUT_MS, connectMsg);
+  }
+  clearTimeout(watchdog);
 
   if (upstream instanceof Error || !upstream.ok || !upstream.body) {
     release();
-    const msg =
-      upstream instanceof Error
-        ? upstream.message
-        : `LLM HTTP ${upstream.status}: ${(await upstream.text()).slice(0, 300)}${upstream.status === 401 || upstream.status === 403 ? " (check the API key in Settings)" : ""}`;
-    return Response.json({ error: msg }, { status: 502 });
+    const failed = info ?? classifyLlmError({ message: upstream instanceof Error ? upstream.message : "no response body", status: upstream instanceof Error ? undefined : upstream.status });
+    // Without this line the only trace of a failed call was a row in the usage table: keep the failure visible in server.log.
+    console.error(`[llm] ${cfg.model} @ ${cfg.baseUrl} failed after ${Date.now() - started}ms (${failed.class}): ${failed.message}`);
+    return Response.json(
+      { error: failed.message, errorClass: failed.class, retryable: failed.retryable, retryAfterMs: failed.retryAfterMs, hint: failed.hint },
+      {
+        status: failed.class === "rate_limit" ? 429 : failed.class === "auth" ? 401 : 502,
+        headers: failed.retryAfterMs ? { "Retry-After": String(Math.ceil(failed.retryAfterMs / 1000)) } : undefined,
+      },
+    );
   }
 
   const enc = new TextEncoder();
@@ -107,7 +158,9 @@ export async function POST(req: Request) {
     async start(controller) {
       const out = (ev: string, d: unknown) => controller.enqueue(enc.encode(sse(ev, d)));
       try {
+        kick(e.LLM_IDLE_TIMEOUT_MS, idleMsg);
         for await (const ev of streamEvents(upstream, cfg.protocol)) {
+          kick(e.LLM_IDLE_TIMEOUT_MS, idleMsg);
           if (ev.type === "text") out("text", { delta: ev.delta });
           else if (ev.type === "thinking") out("thinking", { delta: ev.delta });
           else if (ev.type === "usage") {
@@ -119,13 +172,17 @@ export async function POST(req: Request) {
           else out("done", { finish: ev.finish });
         }
       } catch (err) {
-        out("error", { message: (err as Error).message });
+        console.error(`[llm] ${cfg.model} stream broke after ${Date.now() - started}ms: ${(err as Error).message}`);
+        const failed = classifyLlmError({ message: (err as Error).message, aborted: req.signal.aborted || upstreamCtl.signal.aborted });
+        out("error", { message: failed.message, errorClass: failed.class, retryable: failed.retryable, retryAfterMs: failed.retryAfterMs, hint: failed.hint });
       } finally {
+        clearTimeout(watchdog);
         release();
         controller.close();
       }
     },
     cancel() {
+      clearTimeout(watchdog);
       release();
     },
   });

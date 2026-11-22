@@ -1,4 +1,5 @@
 import { reference } from "../reference";
+import type { UiEvent } from "./loop";
 
 /**
  * Automatic research for a problem the model could not fix by itself.
@@ -54,10 +55,7 @@ export function buildResearchBlock(query: string, kb: Kb, web: Web, page: Page):
   return parts.join("\n\n");
 }
 
-type Emit = (e:
-  | { type: "tool_start"; id: string; name: string; args: unknown }
-  | { type: "tool_end"; id: string; result: unknown; ok: boolean }
-  | { type: "notice"; level: "info" | "warn" | "ok"; text: string }) => void;
+type Emit = (e: UiEvent) => void;
 
 /** Search the reference and the web for `query`, open the best page, and return the text for the repair prompt. */
 export async function research(query: string, signal: AbortSignal, emit: Emit): Promise<string> {
@@ -84,6 +82,7 @@ export async function research(query: string, signal: AbortSignal, emit: Emit): 
     type: "tool_end",
     id,
     ok: found,
+    ms: Date.now() - Number(id.slice(id.indexOf("-") + 1)),
     result: {
       ok: found,
       query,

@@ -6,6 +6,9 @@ import { sdmValidate, serialize } from "../model/serialize";
 import type { ExperimentResult } from "../engine/types";
 import { reference } from "../reference";
 import { describeRuntimeError } from "../model/diagnose";
+import { diffLines } from "../model/diff";
+import { AgentSession } from "./session";
+import { normalizePlan, planProblems, type ModelPlan } from "./plan";
 
 export type ToolDef = {
   name: string;
@@ -20,8 +23,50 @@ const clip = (s: string) => (s.length > MAX_STR ? s.slice(0, MAX_STR) + "…[tru
 const numbered = (code: string) =>
   code.split("\n").map((l, i) => `${String(i + 1).padStart(3)}| ${l}`).join("\n");
 
-export function createTools(bridge: ModelEngine, mc: ModelController): ToolDef[] {
+/** Line diff attached to every code-changing result, so the activity log can show what changed. */
+function diffOf(before: string, after: string) {
+  const d = diffLines(before, after);
+  return { added: d.added, removed: d.removed, lines: d.lines, truncated: d.truncated };
+}
+
+export function createTools(bridge: ModelEngine, mc: ModelController, session: AgentSession = new AgentSession()): ToolDef[] {
   const base: ToolDef[] = [
+    {
+      name: "propose_plan",
+      description:
+        "FIRST STEP for a new model or any structural change: describe what the user is asking for and HOW the model will address it, " +
+        "then wait for their approval. Nothing is written to the model by this tool. The app shows the plan as a card where the user can " +
+        "approve it or correct it; you get their answer as the next message. Fields: understanding (restate the request), approach (how the model " +
+        "represents the phenomenon: mechanism, agent level, time step), agents, environment, rules, outputs (what will be measured/plotted), " +
+        "parameters (levers the user can change), assumptions (what you had to decide), changes (what will change in the current model), " +
+        "questions (only when something cannot be decided without guessing).",
+      schema: z.object({
+        understanding: z.string().min(1),
+        approach: z.string().min(1),
+        agents: z.union([z.array(z.string()), z.string()]).default([]),
+        environment: z.string().default(""),
+        rules: z.union([z.array(z.string()), z.string()]).default([]),
+        outputs: z.union([z.array(z.string()), z.string()]).default([]),
+        parameters: z.union([z.array(z.string()), z.string()]).default([]),
+        assumptions: z.union([z.array(z.string()), z.string()]).default([]),
+        changes: z.union([z.array(z.string()), z.string()]).default([]),
+        questions: z.union([z.array(z.string()), z.string()]).default([]),
+      }),
+      run: async (raw: Partial<Record<keyof ModelPlan, unknown>>) => {
+        const plan = normalizePlan(raw);
+        const problems = planProblems(plan);
+        if (problems.length) return { ok: false, errors: problems, hint: "Call propose_plan again with the missing fields filled in." };
+        const res = session.propose(plan);
+        return {
+          ok: true,
+          awaiting_approval: true,
+          plan: res.plan,
+          message:
+            "The plan is showable to the user and the app is waiting for approval. Do not write the model in this turn. " +
+            "Reply with at most two sentences: what you understood and that they can approve or correct the plan.",
+        };
+      },
+    },
     {
       name: "get_model",
       description: "Return the current model: code (with line numbers), widgets with ids, and world settings.",
@@ -44,6 +89,9 @@ export function createTools(bridge: ModelEngine, mc: ModelController): ToolDef[]
         info: z.string().optional(),
       }),
       run: async (a: { code: string; widgets: z.output<typeof widgetSchema>[]; world?: Partial<z.output<typeof worldSchema>>; info?: string }) => {
+        const blocked = session.guardWrite(mc.spec);
+        if (blocked) return blocked;
+        const before = mc.spec.code;
         const ids: string[] = [];
         const res = await mc.apply((s) => {
           s.code = a.code;
@@ -56,14 +104,20 @@ export function createTools(bridge: ModelEngine, mc: ModelController): ToolDef[]
           if (a.info !== undefined) s.info = a.info;
           return s;
         });
-        return { ...res, ids };
+        return { ...res, ids, ...(res.ok ? { diff: diffOf(before, mc.spec.code), widgets_changed: ids.length } : {}) };
       },
     },
     {
       name: "write_code",
       description: "Replace only the NetLogo code tab with `code` (widgets unchanged), recompile and reload. Returns {ok, errors}.",
       schema: z.object({ code: z.string().min(1) }),
-      run: ({ code }: { code: string }) => mc.apply((s) => ({ ...s, code })),
+      run: async ({ code }: { code: string }) => {
+        const blocked = session.guardWrite(mc.spec);
+        if (blocked) return blocked;
+        const before = mc.spec.code;
+        const res = await mc.apply((s) => ({ ...s, code }));
+        return { ...res, ...(res.ok ? { diff: diffOf(before, mc.spec.code) } : {}) };
+      },
     },
     {
       name: "edit_code",
@@ -72,10 +126,15 @@ export function createTools(bridge: ModelEngine, mc: ModelController): ToolDef[]
         "Fails if `find` is missing or ambiguous (the error lists the closest lines). For line-number based edits use replace_lines.",
       schema: z.object({ find: z.string().min(1), replace: z.string() }),
       run: async ({ find, replace }: { find: string; replace: string }) => {
+        const blocked = session.guardWrite(mc.spec);
+        if (blocked) return blocked;
         const code = mc.spec.code;
         const exact = code.split(find).length - 1;
         if (exact > 1) return { ok: false, errors: [`\`find\` matches ${exact} places; include more surrounding lines to make it unique, or use replace_lines`] };
-        if (exact === 1) return mc.apply((s) => ({ ...s, code: s.code.replace(find, () => replace) }));
+        if (exact === 1) {
+          const res = await mc.apply((s) => ({ ...s, code: s.code.replace(find, () => replace) }));
+          return { ...res, ...(res.ok ? { diff: diffOf(code, mc.spec.code) } : {}) };
+        }
         // whitespace-tolerant match
         const tokens = find.trim().split(/\s+/).map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
         const re = new RegExp(tokens.join("\\s+"), "g");
@@ -84,7 +143,7 @@ export function createTools(bridge: ModelEngine, mc: ModelController): ToolDef[]
           const m = hits[0]!;
           const next = code.slice(0, m.index) + replace + code.slice(m.index! + m[0].length);
           const r = await mc.apply((s) => ({ ...s, code: next }));
-          return { ...r, matched: "ignoring whitespace differences" };
+          return { ...r, matched: "ignoring whitespace differences", ...(r.ok ? { diff: diffOf(code, mc.spec.code) } : {}) };
         }
         if (hits.length > 1) return { ok: false, errors: [`\`find\` matches ${hits.length} places (ignoring whitespace); add more context or use replace_lines`] };
         const first = find.split("\n").map((l) => l.trim()).find(Boolean) ?? "";
@@ -109,13 +168,17 @@ export function createTools(bridge: ModelEngine, mc: ModelController): ToolDef[]
         "Replace the inclusive line range start_line..end_line of the code tab (line numbers as shown by get_model and in compile errors) with `text` (may be several lines; empty string deletes the lines). To INSERT before a line, set end_line = start_line - 1. Then recompile.",
       schema: z.object({ start_line: z.number().int().min(1), end_line: z.number().int().min(0), text: z.string() }),
       run: async ({ start_line, end_line, text }: { start_line: number; end_line: number; text: string }) => {
+        const blocked = session.guardWrite(mc.spec);
+        if (blocked) return blocked;
+        const before = mc.spec.code;
         const lines = mc.spec.code.split("\n");
         if (start_line > lines.length + 1 || end_line < start_line - 1 || end_line > lines.length) {
           return { ok: false, errors: [`invalid range ${start_line}-${end_line}; the code has ${lines.length} lines`] };
         }
         const repl = text === "" ? [] : text.split("\n");
         const next = [...lines.slice(0, start_line - 1), ...repl, ...lines.slice(end_line)].join("\n");
-        return mc.apply((s) => ({ ...s, code: next }));
+        const res = await mc.apply((s) => ({ ...s, code: next }));
+        return { ...res, ...(res.ok ? { diff: diffOf(before, next) } : {}) };
       },
     },
     {
@@ -125,6 +188,8 @@ export function createTools(bridge: ModelEngine, mc: ModelController): ToolDef[]
         "Kinds: button, slider, switch, chooser, input, monitor, plot, note, output. Returns {ok, errors, ids}.",
       schema: z.object({ widgets: z.array(widgetSchema).min(1) }),
       run: async ({ widgets }: { widgets: z.output<typeof widgetSchema>[] }) => {
+        const blocked = session.guardWrite(mc.spec);
+        if (blocked) return blocked;
         const ids: string[] = [];
         const res = await mc.apply((s) => {
           for (const w of widgets) {
@@ -144,20 +209,32 @@ export function createTools(bridge: ModelEngine, mc: ModelController): ToolDef[]
       name: "remove_widgets",
       description: "Remove widgets by id.",
       schema: z.object({ ids: z.array(z.string()).min(1) }),
-      run: ({ ids }: { ids: string[] }) => mc.apply((s) => ({ ...s, widgets: s.widgets.filter((w) => !ids.includes(w.id)) })),
+      run: async ({ ids }: { ids: string[] }) => {
+        const blocked = session.guardWrite(mc.spec);
+        if (blocked) return blocked;
+        return mc.apply((s) => ({ ...s, widgets: s.widgets.filter((w) => !ids.includes(w.id)) }));
+      },
     },
     {
       name: "set_world",
       description: "Change world settings (dimensions, patch size, wrapping, update mode). Only pass the fields to change.",
       schema: worldSchema.partial(),
-      run: (patch: Partial<z.output<typeof worldSchema>>) => mc.apply((s) => ({ ...s, world: { ...s.world, ...patch } })),
+      run: async (patch: Partial<z.output<typeof worldSchema>>) => {
+        const blocked = session.guardWrite(mc.spec);
+        if (blocked) return blocked;
+        return mc.apply((s) => ({ ...s, world: { ...s.world, ...patch } }));
+      },
     },
     {
       name: "set_info",
       description:
         "Set the Info tab text (markdown). Use headings, paragraphs, bullet and numbered lists (nest with 4 spaces), bold, italic, `code` and fenced code blocks. Do NOT use markdown tables: NetLogo's Info tab and the Word export show them as raw | pipes | text, so use a bullet list instead.",
       schema: z.object({ markdown: z.string() }),
-      run: ({ markdown }: { markdown: string }) => mc.apply((s) => ({ ...s, info: markdown })),
+      run: async ({ markdown }: { markdown: string }) => {
+        const blocked = session.guardWrite(mc.spec);
+        if (blocked) return blocked;
+        return mc.apply((s) => ({ ...s, info: markdown }));
+      },
     },
     {
       name: "export_model",
@@ -308,6 +385,8 @@ export function createTools(bridge: ModelEngine, mc: ModelController): ToolDef[]
         "The Modeler generates the procedures system-dynamics-setup, system-dynamics-go and system-dynamics-do-plot, which YOUR code must call (see the prompt). Pass null to remove the diagram. Returns {ok, errors}.",
       schema: z.object({ sdm: sdmSchema.nullable() }),
       run: async ({ sdm }: { sdm: z.output<typeof sdmSchema> | null }) => {
+        const blocked = session.guardWrite(mc.spec);
+        if (blocked) return blocked;
         if (sdm) {
           const bad = sdmValidate(sdm);
           if (bad.length) return { ok: false, errors: bad };
@@ -327,6 +406,8 @@ export function createTools(bridge: ModelEngine, mc: ModelController): ToolDef[]
         "metrics: reporters measured every tick. Returns {ok, errors}.",
       schema: experimentSchema,
       run: async (exp: z.output<typeof experimentSchema>) => {
+        const blocked = session.guardWrite(mc.spec);
+        if (blocked) return blocked;
         const problems: string[] = [];
         for (const m of exp.metrics) {
           const errs = await bridge.checkCompiles("reporter", m);
@@ -337,7 +418,18 @@ export function createTools(bridge: ModelEngine, mc: ModelController): ToolDef[]
           if (errs.length) problems.push(`stopCondition: ${errs[0]!.message}`);
         }
         if (problems.length) return { ok: false, errors: problems };
-        return mc.apply((s) => ({ ...s, experiments: [...s.experiments.filter((e) => e.name !== exp.name), exp] }));
+        const res = await mc.apply((s) => ({ ...s, experiments: [...s.experiments.filter((e) => e.name !== exp.name), exp] }));
+        if (!res.ok) return res;
+        // The model is now the baseline this experiment measures: pin it so the code cannot drift before the run.
+        const pin = session.pinExperiment(exp.name, mc.spec);
+        return {
+          ...res,
+          pinned: true,
+          model_version: pin.hash,
+          note:
+            "The model is pinned while this experiment is pending: further code/widget/world edits are refused until it runs or the user unlocks. " +
+            "Run it now, or explain to the user what still has to change.",
+        };
       },
     },
     {
@@ -360,12 +452,29 @@ export function createTools(bridge: ModelEngine, mc: ModelController): ToolDef[]
         const exp = mc.spec.experiments.find((e) => e.name === name);
         if (!exp) return { ok: false, errors: [`no experiment named "${name}". Existing: ${mc.spec.experiments.map((e) => e.name).join(", ") || "(none)"}. Create it with define_experiment.`] };
         if (mc.lastErrors.length) return { ok: false, errors: ["the model has compile errors; fix them first", ...mc.lastErrors.slice(0, 2)] };
+        const gate = session.checkExperimentRun(name, mc.spec);
+        if (!gate.ok) return { ok: false, errors: gate.errors, needs_unlock: true };
+        // Guard against a sweep that would run for hours: say how many runs it is before starting.
+        const combos = exp.parameters.reduce((n, p) => n * ("values" in p && p.values?.length ? p.values.length : estimateRange(p)), 1) || 1;
+        const runs = Math.max(1, combos * Math.max(1, exp.repetitions ?? 1));
         const res = await bridge.runExperiment(serialize(mc.spec), name, maxRows * 20);
-        return summarizeExperiment(res, maxRows);
+        session.releaseExperiment();
+        return { ...(summarizeExperiment(res, maxRows) as Record<string, unknown>), planned_runs: runs };
       },
     },
   ];
   return [...base, ...desktop];
+}
+
+type ParamSpec = { values?: unknown[]; first?: number; step?: number; last?: number };
+
+/** Number of swept values, for the "how many runs is this?" estimate. */
+function estimateRange(p: ParamSpec): number {
+  if (typeof p.first === "number" && typeof p.last === "number") {
+    const step = typeof p.step === "number" && p.step > 0 ? p.step : 1;
+    return Math.max(1, Math.floor((p.last - p.first) / step) + 1);
+  }
+  return 1;
 }
 
 type Cell = number | string | boolean | null;

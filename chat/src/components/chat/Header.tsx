@@ -49,6 +49,11 @@ export default function Header({
   onOpenDiagram,
   theme,
   onTheme,
+  pinnedExperiment,
+  onUnlock,
+  onOpenHistory,
+  onOpenDiagnostics,
+  llmLastError,
 }: {
   mode: "web" | "desktop";
   engineReady: boolean;
@@ -67,6 +72,12 @@ export default function Header({
   onOpenDiagram: () => void;
   theme: Theme;
   onTheme: (t: Theme) => void;
+  /** Set while an experiment is defined but not yet run: the model may not change. */
+  pinnedExperiment?: string | null;
+  onUnlock?: () => void;
+  onOpenHistory?: () => void;
+  onOpenDiagnostics?: () => void;
+  llmLastError?: string;
 }) {
   const [menu, setMenu] = useState(false);
   const [list, setList] = useState(false);
@@ -103,6 +114,16 @@ export default function Header({
         >
           <span className="inline-block h-[6px] w-[6px] shrink-0 rounded-full" style={{ background: llmTone }} />
           <span className="min-w-0 truncate">{short(llmLabel, 18)}</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={onOpenDiagnostics}
+          className="icon-btn"
+          title={llmLastError ? `Connection diagnostics — last problem: ${short(llmLastError, 90)}` : "Connection diagnostics"}
+          aria-label="Connection diagnostics"
+        >
+          <Icon name="info" size={15} />
         </button>
 
         <button type="button" onClick={onOpenSettings} className="icon-btn" title="Settings" aria-label="Settings">
@@ -148,6 +169,12 @@ export default function Header({
               <div className="my-1" style={{ borderTop: "1px solid var(--border)" }} />
               <button className="menu-item" onClick={() => { setMenu(false); onOpenDiagram(); }} role="menuitem">
                 <Icon name="widget" size={14} /> Stock &amp; flow editor
+              </button>
+              <button className="menu-item" onClick={() => { setMenu(false); onOpenHistory?.(); }} role="menuitem">
+                <Icon name="refresh" size={14} /> Model history…
+              </button>
+              <button className="menu-item" onClick={() => { setMenu(false); onOpenDiagnostics?.(); }} role="menuitem">
+                <Icon name="info" size={14} /> Connection diagnostics…
               </button>
               <div className="my-1" style={{ borderTop: "1px solid var(--border)" }} />
               <button className="menu-item" onClick={() => { setMenu(false); onOpenSettings(); }} role="menuitem">
@@ -225,6 +252,20 @@ export default function Header({
           <Icon name="plus" size={14} />
         </button>
       </div>
+
+      {pinnedExperiment ? (
+        <div
+          className="flex items-center gap-1.5 px-2.5 py-1 text-[10.5px]"
+          style={{ background: "var(--warn-soft)", color: "var(--warn)", borderTop: "1px solid var(--border)" }}
+          title={`Experiment "${pinnedExperiment}" was defined against this exact model. Edits are blocked until it runs or you unlock.`}
+        >
+          <Icon name="sliders" size={11} />
+          <span className="min-w-0 flex-1 truncate">Model pinned for “{short(pinnedExperiment, 26)}”</span>
+          <button type="button" onClick={onUnlock} className="shrink-0 rounded px-1.5 py-[1px] font-medium" style={{ border: "1px solid var(--warn)" }}>
+            Unlock
+          </button>
+        </div>
+      ) : null}
     </header>
   );
 }

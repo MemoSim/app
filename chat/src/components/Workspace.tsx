@@ -8,7 +8,9 @@ import type { EngineEvent, ModelEngine } from "@/client/engine/types";
 import { ModelController } from "@/client/model/controller";
 import { emptySpec, sdmSchema, type ModelSpec } from "@/client/model/spec";
 import { createTools } from "@/client/agent/tools";
-import { runTurn, type ChatMsg, type UiEvent } from "@/client/agent/loop";
+import { runTurn, type AgentPhase, type ChatMsg, type UiEvent } from "@/client/agent/loop";
+import { AgentSession } from "@/client/agent/session";
+import { planToText, type ModelPlan, type PlanMode } from "@/client/agent/plan";
 import { api, type ProjectFull, type ProjectSummary } from "@/client/api";
 import SettingsDialog from "@/components/SettingsDialog";
 import SystemDynamicsEditor from "@/components/SystemDynamicsEditor";
@@ -19,12 +21,16 @@ import Composer from "@/components/chat/Composer";
 import EmptyState from "@/components/chat/EmptyState";
 import Activity, { ThinkingRow, type ToolPart } from "@/components/chat/Activity";
 import Markdown from "@/components/chat/Markdown";
+import PlanCard from "@/components/chat/PlanCard";
+import StatusStrip from "@/components/chat/StatusStrip";
+import ModelHistory, { type VersionRow } from "@/components/chat/ModelHistory";
+import Diagnostics, { type DiagEntry } from "@/components/chat/Diagnostics";
 import Icon, { Logo } from "@/components/ui/Icon";
 
 type Part =
   | { k: "text"; text: string }
   | { k: "thinking"; text: string; open: boolean }
-  | { k: "tool"; id: string; name: string; args: unknown; result?: unknown; ok?: boolean }
+  | { k: "tool"; id: string; name: string; args: unknown; result?: unknown; ok?: boolean; ms?: number }
   | { k: "notice"; level: "info" | "warn" | "ok"; text: string };
 type Item = { role: "user" | "assistant"; parts: Part[] };
 
@@ -57,8 +63,35 @@ function Notice({ level, text }: { level: "info" | "warn" | "ok"; text: string }
   );
 }
 
+/** The plan a propose_plan tool call produced, if any. */
+function planOf(p: Part): ModelPlan | null {
+  if (p.k !== "tool" || p.name !== "propose_plan") return null;
+  const r = p.result as { plan?: ModelPlan } | undefined;
+  return r?.plan ?? null;
+}
+
+/** Approval is stored on the tool result, so it survives a reload with the rest of the chat. */
+function planApproved(p: Part): boolean {
+  if (p.k !== "tool") return false;
+  return Boolean((p.result as { plan_approved?: boolean } | undefined)?.plan_approved);
+}
+
 /** Assistant parts in order, with consecutive tool calls folded into one activity card. */
-function Parts({ parts, streaming }: { parts: Part[]; streaming: boolean }) {
+function Parts({
+  parts,
+  streaming,
+  busy,
+  approvedPlans,
+  onApprovePlan,
+  onRevisePlan,
+}: {
+  parts: Part[];
+  streaming: boolean;
+  busy: boolean;
+  approvedPlans: string[];
+  onApprovePlan: (plan: ModelPlan, id: string) => void;
+  onRevisePlan: (plan: ModelPlan, note: string) => void;
+}) {
   const out: React.ReactNode[] = [];
   let run: ToolPart[] = [];
   const flush = (key: string) => {
@@ -67,6 +100,22 @@ function Parts({ parts, streaming }: { parts: Part[]; streaming: boolean }) {
     run = [];
   };
   parts.forEach((p, j) => {
+    const plan = planOf(p);
+    if (plan) {
+      flush(`act${j}`);
+      const id = (p as Extract<Part, { k: "tool" }>).id;
+      out.push(
+        <PlanCard
+          key={`plan${j}`}
+          plan={plan}
+          state={planApproved(p) || approvedPlans.includes(id) ? "approved" : "pending"}
+          busy={busy}
+          onApprove={() => onApprovePlan(plan, id)}
+          onRevise={(note) => onRevisePlan(plan, note)}
+        />,
+      );
+      return;
+    }
     if (p.k === "tool") {
       run.push(p);
       return;
@@ -91,23 +140,8 @@ function Parts({ parts, streaming }: { parts: Part[]; streaming: boolean }) {
   );
 }
 
-function Working() {
-  return (
-    <div className="flex items-center gap-2 py-1 text-[11.5px] text-faint">
-      <Logo size={16} />
-      <span className="flex items-end gap-[3px]">
-        {[0, 1, 2].map((i) => (
-          <span
-            key={i}
-            className="inline-block h-[4px] w-[4px] animate-bounce rounded-full"
-            style={{ background: "var(--accent)", animationDelay: `${i * 130}ms`, animationDuration: "900ms" }}
-          />
-        ))}
-      </span>
-      <span>working…</span>
-    </div>
-  );
-}
+/** Suggestions offered when a turn ends: the next thing a modeller usually does. */
+const FOLLOWUPS = ["Run it for 200 ticks and summarise", "Sweep the main parameter and compare", "Explain what drives the result"];
 
 export default function Workspace({ mode }: { mode: "web" | "desktop" }) {
   const frameRef = useRef<HTMLIFrameElement>(null);
@@ -128,7 +162,7 @@ export default function Workspace({ mode }: { mode: "web" | "desktop" }) {
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState(mode === "desktop" ? "connecting…" : "loading…");
   const [llmOk, setLlmOk] = useState<boolean | null>(null);
-  const [llmInfo, setLlmInfo] = useState<{ configured: boolean; model: string }>({ configured: true, model: "" });
+  const [llmInfo, setLlmInfo] = useState<{ configured: boolean; model: string; baseUrl?: string }>({ configured: true, model: "" });
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [diagramOpen, setDiagramOpen] = useState(false);
   const diagramRef = useRef<HTMLDivElement>(null);
@@ -140,6 +174,30 @@ export default function Workspace({ mode }: { mode: "web" | "desktop" }) {
   const [allTime, setAllTime] = useState<AllTime | null>(null);
   const [theme, setTheme] = useState<Theme>("auto");
   const [focusKey, setFocusKey] = useState(0);
+
+  // --- chat-experience state (test build) -------------------------------------------------------
+  /** Plan gate + experiment pin live here; tools read it on every write. */
+  const sessionRef = useRef(new AgentSession());
+  /** Read by long-lived callbacks so changing the toggle never re-creates the engine bridge. */
+  const planModeRef = useRef<PlanMode>("auto");
+  const softStopRef = useRef(false);
+  const [softStop, setSoftStop] = useState(false);
+  const [planMode, setPlanMode] = useState<PlanMode>("auto");
+  const [approvedPlans, setApprovedPlans] = useState<string[]>([]);
+  const [pinned, setPinned] = useState<string | null>(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [diagOpen, setDiagOpen] = useState(false);
+  const [diag, setDiag] = useState<DiagEntry[]>([]);
+  const [llmLastError, setLlmLastError] = useState("");
+  const [versions, setVersions] = useState<VersionRow[]>([]);
+  const [live, setLive] = useState<{ phase: AgentPhase; label?: string; detail?: string; tool?: string; step: number; maxStep: number; startedAt: number; inTok: number; outTok: number }>({
+    phase: "idle",
+    step: 1,
+    maxStep: 12,
+    startedAt: Date.now(),
+    inTok: 0,
+    outTok: 0,
+  });
 
   const refreshUsage = useCallback(() => {
     fetch("/api/usage")
@@ -154,7 +212,7 @@ export default function Workspace({ mode }: { mode: "web" | "desktop" }) {
       .then((r) => r.json())
       .then((j) => {
         setLlmOk(Boolean(j.ok));
-        setLlmInfo({ configured: j.configured !== false, model: String(j.model ?? "") });
+        setLlmInfo({ configured: j.configured !== false, model: String(j.model ?? ""), baseUrl: typeof j.baseUrl === "string" ? j.baseUrl : "" });
         if (j.configured === false && j.setupSkipped !== true) setSettingsOpen(true);
       })
       .catch(() => setLlmOk(false));
@@ -236,7 +294,14 @@ export default function Workspace({ mode }: { mode: "web" | "desktop" }) {
   }, [flush]);
 
   const handleEvent = useCallback((e: UiEvent) => {
-    if (e.type === "step") return;
+    if (e.type === "step") {
+      setLive((l) => ({ ...l, step: e.n, maxStep: e.max }));
+      return;
+    }
+    if (e.type === "phase") {
+      setLive((l) => ({ ...l, phase: e.phase, detail: e.detail, ...(e.phase === "tool" ? { tool: e.label } : {}) }));
+      return;
+    }
     if (e.type === "usage") {
       setUsage((u) => ({
         input: u.input + e.inputTokens + e.cacheRead + e.cacheWrite,
@@ -247,7 +312,16 @@ export default function Workspace({ mode }: { mode: "web" | "desktop" }) {
         unpriced: u.unpriced + (e.cost == null ? 1 : 0),
       }));
       setLastIn(e.inputTokens + e.cacheRead + e.cacheWrite);
+      setLive((l) => ({ ...l, inTok: l.inTok + e.inputTokens + e.cacheRead + e.cacheWrite, outTok: l.outTok + e.outputTokens }));
       return;
+    }
+    if (e.type === "error") {
+      const text = e.hint ? `${e.message} — ${e.hint}` : e.message;
+      setLlmLastError(e.message);
+      setDiag((d) => [...d.slice(-11), { at: Date.now(), kind: "error", text: `${e.errorClass ? `[${e.errorClass}] ` : ""}${text}` }]);
+    }
+    if (e.type === "notice" && (e.level === "warn" || /retrying|shortening|consulting/i.test(e.text))) {
+      setDiag((d) => [...d.slice(-11), { at: Date.now(), kind: e.level === "warn" ? "retry" : "info", text: e.text }]);
     }
     setItems((prev) => {
       const next = [...prev];
@@ -271,11 +345,11 @@ export default function Workspace({ mode }: { mode: "web" | "desktop" }) {
         parts.push({ k: "tool", id: e.id, name: e.name, args: e.args });
       } else if (e.type === "tool_end") {
         const i = parts.findIndex((p) => p.k === "tool" && p.id === e.id);
-        if (i >= 0) parts[i] = { ...(parts[i] as Extract<Part, { k: "tool" }>), result: e.result, ok: e.ok };
+        if (i >= 0) parts[i] = { ...(parts[i] as Extract<Part, { k: "tool" }>), result: e.result, ok: e.ok, ms: e.ms };
       } else if (e.type === "notice") {
         parts.push({ k: "notice", level: e.level, text: e.text });
       } else if (e.type === "error") {
-        parts.push({ k: "notice", level: "warn", text: e.message });
+        parts.push({ k: "notice", level: "warn", text: e.hint ? `${e.message} ${e.hint}` : e.message });
       }
       return next;
     });
@@ -288,6 +362,9 @@ export default function Workspace({ mode }: { mode: "web" | "desktop" }) {
       if (!bridge || !mc || busyRef.current) return;
       busyRef.current = true;
       setBusy(true);
+      softStopRef.current = false;
+      setSoftStop(false);
+      setLive({ phase: "queued", step: 1, maxStep: 12, startedAt: Date.now(), inTok: 0, outTok: 0 });
       setItems((p) => (auto ? p : [...p, { role: "user", parts: [{ k: "text", text }] }]));
       if (auto) handleEvent({ type: "notice", level: "warn", text: text.split("\n")[0]!.slice(0, 220) });
       const ac = new AbortController();
@@ -299,11 +376,14 @@ export default function Workspace({ mode }: { mode: "web" | "desktop" }) {
           history: historyRef.current,
           userText: auto ? `[Automatic check] ${text}\n\nFix it now with the tools and confirm with test_model. Do not ask the user anything.` : text,
           auto,
-          tools: createTools(bridge, mc),
+          tools: createTools(bridge, mc, sessionRef.current),
           mc,
           bridge,
           signal: ac.signal,
           emit: handleEvent,
+          session: sessionRef.current,
+          planMode,
+          softStop: () => softStopRef.current,
         });
       } catch (err) {
         if ((err as Error).name !== "AbortError") handleEvent({ type: "error", message: (err as Error).message });
@@ -312,11 +392,14 @@ export default function Workspace({ mode }: { mode: "web" | "desktop" }) {
         setBusy(false);
         abortRef.current = null;
         finish();
+        setLive((l) => ({ ...l, phase: "idle", detail: undefined }));
+        setPinned(sessionRef.current.pin?.name ?? null);
+        setVersions(mc.versions.map((v) => ({ at: v.at, label: v.label, lines: v.spec.code ? v.spec.code.split("\n").length : 0, widgets: v.spec.widgets.length })));
         void flush();
         refreshUsage();
       }
     },
-    [handleEvent, flush, refreshUsage],
+    [handleEvent, flush, refreshUsage, planMode],
   );
   startTurnRef.current = startTurn;
 
@@ -334,6 +417,13 @@ export default function Workspace({ mode }: { mode: "web" | "desktop" }) {
       const spec = full.state.spec as ModelSpec;
       if (spec.code || spec.widgets.length) await mc.restore(spec);
       else await mc.restore(emptySpec());
+      // A different project means a different agreement: no plan approval, pin or version list carries over.
+      sessionRef.current = new AgentSession();
+      sessionRef.current.mode = planModeRef.current;
+      setApprovedPlans([]);
+      setPinned(null);
+      setVersions(mc.versions.map((v) => ({ at: v.at, label: v.label, lines: v.spec.code ? v.spec.code.split("\n").length : 0, widgets: v.spec.widgets.length })));
+      setLive((l) => ({ ...l, phase: "idle", step: 1, inTok: 0, outTok: 0 }));
       setDiagramModel(mc.spec.sdm);
       quietRef.current = false;
     },
@@ -474,6 +564,19 @@ export default function Workspace({ mode }: { mode: "web" | "desktop" }) {
       if (saved === "light" || saved === "dark" || saved === "auto") setTheme(saved);
     } catch { /* Embedded browsers can disable persistent storage. */ }
   }, []);
+
+  // Plan-confirmation mode: remembered locally so the choice survives a restart.
+  useEffect(() => {
+    try {
+      const saved = window.localStorage?.getItem("memosim:plan");
+      if (saved === "auto" || saved === "always" || saved === "off") setPlanMode(saved);
+    } catch { /* ignore */ }
+  }, []);
+  useEffect(() => {
+    try { window.localStorage?.setItem("memosim:plan", planMode); } catch { /* ignore */ }
+    planModeRef.current = planMode;
+    sessionRef.current.mode = planMode;
+  }, [planMode]);
   useEffect(() => {
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
     const apply = () => {
@@ -496,6 +599,77 @@ export default function Workspace({ mode }: { mode: "web" | "desktop" }) {
     if (!text || busy || switching || storeRef.current.blocked) return;
     setInput("");
     void startTurn(text, false);
+  }
+
+  /** The user pressed Approve on a plan card: build it, with the plan in the message so the model cannot drift. */
+  function approvePlan(plan: ModelPlan, id: string) {
+    if (busyRef.current) return;
+    sessionRef.current.approve();
+    setApprovedPlans((p) => [...p, id]);
+    // Mark the card itself: the chat is persisted, so a reopened project must not offer Approve again.
+    setItems((prev) =>
+      prev.map((it) => ({
+        ...it,
+        parts: it.parts.map((part) =>
+          part.k === "tool" && part.id === id ? { ...part, result: { ...(part.result as object), plan_approved: true } } : part,
+        ),
+      })),
+    );
+    save();
+    void startTurn(`[Approved plan]\n${planToText(plan)}\n\nBuild exactly this plan. Verify it with test_model, then tell me what changed and what I can adjust.`, false);
+  }
+
+  /** "Change something" on a plan card: the model re-plans instead of building the wrong model. */
+  function revisePlan(plan: ModelPlan, note: string) {
+    if (busyRef.current) return;
+    sessionRef.current.revise();
+    void startTurn(`[Plan revision]\nPlan so far:\n${planToText(plan)}\n\nMy correction: ${note}\n\nPropose the revised plan. Do not build anything yet.`, false);
+  }
+
+  /** Only the user can unfreeze the model after an experiment pinned it. */
+  function unlockModel() {
+    sessionRef.current.unlock();
+    setPinned(null);
+    handleEvent({ type: "notice", level: "info", text: "Model unlocked. The assistant may change it again; any saved experiment still measures the old version." });
+  }
+
+  async function restoreVersion(index: number) {
+    const mc = mcRef.current;
+    if (!mc || busyRef.current) return;
+    if (!window.confirm("Replace the model with this stored version?")) return;
+    busyRef.current = true;
+    setBusy(true);
+    try {
+      const res = await mc.restoreVersion(index);
+      handleEvent({
+        type: "notice",
+        level: res.ok ? "ok" : "warn",
+        text: res.ok ? "Restored that version of the model." : `Could not restore it: ${res.errors[0] ?? "unknown error"}`,
+      });
+      setVersions(mc.versions.map((v) => ({ at: v.at, label: v.label, lines: v.spec.code ? v.spec.code.split("\n").length : 0, widgets: v.spec.widgets.length })));
+      save();
+      await flush();
+    } finally {
+      busyRef.current = false;
+      setBusy(false);
+      setHistoryOpen(false);
+    }
+  }
+
+  /** Round-trip the configured endpoint and report the latency, so "is it the provider or me?" is answerable. */
+  async function testConnection(): Promise<{ ok: boolean; ms?: number; message: string }> {
+    const t0 = Date.now();
+    try {
+      const r = await fetch("/api/llm", { cache: "no-store" });
+      const j = (await r.json()) as { ok?: boolean; configured?: boolean; model?: string };
+      const ms = Date.now() - t0;
+      if (j.configured === false) return { ok: false, ms, message: "No endpoint is configured. Open Settings and add one." };
+      return j.ok
+        ? { ok: true, ms, message: `Endpoint answered in ${ms}ms${j.model ? ` (model: ${j.model})` : ""}.` }
+        : { ok: false, ms, message: `The endpoint did not answer properly in ${ms}ms. Check the Base URL and the API key in Settings, or whether this machine can reach that host.` };
+    } catch (err) {
+      return { ok: false, message: `Could not reach this app's own LLM route: ${(err as Error).message}` };
+    }
   }
 
   function startDrag(e: React.MouseEvent) {
@@ -693,6 +867,11 @@ export default function Workspace({ mode }: { mode: "web" | "desktop" }) {
           onOpenDiagram={openDiagram}
           theme={theme}
           onTheme={setTheme}
+          pinnedExperiment={pinned}
+          onUnlock={unlockModel}
+          onOpenHistory={() => setHistoryOpen(true)}
+          onOpenDiagnostics={() => setDiagOpen(true)}
+          llmLastError={llmLastError}
         />
 
         {mode === "web" && diagramOpen && diagramModel && <div className="fixed inset-0 z-50 flex flex-col p-3" style={{ background: "var(--bg)" }} role="dialog" aria-modal="true" aria-label="Stock and flow diagram" ref={diagramRef}>
@@ -754,12 +933,54 @@ export default function Workspace({ mode }: { mode: "web" | "desktop" }) {
                       <Logo size={18} />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <Parts parts={m.parts} streaming={busy && last} />
+                      <Parts
+                        parts={m.parts}
+                        streaming={busy && last}
+                        busy={busy}
+                        approvedPlans={approvedPlans}
+                        onApprovePlan={approvePlan}
+                        onRevisePlan={revisePlan}
+                      />
                     </div>
                   </div>
                 );
               })}
-              {busy && <Working />}
+              {busy && (
+                <StatusStrip
+                  phase={live.phase}
+                  detail={live.detail}
+                  tool={live.tool}
+                  step={live.step}
+                  maxStep={live.maxStep}
+                  startedAt={live.startedAt}
+                  tokensIn={live.inTok}
+                  tokensOut={live.outTok}
+                  softStop={softStop}
+                  onSoftStop={() => {
+                    softStopRef.current = true;
+                    setSoftStop(true);
+                  }}
+                  onStop={() => abortRef.current?.abort()}
+                />
+              )}
+              {!busy && !switching && versions.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 pt-0.5">
+                  {FOLLOWUPS.map((f) => (
+                    <button
+                      key={f}
+                      type="button"
+                      onClick={() => {
+                        setInput(f);
+                        setFocusKey((k) => k + 1);
+                      }}
+                      className="rounded-full px-2 py-[3px] text-[11px] transition-colors hover:border-lineStrong"
+                      style={{ border: "1px solid var(--border)", color: "var(--muted)", background: "var(--surface)" }}
+                    >
+                      {f}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -805,12 +1026,16 @@ export default function Workspace({ mode }: { mode: "web" | "desktop" }) {
             disabled={status === "not connected" || storeRef.current.blocked}
             placeholder="Describe a model or ask for a change…"
             focusKey={focusKey}
+            planMode={planMode}
+            onPlanMode={setPlanMode}
           />
         </div>
       </div>
       )}
 
       <SettingsDialog open={settingsOpen} firstRun={!llmInfo.configured} onClose={() => setSettingsOpen(false)} onSkip={skipApiSetup} onChanged={refreshLlm} />
+      <ModelHistory open={historyOpen} versions={versions} onRestore={(i) => void restoreVersion(i)} onClose={() => setHistoryOpen(false)} />
+      <Diagnostics open={diagOpen} entries={diag} model={llmInfo.model} baseUrl={llmInfo.baseUrl ?? ""} onTest={testConnection} onClose={() => setDiagOpen(false)} />
     </div>
   );
 }

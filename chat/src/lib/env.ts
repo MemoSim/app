@@ -19,6 +19,10 @@ const schema = z.object({
   LLM_ALLOW_PRIVATE_HOSTS: z.enum(["true", "false"]).default("true"),
   NLW_VERSION: z.string().default("2.15.3"),
   LLM_MAX_CONCURRENT: z.coerce.number().int().min(1).default(4),
+  /** How long to wait for the LLM to START answering. Gateways queue, so this must exceed a busy queue, not a slow model. */
+  LLM_CONNECT_TIMEOUT_MS: z.coerce.number().int().min(1000).default(240_000),
+  /** Once tokens are flowing, abort only when the stream stalls this long (never on total duration). */
+  LLM_IDLE_TIMEOUT_MS: z.coerce.number().int().min(1000).default(120_000),
 });
 
 export type Env = z.infer<typeof schema>;
