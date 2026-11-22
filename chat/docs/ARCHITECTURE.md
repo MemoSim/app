@@ -487,3 +487,26 @@ vitest unit tests, `get_view`/vision tool.
 - **Migration:** the first load with no server projects imports the old browser-local `nlchat:v2` data once.
 
 Known limits: anonymous cookie identity (clearing cookies = a new user; no login), the app runs in `next dev` (build/run with `npm run build && npm start` for production, behind HTTPS), no per-user rate limit beyond the queue.
+### 14. Chat interaction model (1.1.4)
+
+Four rules keep the assistant honest; each is enforced in code, not by asking the model nicely.
+
+- **Plan gate (`client/agent/session.ts`, tool `propose_plan`).** A turn decides whether it needs a plan
+  (`needsPlan`: empty model or a structural request, or the user's `always` policy). While the gate is closed,
+  every mutating tool returns `{ needs_plan: true }` and nothing is written. The plan card calls
+  `session.approve()`; the approval message is marked `internal` so the plan is not echoed into the chat a
+  second time. A repair turn is exempt (`session.exempt`) or a broken model could never be fixed.
+- **Experiment pin.** `define_experiment` stores a hash of the model (`specHash`) and blocks model writes until
+  the run completes or the user presses **Unlock**; `run_experiment` refuses when the hash changed, so results
+  always describe the model the user approved.
+- **One work log per turn (`components/chat/Activity.tsx`).** All tool calls and notices of a turn go into one
+  collapsible block. Progress is a monotonic action counter plus elapsed time and an indeterminate bar — there is
+  no step total, because a turn cannot be estimated and the per-round counter reset at every repair round.
+- **Failure classification (`lib/llm-errors.ts`, `app/api/llm/route.ts`).** Every failure maps to a class
+  (`auth`, `rate_limit`, `context_length`, `bad_request`, `upstream`, `network`, `timeout`, `aborted`) with its
+  own retry policy. The idle watchdog records *why* it aborted the upstream, so a stalled provider surfaces as a
+  retryable timeout instead of a cancelled request. `streamEvents` yields an `activity` event for every SSE block
+  (including reasoning deltas and keep-alives) and parses `reasoning_content`, so no dialect is mistaken for a
+  dead stream. Reasoning profiles get a 128k output budget with a step-down ladder if the provider refuses it,
+  and `reasoning_effort=low` by default. Each call logs one telemetry line (ttfb, block counts, delta fields,
+  longest silence, finish reason, payload size, effective cap) to `server.log`.

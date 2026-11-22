@@ -1,6 +1,6 @@
 {
   "name": "memosim",
-  "version": "1.0.0",
+  "version": "1.1.4",
   "private": true,
   "scripts": {
     "dev": "next dev -H 127.0.0.1",

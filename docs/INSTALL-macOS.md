@@ -1,6 +1,6 @@
 # Installing MemoSim on macOS
 
-MemoSim 1.0.4 is **ad-hoc signed, not notarized**, so macOS Gatekeeper shows
+MemoSim 1.1.4 is **ad-hoc signed, not notarized**, so macOS Gatekeeper shows
 *"Apple could not verify MemoSim is free of malware"* the first time it is opened. The app is not
 damaged — this is the standard warning for any app that is not signed with a paid Apple Developer ID.
 
@@ -45,11 +45,11 @@ codesign --force --deep --options runtime --timestamp \
   --sign "Developer ID Application: <Name> (<TEAMID>)" MemoSim.app
 
 # 2. notarize the DMG and wait for Apple
-xcrun notarytool submit MemoSim-1.0.4-macOS.dmg --keychain-profile <profile> --wait
+xcrun notarytool submit MemoSim-1.1.4-macOS.dmg --keychain-profile <profile> --wait
 
 # 3. staple the ticket so the app works offline on first launch
-xcrun stapler staple MemoSim-1.0.4-macOS.dmg
-spctl -a -vvv -t install MemoSim-1.0.4-macOS.dmg   # expect: accepted, source=Notarized Developer ID
+xcrun stapler staple MemoSim-1.1.4-macOS.dmg
+spctl -a -vvv -t install MemoSim-1.1.4-macOS.dmg   # expect: accepted, source=Notarized Developer ID
 ```
 
 Without that certificate nothing else avoids the warning: self-signed certificates are not trusted by

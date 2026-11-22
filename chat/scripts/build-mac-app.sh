@@ -21,7 +21,7 @@ fi
 APP_NAME="MemoSim"
 # Retain the shipped bundle identity and legacy data folder for existing users.
 BUNDLE_ID="org.netlogochat.desktop"
-VERSION="${APP_VERSION:-1.0.4}"
+VERSION="${APP_VERSION:-1.1.4}"
 # jpackage cannot handle spaces in paths, so build outside "Default Project"
 BUILD_ROOT="${BUILD_ROOT:-$HOME/dev/netlogo-chat-build}"
 B="$BUILD_ROOT/mac"; DIST="$BUILD_ROOT/dist"

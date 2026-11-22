@@ -5,7 +5,7 @@ assistant that can read, edit, run and explain models, plus a curated model libr
 
 - **Organization:** https://github.com/MemoSim
 - **Project board / manager:** https://github.com/orgs/MemoSim/projects/1 — Unes Jalali <unes.jalali@gmail.com>
-- **Version in this repo:** 1.0.4
+- **Version in this repo:** 1.1.4
 - **License:** GPL-2.0-or-later (see [LICENSE](LICENSE) and [LICENSING.md](LICENSING.md))
 
 ## Download and install
@@ -14,8 +14,27 @@ Prebuilt installers are attached to [Releases](../../releases); nothing else is 
 
 | Platform | File | Notes |
 |---|---|---|
-| Windows 10/11 x64 | `MemoSim-1.0.4.exe` | Self-contained installer (bundled JRE and Node). Signed builds are not available yet, so SmartScreen may warn: choose **More info → Run anyway**. |
-| macOS 11+ (Apple silicon) | `MemoSim-1.0.4-macOS.dmg` | Drag `MemoSim.app` to Applications. The bundle is ad-hoc signed and not notarised, so the first launch needs right-click → **Open**. |
+| Windows 10/11 x64 | `MemoSim-1.1.4.exe` | Self-contained installer (bundled JRE and Node). Signed builds are not available yet, so SmartScreen may warn: choose **More info → Run anyway**. |
+| macOS 11+ (Apple silicon) | `MemoSim-1.1.4-macOS.dmg` | Drag `MemoSim.app` to Applications. The bundle is ad-hoc signed and not notarised, so the first launch needs right-click → **Open**. |
+
+### What changed in 1.1.4
+
+- **The assistant agrees before it builds.** For a new model or any structural change it first proposes a
+  plan (what it understood, how the model represents it, agents, rules, measured outputs, levers,
+  assumptions) and waits for **Approve & build** or **Change something**. Small tweaks still go straight through.
+- **One work log per turn instead of a card per step.** Collapsed by default, it shows the live phase,
+  a monotonic action count and elapsed time; expanding it lists every tool call with its duration, the
+  code diff, and any notice in order.
+- **The approved model cannot drift.** Defining an experiment pins the model: edits are refused until the
+  run finishes or the user presses **Unlock**, and a run is refused if the model changed after the
+  experiment was defined.
+- **Honest LLM failures.** Timeouts, rate limits, rejected keys, wrong URLs and context overflows are
+  classified and handled differently; a stalled stream is retried instead of being reported as a cancelled
+  request. Connection diagnostics (model, endpoint, latency, recent events, copy) live in the header.
+- **Reasoning models behave.** `reasoning_content` is parsed, the output budget rises to 128k for a
+  thinking profile (with an automatic step-down if the provider refuses), and reasoning is asked to stay
+  short so a plan takes seconds rather than a minute.
+- **Model history** keeps every successful version with one-click restore.
 
 The first run asks you to connect an OpenAI- or Anthropic-compatible endpoint; there is no built-in
 provider and no key is shipped. Models, projects and settings are stored per user and survive an
@@ -80,15 +99,15 @@ sign → notarize → staple once a Developer ID certificate exists.
 Each release ships:
 
 - the platform installer,
-- `MemoSim-1.0.4-source.tar.gz` — full corresponding source for that build (GPL-2.0 §3(a)),
+- `MemoSim-1.1.4-source.tar.gz` — full corresponding source for that build (GPL-2.0 §3(a)),
 - `SOURCE-OFFER.md` and `COMPLIANCE-REPORT.md` — what is licensed how, and what was verified,
 - `.sha256` files for every artifact.
 
 Verify a download before installing:
 
 ```bash
-shasum -a 256 MemoSim-1.0.4-macOS.dmg          # macOS
-certutil -hashfile MemoSim-1.0.4.exe SHA256   # Windows
+shasum -a 256 MemoSim-1.1.4-macOS.dmg          # macOS
+certutil -hashfile MemoSim-1.1.4.exe SHA256   # Windows
 ```
 
 ## Documentation
@@ -96,6 +115,9 @@ certutil -hashfile MemoSim-1.0.4.exe SHA256   # Windows
 The application ships its own offline help: the complete field manual (single-file HTML), a printable
 PDF edition, the language dictionary and the licences-and-attribution page, all reachable from the
 **Help** menu. The manual sources live in `desktop/chat-dev/manual/`.
+
+Release notes per version live in [`docs/`](docs/) — start with [`docs/RELEASE-1.1.4.md`](docs/RELEASE-1.1.4.md)
+for the plan gate, the single work log, the experiment pin and the LLM error handling introduced in 1.1.4.
 
 ## License
 

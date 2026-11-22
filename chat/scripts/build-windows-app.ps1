@@ -35,7 +35,7 @@ if (-not $NetLogoSrc) {
   $NetLogoSrc = if (Test-Path (Join-Path $sibling "build.sbt")) { $sibling } else { Join-Path $UserHome "dev\netlogo-desktop" }
 }
 if (-not $BuildRoot) { $BuildRoot = Join-Path $UserHome "dev\netlogo-chat-build" }
-if (-not $Version) { $Version = if ($env:APP_VERSION) { $env:APP_VERSION } else { "1.0.4" } }
+if (-not $Version) { $Version = if ($env:APP_VERSION) { $env:APP_VERSION } else { "1.1.4" } }
 
 $AppName  = "MemoSim"
 $MainCls  = "org.nlogo.app.App"

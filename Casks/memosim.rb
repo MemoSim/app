@@ -1,6 +1,6 @@
 cask "memosim" do
-  version "1.0.4"
-  sha256 "3fdbdbbd17952b3bcf7974409f5fe113d2f0568164256a93e8714738d6e074d7"
+  version "1.1.4"
+  sha256 "35049a9c6db6f2a6d43b764752d3e55e5f1a055a09f8b7b594deb007fe5e687d"
 
   url "https://github.com/MemoSim/app/releases/download/v#{version}/MemoSim-#{version}-macOS.dmg"
   name "MemoSim"
