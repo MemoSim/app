@@ -18,6 +18,8 @@ export type LiveState = {
   startedAt: number;
   inTok: number;
   outTok: number;
+  /** Characters of reasoning streamed this turn (÷4 ≈ tokens): a reasoning model can think for a minute. */
+  thinkChars?: number;
   softStop: boolean;
   onSoftStop: () => void;
   onStop: () => void;
@@ -198,6 +200,7 @@ export default function TurnLog({ work, live }: { work: WorkPart[]; live?: LiveS
           </span>
           {running && (
             <span className="shrink-0 text-[10.5px] tabular-nums" style={{ color: "var(--faint)" }}>
+              {live!.thinkChars ? `thinking ~${fmtTok(Math.round(live!.thinkChars / 4))} tok · ` : ""}
               step {Math.max(1, live!.step)}/{live!.maxStep} · {fmtClock(now - live!.startedAt)}
             </span>
           )}

@@ -12,7 +12,17 @@ beforeAll(async () => {
 const sseResponse = (frames: string[]) =>
   new Response(new ReadableStream({ start(c) { const e = new TextEncoder(); for (const f of frames) c.enqueue(e.encode(f)); c.close(); } }));
 const ev = (name: string, data: unknown) => `event: ${name}\ndata: ${JSON.stringify(data)}\n\n`;
-const collect = async (it: AsyncGenerator<unknown>) => { const out: any[] = []; for await (const x of it) out.push(x); return out; };
+/** `activity` events are transport telemetry (one per SSE block); the semantic assertions ignore them. */
+const collect = async (it: AsyncGenerator<unknown>) => {
+  const out: any[] = [];
+  for await (const x of it as AsyncGenerator<any>) if (x?.type !== "activity") out.push(x);
+  return out;
+};
+const collectAll = async (it: AsyncGenerator<unknown>) => {
+  const out: any[] = [];
+  for await (const x of it) out.push(x);
+  return out;
+};
 
 describe("OpenAI -> Anthropic message conversion", () => {
   const history = [
@@ -161,6 +171,22 @@ describe("OpenAI streaming (unchanged behaviour)", () => {
       { type: "tool_call", id: "c1", name: "run", args: '{"commands":"setup"}' },
       { type: "done", finish: "tool_calls" },
     ]);
+  });
+  it("reports every SSE block as activity, including ones that carry nothing parseable", async () => {
+    const d = (o: unknown) => `data: ${JSON.stringify(o)}\n\n`;
+    const res = sseResponse([
+      d({ choices: [{ delta: { role: "assistant" } }] }),
+      ": keep-alive\n\n",
+      d({ choices: [{ delta: { reasoning_content: "thinking..." } }] }),
+      "data: [DONE]\n\n",
+    ]);
+    const all = (await collectAll(P.streamEvents(res, "openai"))) as any[];
+    const activity = all.filter((e) => e.type === "activity");
+    expect(activity.length).toBeGreaterThanOrEqual(2);
+    expect(activity.map((e) => e.keys.join(","))).toContain("role");
+    expect(activity.map((e) => e.keys.join(","))).toContain("reasoning_content");
+    // and reasoning_content is understood, not just observed
+    expect(all.some((e) => e.type === "thinking" && e.delta === "thinking...")).toBe(true);
   });
   it("yields reasoning deltas (vLLM/DeepSeek style) as thinking events", async () => {
     const d = (o: unknown) => `data: ${JSON.stringify(o)}\n\n`;

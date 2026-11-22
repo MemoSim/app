@@ -9,6 +9,13 @@ import { costOf, priceFor, recordUsage } from "@/lib/usage";
 import { classifyLlmError, type LlmErrorInfo } from "@/lib/llm-errors";
 
 export const runtime = "nodejs";
+
+/**
+ * Models that already hit their output limit in this process. A reasoning model can spend a whole call on
+ * reasoning and still be cut off, which costs a minute and a wasted request; once that happened, later calls
+ * for the same model start with the doubled cap instead of repeating the failure.
+ */
+const autoBoost = new Set<string>();
 export const dynamic = "force-dynamic";
 
 const body = z.object({
@@ -87,7 +94,7 @@ export async function POST(req: Request) {
   // and give the answer more room. The original cap is restored automatically if the provider rejects the bigger one.
   const originalMax = cfg.maxTokens;
   if (parsed.data.thinking && parsed.data.thinking !== cfg.thinking) cfg = { ...cfg, thinking: parsed.data.thinking };
-  if (parsed.data.outputBudget === "boost") {
+  if (parsed.data.outputBudget === "boost" || autoBoost.has(cfg.model)) {
     const current = cfg.maxTokens ?? 0;
     cfg = { ...cfg, maxTokens: current ? Math.min(32_768, Math.max(8_192, current * 2)) : 16_384 };
   }
@@ -181,23 +188,58 @@ export async function POST(req: Request) {
   }
 
   const enc = new TextEncoder();
+  const payloadBytes = JSON.stringify({ messages: fullMessages, tools }).length;
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
       const out = (ev: string, d: unknown) => controller.enqueue(enc.encode(sse(ev, d)));
+      // Stream telemetry: which delta fields the gateway actually sends, how long the first token took and the
+      // longest silence. This is what tells "the provider stalled" apart from "we failed to parse its stream".
+      const counts = { text: 0, thinking: 0, tool_call: 0, blocks: 0 };
+      const keys = new Set<string>();
+      let firstBlockAt = 0;
+      let lastAt = Date.now();
+      let maxGap = 0;
+      let finishSeen = "";
       try {
-        kick(e.LLM_IDLE_TIMEOUT_MS, idleMsg, "idle");
+        kick(e.LLM_CONNECT_TIMEOUT_MS, connectMsg, "connect");
         for await (const ev of streamEvents(upstream, cfg.protocol)) {
-          kick(e.LLM_IDLE_TIMEOUT_MS, idleMsg, "idle");
-          if (ev.type === "text") out("text", { delta: ev.delta });
-          else if (ev.type === "thinking") out("thinking", { delta: ev.delta });
+          const now = Date.now();
+          maxGap = Math.max(maxGap, now - lastAt);
+          lastAt = now;
+          counts.blocks++;
+          // Any block counts as life: a keep-alive or a reasoning dialect we do not parse must not look like a stall.
+          if (!firstBlockAt) firstBlockAt = now - started;
+          kick(firstBlockAt ? e.LLM_IDLE_TIMEOUT_MS : e.LLM_CONNECT_TIMEOUT_MS, firstBlockAt ? idleMsg : connectMsg, firstBlockAt ? "idle" : "connect");
+          if (ev.type === "activity") {
+            for (const k of ev.keys) keys.add(k);
+            continue;
+          }
+          if (ev.type === "text") {
+            counts.text++;
+            out("text", { delta: ev.delta });
+          } else if (ev.type === "thinking") {
+            counts.thinking++;
+            out("thinking", { delta: ev.delta });
+          }
           else if (ev.type === "usage") {
             const cost = costOf(priceFor(cfg), ev.inputTokens, ev.outputTokens, ev.cacheRead, ev.cacheWrite);
             recordUsage(uid, cfg.model, ev, cost);
             out("usage", { inputTokens: ev.inputTokens, outputTokens: ev.outputTokens, cacheRead: ev.cacheRead, cacheWrite: ev.cacheWrite, cost, model: cfg.model });
           }
-          else if (ev.type === "tool_call") out("tool_call", { id: ev.id, name: ev.name, args: ev.args });
-          else out("done", { finish: ev.finish });
+          else if (ev.type === "tool_call") {
+            counts.tool_call++;
+            out("tool_call", { id: ev.id, name: ev.name, args: ev.args });
+          } else {
+            finishSeen = ev.finish;
+            if (ev.finish === "length") autoBoost.add(cfg.model);
+            out("done", { finish: ev.finish });
+          }
         }
+        console.error(
+          `[llm] ${cfg.model} ok ${Date.now() - started}ms · ttfb=${firstBlockAt}ms · blocks=${counts.blocks} text=${counts.text} thinking=${counts.thinking} tools=${counts.tool_call} · ` +
+            `fields=[${[...keys].join(",")}] · maxSilence=${maxGap}ms · finish=${finishSeen || "?"} · payload=${Math.round(payloadBytes / 1024)}kB tools=${tools.length} ` +
+            `thinking=${cfg.thinking}${boosted ? " boosted" : ""}${budgetReverted ? " reverted" : ""}${autoBoost.has(cfg.model) ? " auto-boost" : ""}`,
+        );
       } catch (err) {
         const clientGone = req.signal.aborted;
         console.error(
@@ -208,6 +250,10 @@ export async function POST(req: Request) {
           : abortReason
             ? classifyLlmError({ message: abortReason === "idle" ? idleMsg : connectMsg })
             : classifyLlmError({ message: (err as Error).message });
+        console.error(
+          `[llm] ${cfg.model} stream aborted after ${Date.now() - started}ms (${failed.class}) · ttfb=${firstBlockAt}ms · blocks=${counts.blocks} text=${counts.text} thinking=${counts.thinking} tools=${counts.tool_call} · ` +
+            `fields=[${[...keys].join(",")}] · maxSilence=${maxGap}ms · payload=${Math.round(payloadBytes / 1024)}kB`,
+        );
         out("error", {
           message: failed.message,
           errorClass: failed.class,

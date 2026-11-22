@@ -169,13 +169,14 @@ export default function Workspace({ mode }: { mode: "web" | "desktop" }) {
   const [diag, setDiag] = useState<DiagEntry[]>([]);
   const [llmLastError, setLlmLastError] = useState("");
   const [versions, setVersions] = useState<VersionRow[]>([]);
-  const [live, setLive] = useState<{ phase: AgentPhase; label?: string; detail?: string; tool?: string; step: number; maxStep: number; startedAt: number; inTok: number; outTok: number }>({
+  const [live, setLive] = useState<{ phase: AgentPhase; label?: string; detail?: string; tool?: string; step: number; maxStep: number; startedAt: number; inTok: number; outTok: number; thinkChars: number }>({
     phase: "idle",
     step: 1,
     maxStep: 12,
     startedAt: Date.now(),
     inTok: 0,
     outTok: 0,
+    thinkChars: 0,
   });
 
   const refreshUsage = useCallback(() => {
@@ -315,6 +316,7 @@ export default function Workspace({ mode }: { mode: "web" | "desktop" }) {
       const parts = last.parts;
       const tail = parts[parts.length - 1];
       if (e.type === "thinking") {
+        setLive((l) => ({ ...l, thinkChars: l.thinkChars + e.delta.length }));
         if (tail?.k === "thinking") parts[parts.length - 1] = { ...tail, text: tail.text + e.delta };
         else parts.push({ k: "thinking", text: e.delta, open: false });
       } else if (e.type === "text") {
@@ -343,7 +345,7 @@ export default function Workspace({ mode }: { mode: "web" | "desktop" }) {
       setBusy(true);
       softStopRef.current = false;
       setSoftStop(false);
-      setLive({ phase: "queued", step: 1, maxStep: 12, startedAt: Date.now(), inTok: 0, outTok: 0 });
+      setLive({ phase: "queued", step: 1, maxStep: 12, startedAt: Date.now(), inTok: 0, outTok: 0, thinkChars: 0 });
       // The assistant item exists from the first moment, so the work log can show "waiting for the model"
       // even before the first token arrives.
       setItems((p) => {
@@ -932,6 +934,7 @@ export default function Workspace({ mode }: { mode: "web" | "desktop" }) {
                                 startedAt: live.startedAt,
                                 inTok: live.inTok,
                                 outTok: live.outTok,
+                                thinkChars: live.thinkChars,
                                 softStop,
                                 onSoftStop: () => {
                                   softStopRef.current = true;

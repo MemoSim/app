@@ -11,6 +11,8 @@ import type { ResolvedLlm } from "./llm-config";
 export type LlmEvent =
   | { type: "text"; delta: string }
   | { type: "thinking"; delta: string }
+  /** One SSE block arrived. Emitted for every block, including ones that carry nothing we parse yet. */
+  | { type: "activity"; keys: string[] }
   | { type: "tool_call"; id: string; name: string; args: string }
   /** `inputTokens` = fresh (uncached) input; cacheRead/cacheWrite are billed at different rates (see usage.ts). */
   | { type: "usage"; inputTokens: number; outputTokens: number; cacheRead: number; cacheWrite: number }
@@ -151,6 +153,22 @@ export function toAnthropicTools(tools: unknown[]): Array<Record<string, unknown
   });
 }
 
+/** Loopback / RFC1918 / *.local: the endpoints where vLLM-style request fields are meaningful. */
+export function isLocalEndpoint(baseUrl: string): boolean {
+  try {
+    const host = new URL(baseUrl).hostname.replace(/^\[|\]$/g, "");
+    if (host === "localhost" || host.endsWith(".local") || host === "::1") return true;
+    if (/^127\./.test(host)) return true;
+    if (/^10\./.test(host)) return true;
+    if (/^192\.168\./.test(host)) return true;
+    const m = /^172\.(\d+)\./.exec(host);
+    if (m && Number(m[1]) >= 16 && Number(m[1]) <= 31) return true;
+    return false;
+  } catch {
+    return false;
+  }
+}
+
 export function buildRequest(
   cfg: ResolvedLlm,
   messages: Msg[],
@@ -188,7 +206,9 @@ export function buildRequest(
   const body: Record<string, unknown> = { model: cfg.model, messages, stream: opts.stream };
   if (opts.stream) body.stream_options = { include_usage: true }; // token counts for the usage display
   if (cfg.temperature !== null) body.temperature = cfg.temperature;
-  if (cfg.thinking !== "omit") body.chat_template_kwargs = { enable_thinking: cfg.thinking === "on" };
+  // `chat_template_kwargs` is a vLLM/SGLang-ism: hosted gateways ignore it at best and mis-handle it at worst, so it
+  // is only sent to a self-hosted endpoint. Hosted providers decide reasoning on their own (see Settings).
+  if (cfg.thinking !== "omit" && isLocalEndpoint(cfg.baseUrl)) body.chat_template_kwargs = { enable_thinking: cfg.thinking === "on" };
   const mt = opts.maxTokens ?? cfg.maxTokens;
   if (mt) body.max_tokens = mt;
   if (tools.length) {
@@ -250,13 +270,21 @@ export async function* streamEvents(res: Response, protocol: ResolvedLlm["protoc
   let cacheRead = 0;
   let cacheWrite = 0;
   for await (const { data } of sseLines(res)) {
-    if (data === "[DONE]" || !data) continue;
+    if (data === "[DONE]") continue;
+    if (!data) {
+      yield { type: "activity", keys: [] };
+      continue;
+    }
     let j: any;
     try {
       j = JSON.parse(data);
     } catch {
+      yield { type: "activity", keys: [] };
       continue;
     }
+    // Report which delta fields this gateway actually sends: that is how a silent reasoning stream is diagnosed.
+    const deltaKeys = j.choices?.[0]?.delta ? Object.keys(j.choices[0].delta) : j.type ? [String(j.type)] : [];
+    yield { type: "activity", keys: deltaKeys };
     if (protocol === "anthropic") {
       switch (j.type) {
         case "message_start":
@@ -299,7 +327,13 @@ export async function* streamEvents(res: Response, protocol: ResolvedLlm["protoc
       if (!choice) continue;
       const delta = choice.delta ?? {};
       if (typeof delta.content === "string" && delta.content) yield { type: "text", delta: delta.content };
-      if (typeof delta.reasoning === "string" && delta.reasoning) yield { type: "thinking", delta: delta.reasoning };
+      const reasoning =
+        typeof delta.reasoning === "string" ? delta.reasoning : typeof delta.reasoning_content === "string" ? delta.reasoning_content : "";
+      if (reasoning) yield { type: "thinking", delta: reasoning };
+      if (Array.isArray(delta.reasoning_details)) {
+        const text = delta.reasoning_details.map((d: { text?: string }) => d?.text ?? "").join("");
+        if (text) yield { type: "thinking", delta: text };
+      }
       for (const tc of delta.tool_calls ?? []) {
         const i: number = tc.index ?? 0;
         const acc = calls.get(i) ?? { id: "", name: "", args: "" };
