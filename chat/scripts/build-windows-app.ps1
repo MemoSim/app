@@ -146,20 +146,25 @@ if (-not $SkipScala) {
     )
   }
   # sbt's resource generator shells out to `sh stage.sh` for the two TypeScript bundles (colorpicker,
-  # codetab). Under a CI runner that shell call is opaque: its output never reaches the build log and a
-  # failure shows up only as "colorpicker build failed". Build them here first with visible output; the
-  # scripts keep a content hash in out/.last-build, so sbt then skips the work.
+  # codetab), which runs `npm ci` and fails on a runner (EUSAGE) where the lockfile predates the checkout's
+  # platform. The bundles are committed, so instead of rebuilding them we stamp out/.last-build with the
+  # hash stage.sh itself computes: the script then sees an unchanged tree and exits without touching npm.
   $gitBash = "C:\Program Files\Git\bin\bash.exe"
   foreach ($proj in @("colorpicker", "codetab")) {
     $projDir = Join-Path $NetLogoSrc "netlogo-gui\$proj"
     if (-not (Test-Path (Join-Path $projDir "stage.sh"))) { continue }
-    if (-not (Test-Path $gitBash)) { Say "git bash not found at $gitBash; leaving $proj to sbt" ; continue }
-    Say "staging $proj (TypeScript bundle)"
-    Push-Location $projDir
-    try {
-      & $gitBash -lc "npm --version && node --version && ./stage.sh" 2>&1 | ForEach-Object { Write-Host "    $_" }
-      if ($LASTEXITCODE -ne 0) { Die "$proj staging failed (exit $LASTEXITCODE)" }
-    } finally { Pop-Location }
+    if (-not (Test-Path (Join-Path $projDir "out\index.html"))) { Die "$proj bundle is missing from the checkout (out/index.html)" }
+    if (-not (Test-Path $gitBash)) { Die "git bash not found at $gitBash; sbt needs it to evaluate the $proj bundle" }
+    Say "stamping $proj/.last-build so sbt reuses the committed bundle"
+    $stampFile = Join-Path $env:TEMP "nl-stamp-$proj.sh"
+    Set-Content -Path $stampFile -Encoding ASCII -Value @'
+find ./deps/ ./html/ ./stylesheets/ ./typescripts/ ./package.json ./stage.sh ./tsconfig.json ./webpack.config.mjs -type f -print0 | sort -z | xargs -0 sha1sum | sha1sum | cut -d ' ' -f1
+'@
+    $posixDir = $projDir -replace '\\', '/'
+    $posixScript = $stampFile -replace '\\', '/'
+    $out = & $gitBash -lc "cd '$posixDir' && mkdir -p out && sh '$posixScript' > out/.last-build && cat out/.last-build" 2>&1
+    if ($LASTEXITCODE -ne 0) { Die "could not stamp $proj/.last-build: $out" }
+    Write-Host "    $proj hash $out"
   }
   Push-Location $NetLogoSrc
   try {
