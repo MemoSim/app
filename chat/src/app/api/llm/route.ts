@@ -16,6 +16,9 @@ export const runtime = "nodejs";
  * for the same model start with the doubled cap instead of repeating the failure.
  */
 const autoBoost = new Set<string>();
+
+/** Default reasoning effort for a thinking model: enough to plan, not enough to stall the chat. */
+const reasoningEffort = (process.env.LLM_REASONING_EFFORT ?? "low").trim();
 export const dynamic = "force-dynamic";
 
 const body = z.object({
@@ -161,7 +164,9 @@ export async function POST(req: Request) {
       uid,
       cache: true,
       signal: upstreamCtl.signal,
-      reasoningEffort: parsed.data.reasoningEffort,
+      // A reasoning model can spend a minute deriving a plan the user already described. Ask for short reasoning
+      // by default (LLM_REASONING_EFFORT=none|minimal|low|medium|high, empty to leave it to the provider).
+      reasoningEffort: parsed.data.reasoningEffort ?? (cfg.thinking === "on" ? reasoningEffort : undefined),
     }).catch((err: unknown) => err as Error);
     upstream = res;
     if (!(res instanceof Error) && res.ok && res.body) break;
