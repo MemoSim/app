@@ -173,7 +173,15 @@ export function buildRequest(
   cfg: ResolvedLlm,
   messages: Msg[],
   tools: unknown[],
-  opts: { stream: boolean; maxTokens?: number; uid?: string; thinkingVariant?: number; cache?: boolean },
+  opts: {
+    stream: boolean;
+    maxTokens?: number;
+    uid?: string;
+    thinkingVariant?: number;
+    cache?: boolean;
+    /** OpenAI-style reasoning control ("low"/"medium"/"high"/"none"): honoured by many gateways, ignored by others. */
+    reasoningEffort?: string;
+  },
 ): BuiltRequest {
   const headers = protocolHeaders(cfg, opts.uid);
   if (cfg.protocol === "anthropic") {
@@ -211,6 +219,7 @@ export function buildRequest(
   if (cfg.thinking !== "omit" && isLocalEndpoint(cfg.baseUrl)) body.chat_template_kwargs = { enable_thinking: cfg.thinking === "on" };
   const mt = opts.maxTokens ?? cfg.maxTokens;
   if (mt) body.max_tokens = mt;
+  if (opts.reasoningEffort) body.reasoning_effort = opts.reasoningEffort;
   if (tools.length) {
     body.tools = tools;
     body.tool_choice = "auto";
@@ -223,7 +232,7 @@ export async function fetchLlm(
   cfg: ResolvedLlm,
   messages: Msg[],
   tools: unknown[],
-  opts: { stream: boolean; maxTokens?: number; uid?: string; signal?: AbortSignal; cache?: boolean },
+  opts: { stream: boolean; maxTokens?: number; uid?: string; signal?: AbortSignal; cache?: boolean; reasoningEffort?: string },
 ): Promise<Response> {
   const tries = cfg.protocol === "anthropic" ? anthropicThinkingVariants(cfg.thinking, opts.maxTokens ?? cfg.maxTokens ?? DEFAULT_ANTHROPIC_MAX_TOKENS).length : 1;
   let res!: Response;
