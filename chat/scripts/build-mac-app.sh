@@ -51,6 +51,9 @@ magick -background none -font "$SRC/autogen/images/Inter-Medium.ttf" \
   "$CHAT_DIR/packaging/memosim-splash.svg" "$SRC/netlogo-gui/resources/images/memosim-splash.png"
 if [ "$SCALA" = 1 ]; then
   say "compiling NetLogo Desktop"
+  # JavaPackager reads .jdks.yaml while sbt evaluates the project and throws when it is missing,
+  # so a clean checkout cannot build; the file is gitignored and an empty one is tolerated.
+  [ -f "$SRC/.jdks.yaml" ] || printf '%s\n' "# created by build-mac-app.sh; sbt loads this at project evaluation" > "$SRC/.jdks.yaml"
   (cd "$SRC" && sbt --client netlogo/compile 2>&1 | sed $'s/\x1b\\[[0-9;]*[A-Za-z]//g' | tee "$CHAT_DIR/build-scala.log" | grep -E "^\[(error)\]|success") || true
   grep -q "^\[error\]" "$CHAT_DIR/build-scala.log" && die "Scala build failed, see build-scala.log"
   mkdir -p "$SRC/chat-dev"
