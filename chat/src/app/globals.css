@@ -314,3 +314,12 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Indeterminate work indicator: progress that cannot be measured must not be drawn as a fraction. */
+@keyframes progressSlide {
+  0% { transform: translateX(-110%); }
+  100% { transform: translateX(430%); }
+}
+.progress-slide {
+  animation: progressSlide 1.5s cubic-bezier(0.4, 0, 0.3, 1) infinite;
+}

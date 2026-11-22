@@ -190,10 +190,9 @@ export default function Workspace({ mode }: { mode: "web" | "desktop" }) {
   const [diag, setDiag] = useState<DiagEntry[]>([]);
   const [llmLastError, setLlmLastError] = useState("");
   const [versions, setVersions] = useState<VersionRow[]>([]);
-  const [live, setLive] = useState<{ phase: AgentPhase; label?: string; detail?: string; tool?: string; step: number; maxStep: number; startedAt: number; inTok: number; outTok: number; thinkChars: number }>({
+  const [live, setLive] = useState<{ phase: AgentPhase; label?: string; detail?: string; tool?: string; step: number; startedAt: number; inTok: number; outTok: number; thinkChars: number }>({
     phase: "idle",
-    step: 1,
-    maxStep: 12,
+    step: 0,
     startedAt: Date.now(),
     inTok: 0,
     outTok: 0,
@@ -296,7 +295,7 @@ export default function Workspace({ mode }: { mode: "web" | "desktop" }) {
 
   const handleEvent = useCallback((e: UiEvent) => {
     if (e.type === "step") {
-      setLive((l) => ({ ...l, step: e.n, maxStep: e.max }));
+      setLive((l) => ({ ...l, step: e.n }));
       return;
     }
     if (e.type === "phase") {
@@ -367,7 +366,7 @@ export default function Workspace({ mode }: { mode: "web" | "desktop" }) {
       setBusy(true);
       softStopRef.current = false;
       setSoftStop(false);
-      setLive({ phase: "queued", step: 1, maxStep: 12, startedAt: Date.now(), inTok: 0, outTok: 0, thinkChars: 0 });
+      setLive({ phase: "queued", step: 0, startedAt: Date.now(), inTok: 0, outTok: 0, thinkChars: 0 });
       // The assistant item exists from the first moment, so the work log can show "waiting for the model"
       // even before the first token arrives.
       setItems((p) => {
@@ -433,7 +432,7 @@ export default function Workspace({ mode }: { mode: "web" | "desktop" }) {
       setApprovedPlans([]);
       setPinned(null);
       setVersions(mc.versions.map((v) => ({ at: v.at, label: v.label, lines: v.spec.code ? v.spec.code.split("\n").length : 0, widgets: v.spec.widgets.length })));
-      setLive((l) => ({ ...l, phase: "idle", step: 1, inTok: 0, outTok: 0 }));
+      setLive((l) => ({ ...l, phase: "idle", step: 0, inTok: 0, outTok: 0 }));
       setDiagramModel(mc.spec.sdm);
       quietRef.current = false;
     },
@@ -970,7 +969,6 @@ export default function Workspace({ mode }: { mode: "web" | "desktop" }) {
                                 detail: live.detail,
                                 tool: live.tool,
                                 step: live.step,
-                                maxStep: live.maxStep,
                                 startedAt: live.startedAt,
                                 inTok: live.inTok,
                                 outTok: live.outTok,

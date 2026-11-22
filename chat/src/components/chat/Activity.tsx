@@ -13,8 +13,8 @@ export type LiveState = {
   phase: AgentPhase;
   detail?: string;
   tool?: string;
+  /** Monotonic action count for this turn (no total: it cannot be estimated). */
   step: number;
-  maxStep: number;
   startedAt: number;
   inTok: number;
   outTok: number;
@@ -180,7 +180,7 @@ export default function TurnLog({ work, live }: { work: WorkPart[]; live?: LiveS
     ? live!.phase === "tool" && live!.tool
       ? TOOL_TEXT[live!.tool] ?? live!.tool.replace(/_/g, " ")
       : PHASE_TEXT[live!.phase]
-    : `${work.length} step${work.length === 1 ? "" : "s"}${totalMs > 800 ? ` · ${fmtShort(totalMs)}` : ""}`;
+    : `${tools.length || work.length} ${tools.length ? "tool call" : "action"}${(tools.length || work.length) === 1 ? "" : "s"}${totalMs > 800 ? ` · ${fmtShort(totalMs)}` : ""}`;
 
   return (
     <div className="my-1.5 overflow-hidden rounded-lg" style={{ border: "1px solid var(--border)", background: "var(--surface)" }} data-testid="turn-log">
@@ -198,10 +198,15 @@ export default function TurnLog({ work, live }: { work: WorkPart[]; live?: LiveS
           <span className="min-w-0 truncate text-[11px] font-medium" style={{ color: running ? "var(--text)" : "var(--muted)" }}>
             {what}
           </span>
+          {running && live!.step > 0 && (
+            <span className="shrink-0 text-[10px] tabular-nums" style={{ color: "var(--faint)" }}>
+              {live!.step} action{live!.step === 1 ? "" : "s"}
+            </span>
+          )}
           {running && (
             <span className="shrink-0 text-[10.5px] tabular-nums" style={{ color: "var(--faint)" }}>
               {live!.thinkChars ? `thinking ~${fmtTok(Math.round(live!.thinkChars / 4))} tok · ` : ""}
-              step {Math.max(1, live!.step)}/{live!.maxStep} · {fmtClock(now - live!.startedAt)}
+              {fmtClock(now - live!.startedAt)}
             </span>
           )}
           {!running && failed > 0 && (
@@ -236,6 +241,12 @@ export default function TurnLog({ work, live }: { work: WorkPart[]; live?: LiveS
           </span>
         )}
       </div>
+
+      {running && (
+        <div className="h-[2px] overflow-hidden" style={{ background: "var(--surface-3)" }} aria-hidden="true">
+          <div className="progress-slide h-full w-1/4" style={{ background: "var(--accent)" }} />
+        </div>
+      )}
 
       {open && (
         <div className="py-1 pr-1">

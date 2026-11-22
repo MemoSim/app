@@ -25,7 +25,9 @@ export type UiEvent =
   | { type: "usage"; inputTokens: number; outputTokens: number; cacheRead: number; cacheWrite: number; cost: number | null; model?: string }
   | { type: "tool_start"; id: string; name: string; args: unknown }
   | { type: "tool_end"; id: string; result: unknown; ok: boolean; ms: number }
-  | { type: "step"; n: number; max: number }
+  /** Monotonic count of actions (LLM calls + tool calls) in this turn. There is no honest denominator: a turn
+   *  can take 3 actions or 40, so the UI must not show "3 of 12" (it also reset at every repair round). */
+  | { type: "step"; n: number }
   | { type: "phase"; phase: AgentPhase; label?: string; detail?: string }
   | { type: "notice"; level: "info" | "warn" | "ok"; text: string }
   | { type: "error"; message: string; errorClass?: string; hint?: string; retryable?: boolean };
@@ -46,6 +48,8 @@ type Ctx = {
   session: AgentSession;
   /** Graceful stop: finish the current step, then hand back to the user with what is applied. */
   softStop?: () => boolean;
+  /** Actions taken so far in this turn, across rounds: the only progress number that never goes backwards. */
+  actions: number;
   /** 0 = full history, 1 = short history, 2 = short history + clipped tool results (used after a context-overflow error). */
   shrink: number;
   /** Set after a reply was cut off by the output limit: reasoning shares that budget, so the rest of the turn runs without it. */
@@ -244,7 +248,7 @@ async function agentRound(ctx: Ctx, budget: { steps: number }): Promise<RoundEnd
       return "done";
     }
     if (budget.steps-- <= 0) return "steps";
-    emit({ type: "step", n: step, max: MAX_STEPS_PER_ROUND });
+    emit({ type: "step", n: ++ctx.actions });
 
     const res = await callModel(ctx, {
       messages: trimHistory(history, ctx.shrink >= 1 ? 2 : KEEP_TURNS, ctx.shrink >= 2 ? 1500 : MAX_TOOL_RESULT).map((m) =>
@@ -445,7 +449,7 @@ export async function runTurn(opts: {
       text: `Plan first (${session.gateReason}). The assistant will describe the model it intends to build and wait for your approval.`,
     });
   }
-  const ctx: Ctx = { history, tools: opts.tools, mc, bridge, signal, emit, session, softStop: opts.softStop, shrink: 0, reasoningOff: false, budgetBoost: false };
+  const ctx: Ctx = { history, tools: opts.tools, mc, bridge, signal, emit, session, softStop: opts.softStop, shrink: 0, reasoningOff: false, budgetBoost: false, actions: 0 };
   history.push({ role: "user", content: opts.userText, ...(opts.auto ? { auto: true } : {}) });
   mc.dirty = false;
   const budget = { steps: MAX_TOTAL_STEPS };
