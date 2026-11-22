@@ -94,11 +94,14 @@ export async function POST(req: Request) {
   // and give the answer more room. The original cap is restored automatically if the provider rejects the bigger one.
   const originalMax = cfg.maxTokens;
   if (parsed.data.thinking && parsed.data.thinking !== cfg.thinking) cfg = { ...cfg, thinking: parsed.data.thinking };
-  // Reasoning shares the output budget, so a profile with thinking on starts with a bigger cap instead of
-  // discovering the ceiling by being cut off (which costs a minute of reasoning).
+  // Reasoning shares the output budget, so a thinking model needs room for both the reasoning and the answer.
+  // The ceiling is generous on purpose (modern models accept far more than 8k) and the configured value is
+  // restored automatically if the provider rejects it, so a wrong guess costs one cheap 400, not a turn.
+  const ceiling = Math.min(262_144, Math.max(8_192, Number(process.env.LLM_MAX_OUTPUT_CEILING) || 65_536));
   if (parsed.data.outputBudget === "boost" || autoBoost.has(cfg.model) || cfg.thinking === "on") {
     const current = cfg.maxTokens ?? 0;
-    cfg = { ...cfg, maxTokens: current ? Math.min(32_768, Math.max(8_192, current * 2)) : 16_384 };
+    const target = cfg.thinking === "on" ? Math.max(32_768, current * 4) : Math.max(16_384, current * 4);
+    cfg = { ...cfg, maxTokens: Math.min(ceiling, target) };
   }
   const boosted = cfg.maxTokens !== originalMax;
   const parts = buildSystemParts(context, capabilities, session);
@@ -240,7 +243,7 @@ export async function POST(req: Request) {
         console.error(
           `[llm] ${cfg.model} ok ${Date.now() - started}ms · ttfb=${firstBlockAt}ms · blocks=${counts.blocks} text=${counts.text} thinking=${counts.thinking} tools=${counts.tool_call} · ` +
             `fields=[${[...keys].join(",")}] · maxSilence=${maxGap}ms · finish=${finishSeen || "?"} · payload=${Math.round(payloadBytes / 1024)}kB tools=${tools.length} ` +
-            `thinking=${cfg.thinking}${boosted ? " boosted" : ""}${budgetReverted ? " reverted" : ""}${autoBoost.has(cfg.model) ? " auto-boost" : ""}`,
+            `thinking=${cfg.thinking} maxTok=${cfg.maxTokens ?? "default"}${boosted ? " boosted" : ""}${budgetReverted ? " reverted" : ""}${autoBoost.has(cfg.model) ? " auto-boost" : ""}`,
         );
       } catch (err) {
         const clientGone = req.signal.aborted;

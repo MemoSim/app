@@ -178,7 +178,7 @@ if [ "$INSTALLER" != none ]; then
     --description "Chat with an LLM that builds NetLogo models" \
     --icon "$CHAT_DIR/packaging/AppIcon.icns" --mac-package-identifier "$BUNDLE_ID" --mac-package-name "$APP_NAME" \
     --app-image "$APP" --dest "$RELEASE" 2>&1 | grep -v "^WARNING" || true
-  FILE="$(ls "$RELEASE"/*."$INSTALLER" 2>/dev/null | head -1)"
+  FILE="$(ls -t "$RELEASE"/*."$INSTALLER" 2>/dev/null | head -1)"   # newest: 1.1.0 sorts before 1.1.1
   [ -n "$FILE" ] || die "jpackage did not produce a .$INSTALLER in $RELEASE"
   echo "    installer: $FILE ($(du -sh "$FILE" | cut -f1))"
   echo "    note: not notarized; users open it with right-click > Open the first time"
