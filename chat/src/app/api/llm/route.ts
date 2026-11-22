@@ -34,6 +34,8 @@ const body = z.object({
     .optional(),
   /** Per-request override: "off" makes the next call skip extended reasoning (used when reasoning ate the output budget). */
   thinking: z.enum(["on", "off", "omit"]).optional(),
+  /** "boost" doubles this call's output budget (used to retry a reply that hit the output limit). */
+  outputBudget: z.enum(["boost"]).optional(),
   /** Turn state the client enforces (plan gate, approved plan). Unknown keys are dropped by zod. */
   session: z
     .object({
@@ -81,8 +83,15 @@ export async function POST(req: Request) {
     if (err instanceof EndpointError) return Response.json({ error: err.message }, { status: 400 });
     throw err;
   }
-  // A retry after an output-limit truncation: reasoning shares the max_tokens budget, so turn it off for this call only.
+  // A retry after an output-limit truncation: reasoning shares the max_tokens budget, so turn it off for this call only,
+  // and give the answer more room. The original cap is restored automatically if the provider rejects the bigger one.
+  const originalMax = cfg.maxTokens;
   if (parsed.data.thinking && parsed.data.thinking !== cfg.thinking) cfg = { ...cfg, thinking: parsed.data.thinking };
+  if (parsed.data.outputBudget === "boost") {
+    const current = cfg.maxTokens ?? 0;
+    cfg = { ...cfg, maxTokens: current ? Math.min(32_768, Math.max(8_192, current * 2)) : 16_384 };
+  }
+  const boosted = cfg.maxTokens !== originalMax;
   const parts = buildSystemParts(context, capabilities, session);
   // Claude: the unchanging part is its own system block marked for caching; the model state follows it (same text, same order).
   // Other providers get one system message as before (an extra field could be rejected by strict servers).
@@ -119,6 +128,7 @@ export async function POST(req: Request) {
   // dropped connection). Only headers are in at this point, so a retry cannot duplicate model output.
   let upstream: Response | Error = new Error("not attempted");
   let info: LlmErrorInfo | null = null;
+  let budgetReverted = false;
   for (let attempt = 0; attempt < 3; attempt++) {
     const res = await fetchLlm(cfg, fullMessages, tools, { stream: true, uid, cache: true, signal: upstreamCtl.signal }).catch((err: unknown) => err as Error);
     upstream = res;
@@ -131,6 +141,13 @@ export async function POST(req: Request) {
       retryAfter: res instanceof Error ? null : res.headers.get("retry-after"),
       aborted: upstreamCtl.signal.aborted,
     });
+    // Providers differ on the largest allowed output: if the boosted cap is rejected, retry once with the configured one.
+    if (boosted && !budgetReverted && info.class === "bad_request" && /max[_ ]?tokens|maximum output|max output/i.test(info.message + (body ?? ""))) {
+      budgetReverted = true;
+      cfg = { ...cfg, maxTokens: originalMax };
+      console.error(`[llm] provider rejected the boosted output cap; retrying with the configured maximum`);
+      continue;
+    }
     if (!info.retryable || attempt === 2 || upstreamCtl.signal.aborted) break;
     const wait = Math.min(4_000, info.retryAfterMs ?? 700 * (attempt + 1));
     console.error(`[llm] ${cfg.model} attempt ${attempt + 1} failed (${info.class}): ${info.message}; retrying in ${wait}ms`);

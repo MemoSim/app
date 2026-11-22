@@ -47,8 +47,10 @@ describe("replies cut off by the output limit", () => {
     expect(t.events.some((e) => e.type === "notice" && /extended reasoning/.test(e.text))).toBe(true);
     // The first truncation is answered by a reasoning-off retry, not by a "work in smaller pieces" prompt.
     expect(t.requests[1]!.at(-1)!.content).not.toMatch(/NOTHING from it was applied/);
-    // The retry that follows a truncation asks the server to skip extended reasoning, which shares the output budget.
+    // The retry that follows a truncation asks the server to skip extended reasoning (it shares the output
+    // budget) and for a larger cap, which is the direct answer to "cut off at the output limit".
     expect((t.bodies[1] as { thinking?: string }).thinking).toBe("off");
+    expect((t.bodies[1] as { outputBudget?: string }).outputBudget).toBe("boost");
     expect(t.loads.length).toBeGreaterThan(0); // the retry (write_code) did build a model
     expect(t.events.some((e) => e.type === "error")).toBe(false);
   });

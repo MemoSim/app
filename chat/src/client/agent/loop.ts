@@ -50,6 +50,8 @@ type Ctx = {
   shrink: number;
   /** Set after a reply was cut off by the output limit: reasoning shares that budget, so the rest of the turn runs without it. */
   reasoningOff: boolean;
+  /** Also ask the server for a bigger output cap on the retry (it clamps and reverts if the provider refuses). */
+  budgetBoost: boolean;
 };
 
 /** Keep the last KEEP_TURNS user turns in full; earlier turns collapse to user text + final assistant text. */
@@ -245,6 +247,7 @@ async function agentRound(ctx: Ctx, budget: { steps: number }): Promise<RoundEnd
       capabilities: { ...bridge.capabilities, workDir: (bridge as { workDir?: string }).workDir },
       session: { plan: session.plan, gate: session.gateActive && session.planStatus !== "approved" },
       ...(ctx.reasoningOff ? { thinking: "off" } : {}),
+      ...(ctx.budgetBoost ? { outputBudget: "boost" } : {}),
     });
     if (signal.aborted) return "aborted";
     if (!res.ok) return "fatal";
@@ -271,12 +274,13 @@ async function agentRound(ctx: Ctx, budget: { steps: number }): Promise<RoundEnd
       const partial = calls.length - complete.length;
       if (!ctx.reasoningOff && (partial > 0 || calls.length === 0)) {
         ctx.reasoningOff = true;
+        ctx.budgetBoost = true;
         emit({
           type: "notice",
           level: "warn",
           text:
             "The reply reached the output limit before it produced a complete answer — extended reasoning was using that budget. " +
-            "Retrying the same step without extended reasoning…",
+            "Retrying the same step with a larger output budget and without extended reasoning…",
         });
         continue;
       }
@@ -431,7 +435,7 @@ export async function runTurn(opts: {
       text: `Plan first (${session.gateReason}). The assistant will describe the model it intends to build and wait for your approval.`,
     });
   }
-  const ctx: Ctx = { history, tools: opts.tools, mc, bridge, signal, emit, session, softStop: opts.softStop, shrink: 0, reasoningOff: false };
+  const ctx: Ctx = { history, tools: opts.tools, mc, bridge, signal, emit, session, softStop: opts.softStop, shrink: 0, reasoningOff: false, budgetBoost: false };
   history.push({ role: "user", content: opts.userText, ...(opts.auto ? { auto: true } : {}) });
   mc.dirty = false;
   const budget = { steps: MAX_TOTAL_STEPS };
