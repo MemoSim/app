@@ -117,10 +117,20 @@ export async function POST(req: Request) {
   req.signal.addEventListener("abort", abortUpstream, { once: true });
   const connectMsg = `no answer from the LLM within ${Math.round(e.LLM_CONNECT_TIMEOUT_MS / 1000)}s (the endpoint is queuing or unreachable)`;
   const idleMsg = `the LLM stopped sending data for ${Math.round(e.LLM_IDLE_TIMEOUT_MS / 1000)}s`;
-  let watchdog = setTimeout(() => upstreamCtl.abort(new DOMException(connectMsg, "TimeoutError")), e.LLM_CONNECT_TIMEOUT_MS);
-  const kick = (ms: number, msg: string) => {
+  // Why the upstream was aborted matters: a stalled/queued provider is a timeout the app should retry, while the user
+  // pressing Stop is a real cancel. Without this the idle watchdog surfaced as "The request was cancelled", blaming
+  // the user for a provider stall and skipping the retry.
+  let abortReason: "connect" | "idle" | null = null;
+  let watchdog = setTimeout(() => {
+    abortReason = "connect";
+    upstreamCtl.abort(new DOMException(connectMsg, "TimeoutError"));
+  }, e.LLM_CONNECT_TIMEOUT_MS);
+  const kick = (ms: number, msg: string, reason: "connect" | "idle") => {
     clearTimeout(watchdog);
-    watchdog = setTimeout(() => upstreamCtl.abort(new DOMException(msg, "TimeoutError")), ms);
+    watchdog = setTimeout(() => {
+      abortReason = reason;
+      upstreamCtl.abort(new DOMException(msg, "TimeoutError"));
+    }, ms);
   };
 
   const started = Date.now();
@@ -152,7 +162,7 @@ export async function POST(req: Request) {
     const wait = Math.min(4_000, info.retryAfterMs ?? 700 * (attempt + 1));
     console.error(`[llm] ${cfg.model} attempt ${attempt + 1} failed (${info.class}): ${info.message}; retrying in ${wait}ms`);
     await new Promise((r) => setTimeout(r, wait));
-    kick(e.LLM_CONNECT_TIMEOUT_MS, connectMsg);
+    kick(e.LLM_CONNECT_TIMEOUT_MS, connectMsg, "connect");
   }
   clearTimeout(watchdog);
 
@@ -175,9 +185,9 @@ export async function POST(req: Request) {
     async start(controller) {
       const out = (ev: string, d: unknown) => controller.enqueue(enc.encode(sse(ev, d)));
       try {
-        kick(e.LLM_IDLE_TIMEOUT_MS, idleMsg);
+        kick(e.LLM_IDLE_TIMEOUT_MS, idleMsg, "idle");
         for await (const ev of streamEvents(upstream, cfg.protocol)) {
-          kick(e.LLM_IDLE_TIMEOUT_MS, idleMsg);
+          kick(e.LLM_IDLE_TIMEOUT_MS, idleMsg, "idle");
           if (ev.type === "text") out("text", { delta: ev.delta });
           else if (ev.type === "thinking") out("thinking", { delta: ev.delta });
           else if (ev.type === "usage") {
@@ -189,9 +199,23 @@ export async function POST(req: Request) {
           else out("done", { finish: ev.finish });
         }
       } catch (err) {
-        console.error(`[llm] ${cfg.model} stream broke after ${Date.now() - started}ms: ${(err as Error).message}`);
-        const failed = classifyLlmError({ message: (err as Error).message, aborted: req.signal.aborted || upstreamCtl.signal.aborted });
-        out("error", { message: failed.message, errorClass: failed.class, retryable: failed.retryable, retryAfterMs: failed.retryAfterMs, hint: failed.hint });
+        const clientGone = req.signal.aborted;
+        console.error(
+          `[llm] ${cfg.model} stream broke after ${Date.now() - started}ms (${clientGone ? "client closed" : abortReason ?? "provider"}): ${(err as Error).message}`,
+        );
+        const failed = clientGone
+          ? classifyLlmError({ aborted: true })
+          : abortReason
+            ? classifyLlmError({ message: abortReason === "idle" ? idleMsg : connectMsg })
+            : classifyLlmError({ message: (err as Error).message });
+        out("error", {
+          message: failed.message,
+          errorClass: failed.class,
+          retryable: failed.retryable,
+          retryAfterMs: failed.retryAfterMs,
+          hint: failed.hint,
+          abortReason: abortReason ?? undefined,
+        });
       } finally {
         clearTimeout(watchdog);
         release();

@@ -182,6 +182,14 @@ async function callModel(ctx: Ctx, payload: Record<string, unknown>): Promise<Ca
             if (typeof ev.data.errorClass === "string" && ev.data.errorClass) info.class = ev.data.errorClass as LlmErrorInfo["class"];
             if (typeof ev.data.retryable === "boolean") info.retryable = ev.data.retryable;
             if (typeof ev.data.retryAfterMs === "number") info.retryAfterMs = ev.data.retryAfterMs;
+            // "Cancelled" only counts when the user actually stopped the turn. A stream that died on its own is a
+            // dropped connection and must be retried, not reported as the user's doing.
+            if (info.class === "aborted" && !signal.aborted) {
+              info.class = "timeout";
+              info.retryable = true;
+              info.message = "The provider closed the stream before the answer finished.";
+              info.hint = "Retrying usually works. If it repeats, the endpoint is dropping long responses.";
+            }
             failure = info;
           }
         }
@@ -275,6 +283,8 @@ async function agentRound(ctx: Ctx, budget: { steps: number }): Promise<RoundEnd
       if (!ctx.reasoningOff && (partial > 0 || calls.length === 0)) {
         ctx.reasoningOff = true;
         ctx.budgetBoost = true;
+        // A retry that resends everything that just overflowed tends to queue for minutes: collapse older turns too.
+        ctx.shrink = Math.max(ctx.shrink, 1);
         emit({
           type: "notice",
           level: "warn",

@@ -321,3 +321,45 @@ describe("output-limit truncation", () => {
     expect(err && err.type === "error" && /Max output tokens/i.test(err.message)).toBe(true);
   });
 });
+
+describe("a stream that dies on its own", () => {
+  it("is retried instead of being reported as a cancellation", async () => {
+    let n = 0;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        n++;
+        if (n === 1) return sse([["error", { message: "The request was cancelled.", errorClass: "aborted", retryable: false }]]);
+        return sse([["text", { delta: "recovered" }], ["done", { finish: "stop" }]]);
+      }),
+    );
+    const bridge = engine();
+    const mc = new ModelController(bridge);
+    const session = new AgentSession();
+    const { events, emit } = capture();
+    await runTurn({ history: [], userText: "hi", tools: createTools(bridge, mc, session), mc, bridge, signal: new AbortController().signal, emit, session, planMode: "off" });
+    expect(n).toBe(2);
+    expect(events.some((e) => e.type === "text")).toBe(true);
+    expect(events.some((e) => e.type === "error")).toBe(false);
+  });
+
+  it("still stops quietly when the user presses Stop", async () => {
+    let n = 0;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        n++;
+        return sse([["text", { delta: "x" }], ["done", { finish: "stop" }]]);
+      }),
+    );
+    const bridge = engine();
+    const mc = new ModelController(bridge);
+    const session = new AgentSession();
+    const ac = new AbortController();
+    ac.abort();
+    const { events, emit } = capture();
+    await runTurn({ history: [], userText: "hi", tools: createTools(bridge, mc, session), mc, bridge, signal: ac.signal, emit, session, planMode: "off" });
+    expect(n).toBe(0);
+    expect(events.some((e) => e.type === "error")).toBe(false);
+  });
+});

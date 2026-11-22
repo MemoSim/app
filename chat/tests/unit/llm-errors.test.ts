@@ -29,6 +29,10 @@ describe("classifyLlmError", () => {
   it("separates a timeout from a network failure", () => {
     expect(classifyLlmError({ message: "no answer from the LLM within 240s (the endpoint is queuing or unreachable)" }).class).toBe("timeout");
     expect(classifyLlmError({ message: "fetch failed" }).class).toBe("network");
+    // The idle watchdog aborts the upstream; that is a timeout the app retries, never "the user cancelled it".
+    const idle = classifyLlmError({ message: "the LLM stopped sending data for 120s" });
+    expect(idle.class).toBe("timeout");
+    expect(idle.retryable).toBe(true);
   });
   it("never retries an abort", () => {
     const info = classifyLlmError({ aborted: true, message: "AbortError" });
