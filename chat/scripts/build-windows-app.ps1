@@ -136,8 +136,12 @@ if (-not $SkipScala) {
   Say "compiling NetLogo Desktop"
   Push-Location $NetLogoSrc
   try {
-    if ((Invoke-Batch "sbt -batch netlogo/compile > `"$Log`" 2>&1" $NetLogoSrc) -ne 0) { Die "Scala build failed, see build-windows.log" }
-    if (Select-String -Path $Log -Pattern "^\[error\]" -Quiet) { Die "Scala build failed, see build-windows.log" }
+    $compileCode = Invoke-Batch "sbt -batch netlogo/compile > `"$Log`" 2>&1" $NetLogoSrc
+    # Surface the Scala errors on the console: a CI run that only says "see build-windows.log" is undiagnosable.
+    if ($compileCode -ne 0 -or (Select-String -Path $Log -Pattern "^\[error\]" -Quiet)) {
+      if (Test-Path $Log) { Get-Content $Log -Tail 80 | ForEach-Object { Write-Host "    $_" } }
+      Die "Scala build failed (exit $compileCode), log at $Log"
+    }
     $cpOut = Join-Path $env:TEMP "nl-chat-classpath.txt"
     if ((Invoke-Batch "sbt -batch `"export netlogo/Runtime/fullClasspath`" > `"$cpOut`" 2>&1" $NetLogoSrc) -ne 0) {
       Get-Content $cpOut -Tail 20 | ForEach-Object { Write-Host "    $_" }

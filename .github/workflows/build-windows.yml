@@ -47,6 +47,18 @@ jobs:
 
       - name: Show build logs on failure
         if: failure()
+        shell: pwsh
+        run: |
+          $log = Join-Path $env:GITHUB_WORKSPACE "chat/build-windows.log"
+          if (Test-Path $log) {
+            Write-Host "----- chat/build-windows.log (tail 120) -----"
+            Get-Content $log -Tail 120
+          } else {
+            Write-Host "no chat/build-windows.log; listing candidates"
+            Get-ChildItem -Path $env:GITHUB_WORKSPACE -Filter "*.log" -Recurse -ErrorAction SilentlyContinue |
+              Select-Object -First 10 FullName
+          }
+        if: failure()
         run: |
           Write-Host "--- java/sbt ---"
           java -version 2>&1 | Out-String | Write-Host
