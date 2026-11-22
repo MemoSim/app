@@ -145,6 +145,22 @@ if (-not $SkipScala) {
       "# Populate it with - vendor/version/architecture/path entries to run the `dist` packaging tasks."
     )
   }
+  # sbt's resource generator shells out to `sh stage.sh` for the two TypeScript bundles (colorpicker,
+  # codetab). Under a CI runner that shell call is opaque: its output never reaches the build log and a
+  # failure shows up only as "colorpicker build failed". Build them here first with visible output; the
+  # scripts keep a content hash in out/.last-build, so sbt then skips the work.
+  $gitBash = "C:\Program Files\Git\bin\bash.exe"
+  foreach ($proj in @("colorpicker", "codetab")) {
+    $projDir = Join-Path $NetLogoSrc "netlogo-gui\$proj"
+    if (-not (Test-Path (Join-Path $projDir "stage.sh"))) { continue }
+    if (-not (Test-Path $gitBash)) { Say "git bash not found at $gitBash; leaving $proj to sbt" ; continue }
+    Say "staging $proj (TypeScript bundle)"
+    Push-Location $projDir
+    try {
+      & $gitBash -lc "npm --version && node --version && ./stage.sh" 2>&1 | ForEach-Object { Write-Host "    $_" }
+      if ($LASTEXITCODE -ne 0) { Die "$proj staging failed (exit $LASTEXITCODE)" }
+    } finally { Pop-Location }
+  }
   Push-Location $NetLogoSrc
   try {
     $compileCode = Invoke-Batch "sbt -batch netlogo/compile > `"$Log`" 2>&1" $NetLogoSrc
