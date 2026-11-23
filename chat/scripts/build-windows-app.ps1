@@ -136,6 +136,13 @@ if (-not $SkipScala) {
   $splashSvg = Join-Path $ChatDir "packaging\memosim-splash.svg"
   $splashPng = Join-Path $NetLogoSrc "netlogo-gui\resources\images\memosim-splash.png"
   $splashFont = Join-Path $NetLogoSrc "autogen\images\Inter-Medium.ttf"
+  # ImageMagick is installed by winget/choco into Program Files and not always added to PATH
+  if (-not (Get-Command magick -ErrorAction SilentlyContinue)) {
+    $found = Get-ChildItem "C:\Program Files" -Recurse -Filter magick.exe -ErrorAction SilentlyContinue |
+      Select-Object -First 1
+    if ($found) { $env:PATH = $found.DirectoryName + ";" + $env:PATH; Write-Host "    using $($found.FullName)" }
+    else { Die "ImageMagick not found (winget install ImageMagick.ImageMagick)" }
+  }
   & magick -background none -font $splashFont $splashSvg $splashPng
   if ($LASTEXITCODE -ne 0) { Die "MemoSim splash generation failed" }
 }
