@@ -101,7 +101,13 @@ foreach ($cmd in @("sbt", "node", "npx", "jar")) {
   if (-not (Get-Command $cmd -ErrorAction SilentlyContinue)) { Die "$cmd not found on PATH" }
 }
 if (-not $SkipScala -and -not (Get-Command sh.exe -ErrorAction SilentlyContinue)) {
-  Die "Git Bash sh.exe is required to build NetLogo interface resources; add Git's usr\bin folder to PATH"
+  # sh.exe is not always on PATH even when Git Bash is installed; add its folder when present.
+  $gitSh = "C:\Program Files\Git\usr\bin"
+  if (Test-Path (Join-Path $gitSh "sh.exe")) {
+    $env:PATH = $gitSh + ";" + $env:PATH
+  } else {
+    Die "Git Bash sh.exe is required to build NetLogo interface resources; add Git's usr\bin folder to PATH"
+  }
 }
 
 $NodeArch = (& node -p "process.arch").Trim()
@@ -252,6 +258,48 @@ foreach ($e in ($Classpath -split ';' | Where-Object { $_ -and (Test-Path $_) })
 $MainJar = Get-ChildItem $InputDir -Filter "*-classes.jar" | Select-Object -First 1
 if (-not $MainJar) { Die "no classes jar produced from the NetLogo classpath" }
 Write-Host ("    {0} jars, main: {1}" -f (Get-ChildItem $InputDir).Count, $MainJar.Name)
+
+# Package the NetLogo GUI resource tree explicitly. On Windows, netlogo-gui/resources contains two
+# directory symlinks (codetab, colorpicker) and sbt's recursive glob silently yields nothing for the
+# whole directory, so `sbt netlogo/compile` leaves images/ (and themes/fonts/i18n/system) out of
+# target/classes. The app then dies at startup with ExceptionInInitializerError because
+# /images/memosim-splash.png is missing. Do not rely on sbt's copy; stage and verify the resources here.
+$GuiResources  = Join-Path $NetLogoSrc "netlogo-gui\resources"
+$SharedResMain = Join-Path $NetLogoSrc "shared\resources\main"
+if (-not (Test-Path $GuiResources -PathType Container)) { Die "NetLogo GUI resources not found: $GuiResources" }
+$ResourceStage = Join-Path $B "resources"
+if (Test-Path $ResourceStage) { Remove-Item $ResourceStage -Recurse -Force }
+New-Item -ItemType Directory -Force -Path $ResourceStage | Out-Null
+Get-ChildItem $GuiResources -Force |
+  Where-Object { $_.Name -notin @("codetab", "colorpicker") } |
+  ForEach-Object { Copy-Item -LiteralPath $_.FullName -Destination (Join-Path $ResourceStage $_.Name) -Recurse -Force }
+# the symlinks resolve to <project>\<name>\out; copy the real bundle target instead of the link
+foreach ($bundle in @(@{ Name = "codetab"; Dir = "netlogo-gui\codetab\out" },
+                       @{ Name = "colorpicker"; Dir = "netlogo-gui\colorpicker\out" })) {
+  $bundleSrc = Join-Path $NetLogoSrc $bundle.Dir
+  if (-not (Test-Path $bundleSrc -PathType Container)) { Die "missing $($bundle.Name) bundle: $bundleSrc" }
+  Copy-Item -LiteralPath $bundleSrc -Destination (Join-Path $ResourceStage $bundle.Name) -Recurse -Force
+}
+if (Test-Path $SharedResMain -PathType Container) {
+  Get-ChildItem $SharedResMain -Force | ForEach-Object {
+    $dest = Join-Path $ResourceStage $_.Name
+    if ($_.PSIsContainer -and (Test-Path $dest)) {
+      Copy-Item -Path (Join-Path $_.FullName "*") -Destination $dest -Recurse -Force
+    } else {
+      Copy-Item -LiteralPath $_.FullName -Destination $dest -Recurse -Force
+    }
+  }
+}
+$ResourcesJar = Join-Path $InputDir "99-netlogo-resources.jar"
+if ((Invoke-Batch "jar --create --file `"$ResourcesJar`" -C `"$ResourceStage`" .") -ne 0) {
+  Die "could not package NetLogo GUI resources"
+}
+$resourceListing = & (Join-Path $JdkBin "jar.exe") tf $ResourcesJar
+foreach ($required in @("images/memosim-splash.png", "images/memosim-icon.png",
+                        "images/banner-versionless.png", "codetab/index.html", "colorpicker/index.html")) {
+  if ($resourceListing -notcontains $required) { Die "packaged resources are missing $required" }
+}
+Write-Host ("    resources: {0} files" -f (Get-ChildItem $ResourceStage -Recurse -File).Count)
 
 foreach ($d in (Get-ChildItem (Join-Path $NetLogoSrc "extensions") -Directory)) {
   $jars = Get-ChildItem $d.FullName -Filter "*.jar" -File
