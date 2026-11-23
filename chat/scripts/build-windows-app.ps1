@@ -189,9 +189,12 @@ cat out/.last-build
       Die "Scala build failed (exit $compileCode), log at $Log"
     }
     $cpOut = Join-Path $env:TEMP "nl-chat-classpath.txt"
-    if ((Invoke-Batch "sbt -batch `"export netlogo/Runtime/fullClasspath`" > `"$cpOut`" 2>&1" $NetLogoSrc) -ne 0) {
-      Get-Content $cpOut -Tail 20 | ForEach-Object { Write-Host "    $_" }
-      Die "NetLogo runtime resource build failed, see $cpOut"
+    $cpExit = Invoke-Batch "sbt -batch `"export netlogo/Runtime/fullClasspath`" > `"$cpOut`" 2>&1" $NetLogoSrc
+    if ($null -eq $cpExit -or $cpExit -ne 0) {
+      Get-Content $cpOut -Tail 30 | ForEach-Object { Write-Host "    $_" }
+      Select-String -Path $cpOut -Pattern '(?i)error|exception|not found|failed' |
+        Select-Object -Last 8 | ForEach-Object { Write-Host "::error::classpath: $($_.Line.Trim())" }
+      Die "NetLogo runtime resource build failed (exit $cpExit), log at $cpOut"
     }
     $cp = Get-Content $cpOut -ErrorAction SilentlyContinue | Where-Object { $_ -match '^[A-Za-z]:\\' } | Select-Object -Last 1
     if (-not $cp) { Die "could not read the NetLogo runtime classpath from sbt" }
