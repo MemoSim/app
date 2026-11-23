@@ -144,7 +144,11 @@ if (-not $SkipScala) {
     else { Die "ImageMagick not found (winget install ImageMagick.ImageMagick)" }
   }
   & magick -background none -font $splashFont $splashSvg $splashPng
-  if ($LASTEXITCODE -ne 0) { Die "MemoSim splash generation failed" }
+  # The Windows ImageMagick build often lacks the librsvg delegate, so SVG->PNG conversion fails even though
+  # PNG annotation (used by the NetLogo banner task) works. The splash PNG is committed, so only warn.
+  if ($LASTEXITCODE -ne 0) {
+    Write-Host "    note: splash regeneration failed (no SVG delegate); keeping the committed memosim-splash.png" -ForegroundColor Yellow
+  }
 }
 
 if (-not $SkipScala) {
