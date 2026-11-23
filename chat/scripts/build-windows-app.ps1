@@ -161,32 +161,20 @@ if (-not $SkipScala) {
     )
   }
   # sbt's resource generator shells out to `sh stage.sh` for the two TypeScript bundles (colorpicker,
-  # codetab), which runs `npm ci` and fails on a runner (EUSAGE) where the lockfile predates the checkout's
-  # platform. The bundles are committed, so instead of rebuilding them we stamp out/.last-build with the
-  # hash stage.sh itself computes: the script then sees an unchanged tree and exits without touching npm.
+  # codetab), which runs `npm ci` and fails here with EUSAGE. Both bundles are committed, so the script
+  # becomes a no-op instead of being run.
   $gitBash = "C:\Program Files\Git\bin\bash.exe"
   foreach ($proj in @("colorpicker", "codetab")) {
     $projDir = Join-Path $NetLogoSrc "netlogo-gui\$proj"
     if (-not (Test-Path (Join-Path $projDir "stage.sh"))) { continue }
     if (-not (Test-Path (Join-Path $projDir "out\index.html"))) { Die "$proj bundle is missing from the checkout (out/index.html)" }
     if (-not (Test-Path $gitBash)) { Die "git bash not found at $gitBash; sbt needs it to evaluate the $proj bundle" }
-    Say "stamping $proj/.last-build so sbt reuses the committed bundle"
-    # each stage.sh computes its own hash from a slightly different file list, so reuse its own command
-    # instead of duplicating the list here
-    $stampFile = Join-Path $env:TEMP "nl-stamp-bundle.sh"
-    Set-Content -Path $stampFile -Encoding ASCII -Value @'
-cd "$1" || exit 1
-cmd=$(sed -n 's/^CURR_HASH=`\(.*\)`$/\1/p' stage.sh)
-[ -n "$cmd" ] || { echo "no CURR_HASH line in $1/stage.sh" >&2; exit 2; }
-mkdir -p out
-eval "$cmd" > out/.last-build
-cat out/.last-build
-'@
-    $posixDir = $projDir -replace '\\', '/'
-    $posixScript = $stampFile -replace '\\', '/'
-    $out = & $gitBash -lc "sh '$posixScript' '$posixDir'" 2>&1
-    if ($LASTEXITCODE -ne 0) { Die "could not stamp $proj/.last-build: $out" }
-    Write-Host "    $proj hash $out"
+    Say "neutralising $proj/stage.sh (the built bundle in out/ is committed)"
+    # sbt's resource generator runs `sh stage.sh`, which does `npm ci` and then copies the webpack output into
+    # out/. The output is committed and complete, and npm cannot run in this shell (EUSAGE), so replacing the
+    # script with a no-op is both correct and deterministic. Regenerate out/ on a dev machine when sources change.
+    $stageShim = @('#! /bin/sh', '# replaced by scripts/build-windows-app.ps1: out/ is committed; npm is unavailable here', 'exit 0')
+    Set-Content -Path (Join-Path $projDir "stage.sh") -Encoding ASCII -Value $stageShim
   }
   Push-Location $NetLogoSrc
   try {
