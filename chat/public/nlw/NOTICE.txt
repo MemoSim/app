@@ -1,0 +1,25 @@
+NetLogo Web (2.15.3.html) — attribution and license
+=====================================================
+
+This file is the NetLogo Web standalone page bundled with MemoSim under
+public/nlw/. It is not written by MemoSim.
+
+  "NetLogo & Tortoise, Copyright (C) 1999-2013 Uri Wilensky"
+  "Galapagos web app, Copyright (C) 2012 Uri Wilensky"
+
+Both are distributed under the GNU General Public License, version 2 or (at
+your option) any later version. The full license text is shipped alongside this
+file as licenses/GPL-2.0.txt.
+
+Corresponding source for the unmodified upstream page:
+  https://github.com/NetLogo/Galapagos
+  https://github.com/NetLogo/Tortoise
+
+MemoSim loads the page with an extra query string only; no engine code in this
+file has been modified.
+
+NetLogo Web's own third-party components, as listed by the upstream project:
+  json4s (Apache 2.0), mori (EPL), scalaz (BSD 3-clause), Open Sans (Apache 2.0).
+
+MemoSim is an independent project, not affiliated with or endorsed by the
+NetLogo project, Uri Wilensky, Northwestern University or the CCL.
