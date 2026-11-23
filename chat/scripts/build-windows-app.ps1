@@ -262,7 +262,14 @@ foreach ($d in (Get-ChildItem (Join-Path $NetLogoSrc "extensions") -Directory)) 
   $py = Join-Path $d.FullName "pyext.py"
   if (Test-Path $py) { Copy-Item $py $target -Force }
 }
-Write-Host ("    extensions: " + ((Get-ChildItem (Join-Path $Content "extensions")).Name -join " "))
+# The extension jars are gitignored upstream, so a fresh checkout has no jars to copy: say so instead of
+# crashing on an empty list (Set-StrictMode turns $null.Name into a terminating error).
+$extCopied = @(Get-ChildItem (Join-Path $Content "extensions") -ErrorAction SilentlyContinue)
+if ($extCopied.Count -eq 0) {
+  Write-Host "    note: no extension jars found under $NetLogoSrc\extensions (gis/nw/py will be absent)" -ForegroundColor Yellow
+} else {
+  Write-Host ("    extensions: " + ($extCopied.Name -join " "))
+}
 Copy-Item (Join-Path $NetLogoSrc "models") (Join-Path $Content "models") -Recurse -Force
 
 $ServerDest = Join-Path $Content "server"
