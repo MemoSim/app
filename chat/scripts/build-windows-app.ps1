@@ -34,7 +34,13 @@ if (-not $NetLogoSrc) {
   $sibling = Join-Path (Split-Path $ChatDir -Parent) "desktop"
   $NetLogoSrc = if (Test-Path (Join-Path $sibling "build.sbt")) { $sibling } else { Join-Path $UserHome "dev\netlogo-desktop" }
 }
-if (-not $BuildRoot) { $BuildRoot = Join-Path $UserHome "dev\netlogo-chat-build" }
+# jpackage cannot handle a path with spaces, and Windows user names often contain one ("My mac win"),
+# so fall back to a drive-root folder instead of failing the build on the user's profile path
+if (-not $BuildRoot) {
+  $preferred = Join-Path $UserHome "dev\netlogo-chat-build"
+  $BuildRoot = if ($preferred -match '\s') { "C:\nl-chat-build" } else { $preferred }
+  if ($BuildRoot -match '\s') { Die "no space-free build directory available; pass -BuildRoot (e.g. C:\nl-chat-build)" }
+}
 if (-not $Version) { $Version = if ($env:APP_VERSION) { $env:APP_VERSION } else { "1.1.4" } }
 
 $AppName  = "MemoSim"
