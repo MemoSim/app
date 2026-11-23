@@ -47,7 +47,9 @@ $Release  = Join-Path $BuildRoot "release"
 $Log      = Join-Path $ChatDir "build-windows.log"
 
 function Say([string]$Msg) { Write-Host "==> $Msg" -ForegroundColor Cyan }
-function Die([string]$Msg) { Write-Host "ERR $Msg" -ForegroundColor Red; exit 1 }
+# Emit a GitHub annotation as well as a console line: job logs are served by a host that is unreachable from
+# some networks, while annotations come back over api.github.com.
+function Die([string]$Msg) { Write-Host "ERR $Msg" -ForegroundColor Red; Write-Host "::error title=MemoSim build ::$Msg"; exit 1 }
 
 # Native tools write progress and warnings to stderr; in Windows PowerShell 5.1 a redirected stderr line becomes a
 # terminating error while $ErrorActionPreference is Stop. Run such commands through cmd.exe and check the exit code instead.
@@ -178,7 +180,12 @@ cat out/.last-build
     $compileCode = Invoke-Batch "sbt -batch netlogo/compile > `"$Log`" 2>&1" $NetLogoSrc
     # Surface the Scala errors on the console: a CI run that only says "see build-windows.log" is undiagnosable.
     if ($compileCode -ne 0 -or (Select-String -Path $Log -Pattern "^\[error\]" -Quiet)) {
-      if (Test-Path $Log) { Get-Content $Log -Tail 80 | ForEach-Object { Write-Host "    $_" } }
+      if (Test-Path $Log) {
+        Get-Content $Log -Tail 80 | ForEach-Object { Write-Host "    $_" }
+        # annotations (max 10 per step) so the real Scala error is visible without the log download
+        Select-String -Path $Log -Pattern '(?i)^\[error\]|error:|Exception' |
+          Select-Object -Last 8 | ForEach-Object { Write-Host "::error::scala: $($_.Line.Trim())" }
+      }
       Die "Scala build failed (exit $compileCode), log at $Log"
     }
     $cpOut = Join-Path $env:TEMP "nl-chat-classpath.txt"
